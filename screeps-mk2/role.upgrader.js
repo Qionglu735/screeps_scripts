@@ -60,6 +60,7 @@ var roleUpgrader = {
                 var status = creep.harvest(target);
                 if(status == ERR_NOT_IN_RANGE || status == ERR_NOT_ENOUGH_RESOURCES) {
                     if(creep.moveTo(target, {visualizePathStyle: {stroke: '#88ffff'}}) == ERR_NO_PATH) {
+                        creep.memory.target_id = '';
                         creep.say('TrafficJam');
                     }
                 }

@@ -93,10 +93,14 @@ var stat = {
             Memory.MaxUpgrader -= 1;
         }
         else if(Memory.UpgraderNum >= Memory.MaxUpgrader && Memory.SpawnCooldown == 0) {
-            if(Memory.AvgUsedCpu < 7 && (Memory.Energy1000TickTrend > 50  || energy > 800000)) {
+            console.log(room.controller.level);
+            if(Memory.AvgUsedCpu < 7
+                && Memory.MaxUpgrader < room.controller.level * 2
+                && (Memory.Energy1000TickTrend > 50  || energy > 800000)) {
                 Memory.MaxUpgrader += 1;
             }
-            else if((Memory.AvgUsedCpu > 8 || Memory.Energy1000TickTrend < 0) && Memory.MaxUpgrader > 1) {
+            else if((Memory.AvgUsedCpu > 8 || Memory.Energy1000TickTrend < 0)
+                && Memory.MaxUpgrader > 1) {
                 Memory.MaxUpgrader -= 1;
             }
         }

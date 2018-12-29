@@ -95,41 +95,63 @@ module.exports.loop = function () {
             else {
                 if(Game.creeps[name].memory.role == "Miner") {
                     Memory.MinerNum += 1;
-                    Memory.MineAssigned[Memory.creeps[name].targetID] = true;
-                    roleMiner.run(Game.creeps[name]);
-                }
-                else if(Game.creeps[name].memory.role == "Refueler") {
-                    Memory.RefuelerNum += 1;
-                    roleRefueler.run(Game.creeps[name]);
                 }
                 else if(Game.creeps[name].memory.role == "Carrier") {
                     Memory.CarrierNum += 1;
-                    roleCarrier.run(Game.creeps[name]);
+                }
+                else if(Game.creeps[name].memory.role == "Refueler") {
+                    Memory.RefuelerNum += 1;
                 }
                 else if(Game.creeps[name].memory.role == "Harvester") {
                     Memory.HarvesterNum += 1;
-                    roleHarvester.run(Game.creeps[name]);
                 }
                 else if(Game.creeps[name].memory.role == "Upgrader") {
                     Memory.UpgraderNum += 1;
-                    roleUpgrader.run(Game.creeps[name]);
                 }
                 else if(Game.creeps[name].memory.role == "Builder") {
                     Memory.BuilderNum += 1;
-                    roleBuilder.run(Game.creeps[name]);
                 }
                 else if(Game.creeps[name].memory.role == 'Claimer') {
-                    roleClaimer.run(Game.creeps[name]);
+                    ;
                 }
                 else if(Game.creeps[name].memory.role == "Scout") {
                     Memory.ScoutNum += 1;
-                    roleScout.run(Game.creeps[name]);
                 }
                 else if(Game.creeps[name].memory.role == "Guard") {
-                    roleGuard.run(Game.creeps[name]);
+                    ;
                 }
-                MainSpawn.renewCreep(Game.creeps[name]);
             }
+        }
+        for(var name in Memory.creeps) {
+            if(Game.creeps[name].memory.role == "Miner") {
+                Memory.MineAssigned[Memory.creeps[name].targetID] = true;
+                roleMiner.run(Game.creeps[name]);
+            }
+            else if(Game.creeps[name].memory.role == "Carrier") {
+                roleCarrier.run(Game.creeps[name]);
+            }
+            else if(Game.creeps[name].memory.role == "Refueler") {
+                roleRefueler.run(Game.creeps[name]);
+            }
+            else if(Game.creeps[name].memory.role == "Harvester") {
+                roleHarvester.run(Game.creeps[name]);
+            }
+            else if(Game.creeps[name].memory.role == "Upgrader") {
+                roleUpgrader.run(Game.creeps[name]);
+            }
+            else if(Game.creeps[name].memory.role == "Builder") {
+                roleBuilder.run(Game.creeps[name]);
+            }
+            else if(Game.creeps[name].memory.role == 'Claimer') {
+                roleClaimer.run(Game.creeps[name]);
+            }
+            else if(Game.creeps[name].memory.role == "Scout") {
+                roleScout.run(Game.creeps[name]);
+            }
+            else if(Game.creeps[name].memory.role == "Guard") {
+                roleGuard.run(Game.creeps[name]);
+            }
+            MainSpawn.renewCreep(Game.creeps[name]);
         }
         console.log("Miner:" + Memory.MinerNum, "Carrier:" + Memory.CarrierNum,
                     "Refueler:" + Memory.RefuelerNum,

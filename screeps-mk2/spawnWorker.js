@@ -10,6 +10,7 @@ var spawnWorker = {
             else {
                 Memory.MaxBuilder = 3;
             }
+            var stroageNum = room.find(FIND_STRUCTURES, {filter: (target) => target.structureType == STRUCTURE_STORAGE}).length;
             var containerNum = globalFind.find(FIND_STRUCTURES, {filter:{structureType: STRUCTURE_CONTAINER}}).length;
             var towerNum = room.find(FIND_MY_STRUCTURES, {filter: (target) => target.structureType == STRUCTURE_TOWER}).length;
             //Miner
@@ -72,7 +73,7 @@ var spawnWorker = {
                 }
             }
             //Refueler
-            else if((Memory.RefuelerNum < towerNum)) {
+            else if((Memory.RefuelerNum < towerNum && stroageNum > 0)) {
                 var body = [];
                 var energy = room.energyAvailable;
                 var creepLevel = 0;

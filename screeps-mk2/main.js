@@ -98,13 +98,13 @@ module.exports.loop = function () {
                     Memory.MineAssigned[Memory.creeps[name].targetID] = true;
                     roleMiner.run(Game.creeps[name]);
                 }
-                else if(Game.creeps[name].memory.role == "Carrier") {
-                    Memory.CarrierNum += 1;
-                    roleCarrier.run(Game.creeps[name]);
-                }
                 else if(Game.creeps[name].memory.role == "Refueler") {
                     Memory.RefuelerNum += 1;
                     roleRefueler.run(Game.creeps[name]);
+                }
+                else if(Game.creeps[name].memory.role == "Carrier") {
+                    Memory.CarrierNum += 1;
+                    roleCarrier.run(Game.creeps[name]);
                 }
                 else if(Game.creeps[name].memory.role == "Harvester") {
                     Memory.HarvesterNum += 1;

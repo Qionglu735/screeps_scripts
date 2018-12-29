@@ -37,6 +37,7 @@ var roleCarrier = {
                     }
                 }
                 else if(status == ERR_NOT_ENOUGH_RESOURCES) {
+                    creep.say("EnergyLow");
                     creep.memory.target_id = '';
                 }
                 else if(status == ERR_INVALID_TARGET) {

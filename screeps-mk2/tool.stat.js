@@ -102,7 +102,7 @@ var stat = {
         else if(Memory.UpgraderNum == Memory.MaxUpgrader && Memory.SpawnCooldown == 0) {
             if(Memory.AvgUsedCpu < 15
                 && (Memory.Energy1000TickTrend > 50  || energy > 800000)
-                && Memory.MaxUpgrader < room.controller.level * 2) {
+                && Memory.MaxUpgrader < room.controller.level) {
                 Memory.MaxUpgrader += 1;
             }
             else if((Memory.AvgUsedCpu > 15 || Memory.Energy1000TickTrend < 0)

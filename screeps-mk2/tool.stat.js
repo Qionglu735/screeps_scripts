@@ -89,16 +89,16 @@ var stat = {
                     "AvgUsedCpu:" + Memory.AvgUsedCpu,
                     "Bucket:" + Game.cpu.bucket);
         ///////////////////////////////////////////////////////////////////////////
-        if(Memory.MaxUpgrader - Memory.UpgraderNum > 1 && Memory.MaxUpgrader > 1) {
-            Memory.MaxUpgrader -= 1;
+        if(Memory.UpgraderNum < Memory.MaxUpgrader && Memory.Energy1000TickTrend < 0) {
+            Memory.MaxUpgrader /= 2;
         }
-        else if(Memory.UpgraderNum >= Memory.MaxUpgrader && Memory.SpawnCooldown == 0) {
-            if(Memory.AvgUsedCpu < 7
-                && Memory.MaxUpgrader < room.controller.level * 2
-                && (Memory.Energy1000TickTrend > 50  || energy > 800000)) {
+        else if(Memory.UpgraderNum == Memory.MaxUpgrader && Memory.SpawnCooldown == 0) {
+            if(Memory.AvgUsedCpu < 15
+                && (Memory.Energy1000TickTrend > 50  || energy > 800000)
+                && Memory.MaxUpgrader < room.controller.level * 2) {
                 Memory.MaxUpgrader += 1;
             }
-            else if((Memory.AvgUsedCpu > 8 || Memory.Energy1000TickTrend < 0)
+            else if((Memory.AvgUsedCpu > 15 || Memory.Energy1000TickTrend < 0)
                 && Memory.MaxUpgrader > 1) {
                 Memory.MaxUpgrader -= 1;
             }

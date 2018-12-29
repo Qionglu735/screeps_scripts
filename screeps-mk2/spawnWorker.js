@@ -101,7 +101,7 @@ var spawnWorker = {
                 }
             }
             //Harvester
-            else if(Memory.CarrierNum < 2 && Memory.HarvesterNum < Memory.MinePort.length) {
+            else if(Memory.CarrierNum < 1 && Memory.HarvesterNum < Memory.MinePort.length) {
                 var body = [];
                 var energy = room.energyAvailable;
                 var creepLevel = 0;

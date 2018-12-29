@@ -4,7 +4,7 @@ var globalFind = require("tool.globalFind");
 var spawnWorker = {
     run: function(spawn, room) {
         if(spawn.spawning == null && room.energyAvailable >= 300 && Memory.SpawnCooldown == 0) {
-            if(globalFind.find(FIND_CONSTRUCTION_SITES).length <= 2) {
+            if(globalFind.find(FIND_CONSTRUCTION_SITES).length <= 5) {
                 Memory.MaxBuilder = 1;
             }
             else {

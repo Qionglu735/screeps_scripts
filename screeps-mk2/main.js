@@ -86,8 +86,8 @@ module.exports.loop = function () {
                 if(Memory.creeps[name].role == "Miner") {
                     Memory.MineAssigned[Memory.creeps[name].targetID] = false;
                 }
-                if(Memory.creeps[name].role == "Claimer" && Memory.RoomsToClaim[Memory.creeps[name].targetRoomID] == 2) {//claiming
-                    Memory.RoomsToClaim[Memory.creeps[name].targetRoomID] = 1;//to claim
+                if(Memory.creeps[name].role == "Claimer" && Memory.RoomsToClaim[Memory.creeps[name].targetRoomID] == 4) {//claiming
+                    Memory.RoomsToClaim[Memory.creeps[name].targetRoomID] = 3;//to claim
                 }
                 delete Memory.creeps[name];
                 console.log(name + " passed away.");
@@ -162,7 +162,7 @@ module.exports.loop = function () {
         
         if(spawnWorker.run(MainSpawn, MainRoom) == false) {
             if(spawnMilitary.run(MainSpawn, MainRoom) == false) {
-                //spawnClaimer.run(MainSpawn, MainRoom);
+                spawnClaimer.run(MainSpawn, MainRoom);
             }
         }
         /*

@@ -40,7 +40,7 @@ var roleClaimer = {
                 creep.say("???");
             }
         }
-        else if(Memory.RoomsToClaim[creep.memory.targetID] == 4) { //claiming
+        else if(Memory.RoomsToClaim[creep.memory.targetRoomID] == 4) { //claiming
             var target = creep.room.find(FIND_STRUCTURES, {filter: (target) => target.structureType == STRUCTURE_CONTROLLER})[0];
             var res = creep.claimController(target);
             if(res == OK) {

@@ -24,12 +24,9 @@ var stat = {
             Memory.Energy10TickTrend = 0, Memory.Energy100TickTrend = 0, Memory.Energy500TickTrend = 0, Memory.Energy1000TickTrend = 0, Memory.Energy10000TickTrend = 0;
         }
         Memory.EnergyTrack.unshift(energy);
-        if(Memory.EnergyTrack.length < 20000 || Game.time % 100000 == 10001) {
-            while(Memory.EnergyTrack.length > 20000) {
-                Memory.EnergyTrack.pop();
-            }
-            var sum101 = 0, sum1001 = 0, sum5001 = 0, sum10001 = 0, sum100001;
-            var sum102 = 0, sum1002 = 0, sum5002 = 0, sum10002 = 0, sum100002;
+        if(Memory.EnergyTrack.length < 20000) {
+            var sum101 = 0, sum1001 = 0, sum5001 = 0, sum10001 = 0, sum100001 = 0;
+            var sum102 = 0, sum1002 = 0, sum5002 = 0, sum10002 = 0, sum100002 = 0;
             var i = 0
             while(i < Memory.EnergyTrack.length) {
                 if(0 <= i && i < 10) sum101 += Memory.EnergyTrack[i];
@@ -58,7 +55,9 @@ var stat = {
             Memory.Energy1000TickSum2 = Memory.Energy1000TickSum2 + Memory.EnergyTrack[1000] - Memory.EnergyTrack[2000];
             Memory.Energy10000TickSum1 = Memory.Energy10000TickSum1 + Memory.EnergyTrack[0] - Memory.EnergyTrack[10000];
             Memory.Energy10000TickSum2 = Memory.Energy10000TickSum2 + Memory.EnergyTrack[10000] - Memory.EnergyTrack[20000];
-            Memory.EnergyTrack.pop();
+            while(Memory.EnergyTrack.length > 20000) {
+                Memory.EnergyTrack.pop();
+            }
         }
         if(Memory.EnergyTrack.length >= 20) Memory.Energy10TickTrend = (Memory.Energy10TickSum1 - Memory.Energy10TickSum2) / 10;
         if(Memory.EnergyTrack.length >= 200) Memory.Energy100TickTrend = (Memory.Energy100TickSum1 - Memory.Energy100TickSum2) / 100;

@@ -44,7 +44,7 @@ var roleClaimer = {
             var target = creep.room.find(FIND_STRUCTURES, {filter: (target) => target.structureType == STRUCTURE_CONTROLLER})[0];
             var res = creep.claimController(target);
             if(res == OK) {
-                Memory.RoomToClaim[creep.memory.targetID] = 5; //claimed
+                Memory.RoomToClaim[creep.memory.targetRoomID] = 5; //claimed
             }
             if(res == ERR_NOT_IN_RANGE) {
                 if(creep.moveTo(target, {visualizePathStyle: {stroke: '#ff00ff'}}) == ERR_NO_PATH) {

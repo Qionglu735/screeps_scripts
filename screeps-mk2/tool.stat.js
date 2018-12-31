@@ -96,7 +96,7 @@ var stat = {
                     "Bucket:" + Game.cpu.bucket);
         ///////////////////////////////////////////////////////////////////////////
         if(Memory.UpgraderNum < Memory.MaxUpgrader && Memory.Energy1000TickTrend < 0) {
-            Memory.MaxUpgrader /= 2;
+            Memory.MaxUpgrader = int(Memory.MaxUpgrader / 2);
         }
         else if(Memory.UpgraderNum == Memory.MaxUpgrader && Memory.SpawnCooldown == 0) {
             if(Memory.AvgUsedCpu < 15

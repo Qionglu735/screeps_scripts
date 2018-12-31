@@ -153,7 +153,7 @@ module.exports.loop = function () {
             }
             MainSpawn.renewCreep(Game.creeps[name]);
         }
-        console.log("[SpawnLog]Miner:" + Memory.MinerNum, "Carrier:" + Memory.CarrierNum,
+        console.log("[Spawn Log]Miner:" + Memory.MinerNum, "Carrier:" + Memory.CarrierNum,
                     "Refueler:" + Memory.RefuelerNum,
                     "Harvester:" + Memory.HarvesterNum,
                     "Upgrader:" + Memory.UpgraderNum + "/" + Memory.MaxUpgrader,

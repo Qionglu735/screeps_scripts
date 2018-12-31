@@ -64,7 +64,7 @@ var stat = {
         if(Memory.EnergyTrack.length >= 500) Memory.Energy500TickTrend = (Memory.Energy500TickSum1 - Memory.Energy500TickSum2) / 500;
         if(Memory.EnergyTrack.length >= 2000) Memory.Energy1000TickTrend = (Memory.Energy1000TickSum1 - Memory.Energy1000TickSum2) /1000;
         if(Memory.EnergyTrack.length >= 20000) Memory.Energy10000TickTrend = (Memory.Energy10000TickSum1 - Memory.Energy10000TickSum2) /10000;
-        console.log("[EnergyLog]Energy:" + energy,
+        console.log("[Energy Log]Energy:" + energy,
                     "10Tick:" + Memory.Energy10TickTrend,
                     "100Tick:" + Memory.Energy100TickTrend,
                     "500Tick:" + Memory.Energy500TickTrend,
@@ -90,7 +90,7 @@ var stat = {
             Memory.UsedCpuSum = parseFloat(Memory.UsedCpuSum) + parseFloat(Memory.UsedCpu[0]) - parseFloat(Memory.UsedCpu.pop());
         }
         Memory.AvgUsedCpu = (parseFloat(Memory.UsedCpuSum) / Memory.UsedCpu.length).toFixed(3);
-        console.log("[CpuLog]Time:" + Game.time % 10000,
+        console.log("[Cpu Log]Time:" + Game.time % 10000,
                     "UsedCpu:" + Memory.UsedCpu[Memory.UsedCpu.length - 1],
                     "AvgUsedCpu:" + Memory.AvgUsedCpu,
                     "Bucket:" + Game.cpu.bucket);

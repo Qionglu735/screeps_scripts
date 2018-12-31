@@ -86,8 +86,8 @@ module.exports.loop = function () {
                 if(Memory.creeps[name].role == "Miner") {
                     Memory.MineAssigned[Memory.creeps[name].targetID] = false;
                 }
-                if(Memory.creeps[name].role == "Claimer") {
-                    Memory.RoomsToClaim[Memory.creeps[name].targetRoomID] -= 1;
+                if(Memory.creeps[name].role == "Claimer" && Memory.RoomsToClaim[Memory.creeps[name].targetRoomID] == 2) {//reversing
+                    Memory.RoomsToClaim[Memory.creeps[name].targetRoomID] = 1;//to reverse
                 }
                 delete Memory.creeps[name];
                 console.log(name + " passed away.");

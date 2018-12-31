@@ -6,7 +6,7 @@ var roleClaimer = {
         if(creep.memory.targetRoomName == '') {
             var i = 0;
             while(i < Memory.RoomsToClaim.length) {
-                if(Memory.RoomsToClaim[i] == 1 || Memory.RoomsToClaim == 3) {//to reverse or to claim
+                if(Memory.RoomsToClaim[i] == 1 || Memory.RoomsToClaim[3] == 3) {//to reverse or to claim
                     break;
                 }
                 i += 1;

@@ -99,6 +99,7 @@ var stat = {
             Memory.MaxUpgrader = parseInt(Memory.MaxUpgrader / 2);
             if(Memory.MaxUpgrader == 0) {
                 Memory.MaxUpgrader = 1;
+            }
         }
         else if(Memory.UpgraderNum == Memory.MaxUpgrader && Memory.SpawnCooldown == 0) {
             if(Memory.AvgUsedCpu < 15

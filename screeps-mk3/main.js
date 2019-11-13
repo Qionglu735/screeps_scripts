@@ -35,7 +35,7 @@ module.exports.loop = function() {
         Memory.Room = {};
         Memory.Room[Game.spawns["Spawn1"].room.name] = {
             "source": {},
-            "mine": {},
+            "mineral": {},
             "claim_status": "claimed"
         };
         mine_port_check.run(Game.spawns["Spawn1"].room.name);

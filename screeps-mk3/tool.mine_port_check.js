@@ -1,13 +1,13 @@
 
 var mine_port_check = {
     run:function(room_name){
-        var room = Game.room[room_name];
+        var room = Game.rooms[room_name];
         var source_list = room.find(FIND_SOURCES);
         for(let i in source_list) {
             var min_cost = -1;
             var mine_port = null;
             for(let j in Memory.Spawn) {
-                var res = PathFinder.search(source_list[i].pos, Game.Spawns[Memory.Spawn[j]].pos);
+                var res = PathFinder.search(source_list[i].pos, Game.Spawns[j].pos);
                 if(res.incomplete == false && (cost == -1 || cost > res.cost)) {
                     min_cost = res.cost;
                     mine_port = res.path[0];
@@ -28,7 +28,7 @@ var mine_port_check = {
             var min_cost = -1;
             var mine_port = null;
             for(let j in Memory.Spawn) {
-                var res = PathFinder.search(mineral_list[i].pos, Game.Spawns[Memory.Spawn[j]].pos);
+                var res = PathFinder.search(mineral_list[i].pos, Game.Spawns[j].pos);
                 if(res.incomplete == false && (cost == -1 || cost > res.cost)) {
                     min_cost = res.cost;
                     mine_port = res.path[0];

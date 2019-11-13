@@ -3,7 +3,7 @@
 
 var mine_port_check = require('tool.mine_port_check');
 
-module.loop.export = function() {
+module.exports.loop = function() {
 
     ////    Loop Control
     ////    Memory.LoopControl: -1 == normal, 0 == pause, N(N>0) == N step
@@ -20,7 +20,7 @@ module.loop.export = function() {
 
     ////    Memory Control
     ////    Memory.MemoryControl: 0 == normal, 1 == reset
-    ////    Use console to set value: Memory.MemoryControl = 0
+    ////    Use console to set value: Memory.MemoryControl = 1
     if(typeof Memory.MemoryControl == "undefined") {
         Memory.MemoryControl = 1;
     }
@@ -32,12 +32,11 @@ module.loop.export = function() {
                 "creep_spawn_list": []
             }
         };
-        Memory.Room = {
-            Game.spawns["Spawn1"].room.name: {
-                "source": {},
-                "mine": {},
-                "claim_status": "claimed"
-            }
+        Memory.Room = {};
+        Memory.Room[Game.spawns["Spawn1"].room.name] = {
+            "source": {},
+            "mine": {},
+            "claim_status": "claimed"
         };
         mine_port_check.run(Game.spawns["Spawn1"].room.name);
         Memory.CreepStat = {
@@ -129,7 +128,7 @@ var DataStruct = function() {
                         "y": "Y_1"
                     },
                     "assigned_miner": "MINER_NAME_1"
-                }
+                },
                 "SOURCE_ID_2": {
                     "mine_port": {
                         "x": "X_2",

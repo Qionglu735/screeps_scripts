@@ -20,7 +20,8 @@ var mine_port_check = {
                         "x": mine_port.x,
                         "y": mine_port.y
                     },
-                    "assigned_miner": null
+                    "assigned_miner": null,
+                    "container": null
                 }
             }
         }
@@ -42,7 +43,8 @@ var mine_port_check = {
                         "x": mine_port.x,
                         "y": mine_port.y
                     },
-                    "assigned_miner": null
+                    "assigned_miner": null,
+                    "container": null
                 }
             }
         }

@@ -1,7 +1,9 @@
 
+// https://docs.screeps.com/api/#Game
 
+var mine_port_check = require("tool.mine_port_check");
 
-var mine_port_check = require('tool.mine_port_check');
+var stat = require("tool.stat");
 
 module.exports.loop = function() {
 
@@ -36,7 +38,22 @@ module.exports.loop = function() {
         Memory.Room[Game.spawns["Spawn1"].room.name] = {
             "source": {},
             "mineral": {},
-            "claim_status": "claimed"
+            "claim_status": "claimed",
+            "container_list": [],
+            "storage_list": [],
+            "energy_stat": {
+                "energy_track": [],
+                "10_tick_sum_a": 0, "10_tick_sum_b": 0, "10_tick_sum_trend": 0,
+                "100_tick_sum_a": 0, "100_tick_sum_b": 0, "100_tick_sum_trend": 0,
+                "500_tick_sum_a": 0, "500_tick_sum_b": 0, "500_tick_sum_trend": 0,
+                "1000_tick_sum_a": 0, "1000_tick_sum_b": 0, "1000_tick_sum_trend": 0,
+                "10000_tick_sum_a": 0, "10000_tick_sum_b": 0, "10000_tick_sum_trend": 0,
+            },
+            "cpu_stat": {
+                "cpu_track": [],
+                "10000_tick_sum": 0,
+                "10000_tick_avg": 0,
+            }
         };
         mine_port_check.run(Game.spawns["Spawn1"].room.name);
         Memory.CreepStat = {
@@ -114,7 +131,8 @@ module.exports.loop = function() {
         }
     }
 
-
+    //  check energy and cpu
+    stat.run();
 
 }
 
@@ -127,22 +145,31 @@ var DataStruct = function() {
                         "x": "X_1",
                         "y": "Y_1"
                     },
-                    "assigned_miner": "MINER_NAME_1"
+                    "assigned_miner": "MINER_NAME_1",
+                    "container": "CONTAINER_ID_1"
                 },
                 "SOURCE_ID_2": {
                     "mine_port": {
                         "x": "X_2",
                         "y": "Y_2"
                     },
-                    "assigned_miner": "MINER_NAME_2"
+                    "assigned_miner": "MINER_NAME_2",
+                    "container": "CONTAINER_ID_2"
                 }
             },
             "mineral": {
                 "MINE_ID_1": {
-                    "assigned_miner": "MINER_NAME_1"
+                    "mine_port": {
+                        "x": "X_3",
+                        "y": "Y_3"
+                    },
+                    "assigned_miner": "MINER_NAME_3",
+                    "container": "CONTAINER_ID_3"
                 }
             },
             "claim_status": "neutral/to_reverse/reversing/to_claim/claiming/claimed"
+            "container_list": [],
+            "storage_list": [],
         }
     };
     Memory.Spawn = {

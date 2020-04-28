@@ -1,6 +1,10 @@
 
 // https://docs.screeps.com/api/#Game
 
+var structureSpawn = require("structure.spawn");
+
+var roleHarvester = require("role.harvester");
+
 var mine_port_check = require("tool.mine_port_check");
 
 var stat = require("tool.stat");
@@ -10,7 +14,7 @@ module.exports.loop = function() {
     ////    Loop Control
     ////    Memory.LoopControl: -1 == normal, 0 == pause, N(N>0) == N step
     ////    Use console to set value: Memory.LoopControl = 0
-    if(typeof Memory.LoopControl == "undefined") {
+    if(Memory.LoopControl == null) {
         Memory.LoopControl = 0;
     }
     if(Memory.LoopControl == 0) {
@@ -23,7 +27,7 @@ module.exports.loop = function() {
     ////    Memory Control
     ////    Memory.MemoryControl: 0 == normal, 1 == reset
     ////    Use console to set value: Memory.MemoryControl = 1
-    if(typeof Memory.MemoryControl == "undefined") {
+    if(Memory.MemoryControl == null) {
         Memory.MemoryControl = 1;
     }
     if(Memory.MemoryControl == 1 && Game.spawns["Spawn1"]) {
@@ -31,7 +35,8 @@ module.exports.loop = function() {
         //// init memory
         Memory.Spawn = {
             "Spawn1": {
-                "creep_spawn_list": []
+                "creep_spawn_list": [],
+                "spawn_cool_down": 0,
             }
         };
         Memory.Room = {};
@@ -41,6 +46,7 @@ module.exports.loop = function() {
             "claim_status": "claimed",
             "container_list": [],
             "storage_list": [],
+            "tower_list": [],
             "energy_stat": {
                 "energy_track": [],
                 "10_tick_sum_a": 0, "10_tick_sum_b": 0, "10_tick_sum_trend": 0,
@@ -57,31 +63,31 @@ module.exports.loop = function() {
         };
         mine_port_check.run(Game.spawns["Spawn1"].room.name);
         Memory.CreepStat = {
-            "harvester": {
+            "Harvester": {
                 "name_list": [],
                 "max_num": 0
             },
-            "upgrader": {
+            "Upgrader": {
                 "name_list": [],
                 "max_num": 0
             },
-            "builder": {
+            "Builder": {
                 "name_list": [],
                 "max_num": 0
             },
-            "miner": {
+            "Miner": {
                 "name_list": [],
                 "max_num": 0
             },
-            "carrier": {
+            "Carrier": {
                 "name_list": [],
                 "max_num": 0
             },
-            "refueler": {
+            "Refueler": {
                 "name_list": [],
                 "max_num": 0
             },
-            "claimer": {
+            "Claimer": {
                 "name_list": [],
                 "max_num": 0
             }
@@ -91,7 +97,8 @@ module.exports.loop = function() {
     ////    Check Creeps
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
-            switch(Memory.creeps[name].role) {
+            var role = Memory.creeps[name].role;
+            switch(role) {
                 case "miner":
                     // TODO: remove source/mine assigned mark
                     break;
@@ -101,20 +108,59 @@ module.exports.loop = function() {
                     }
                     break;
             }
+            console.log(Memory.CreepStat[role]);
             var _index = Memory.CreepStat[role].name_list.indexOf(name);
-            if(index != -1) Memory.CreepStat[role].name_list.splice(_index, 1);
+            if(_index != -1) Memory.CreepStat[role].name_list.splice(_index, 1);
             delete Memory.creeps[name];
             console.log(name + " passed away.");
         }
     }
+    var room_name = Game.spawns["Spawn1"].room.name;
+    var room = Game.rooms[room_name];
+    Memory.CreepStat.Miner.max_num = Memory.Room[room_name].container_list.length;
+    Memory.CreepStat.Carrier.max_num = Memory.CreepStat.Miner.name_list.length;
+    if(Memory.Room[room_name].storage_list.length > 0) {
+        Memory.CreepStat.Refueler.max_num = Memory.Room[room_name].tower_list.length;
+    }
+    if(Memory.CreepStat.Carrier.name_list.length == 0) {
+        Memory.CreepStat.Harvester.max_num = Object.keys(Memory.Room[room_name].source).length;
+    }
+    else {
+        Memory.CreepStat.Harvester.max_num = 0;
+    }
+    if(Memory.CreepStat.Upgrader.name_list.length < Memory.CreepStat.Upgrader.max_num
+            && Memory.Room[room_name].energy_stat["1000_tick_sum_trend"] < 0) {
+        Memory.CreepStat.Upgrader.max_num = parseInt(Memory.CreepStat.Upgrader.max_num / 2);
+        if(Memory.CreepStat.Upgrader.max_num == 0) {
+            Memory.CreepStat.Upgrader.max_num = 1;
+        }
+    }
+    else if(Memory.CreepStat.Upgrader.name_list.length == Memory.CreepStat.Upgrader.max_num
+            && Game.spawns["Spawn1"].spawn_cool_down == 0) {
+        if(Memory.Room[room_name].cpu_stat["10000_tick_avg"] < 15
+                && (Memory.Room[room_name].energy_stat["1000_tick_sum_trend"] > 50 || room.energyAvailable > 800000)
+                && Memory.CreepStat.Upgrader.max_num < room.controller.level) {
+            Memory.CreepStat.Upgrader.max_num += 1;
+        }
+        else if((Memory.Room[room_name].cpu_stat["10000_tick_avg"] > 15
+                || Memory.Room[room_name].cpu_stat["10000_tick_avg"] < 0)
+                && Memory.MaxUpgrader > 1) {
+            Memory.CreepStat.Upgrader.max_num -= 1;
+        }
+    }
+
 
     // TODO: run spawn
+    for(var spawn_name in Memory.Spawn) {
+        structureSpawn.run(Game.spawns[spawn_name]);
+    }
 
     // TODO: run tower
 
     for(var name in Memory.creeps) {
         switch(Memory.creeps[name].role) {
-            case "harvester":
+            case "Harvester":
+                roleHarvester.run(Game.creeps[name]);
                 break;
             case "upgrader":
                 break;
@@ -167,7 +213,7 @@ var DataStruct = function() {
                     "container": "CONTAINER_ID_3"
                 }
             },
-            "claim_status": "neutral/to_reverse/reversing/to_claim/claiming/claimed"
+            "claim_status": "neutral/to_reverse/reversing/to_claim/claiming/claimed",
             "container_list": [],
             "storage_list": [],
         }

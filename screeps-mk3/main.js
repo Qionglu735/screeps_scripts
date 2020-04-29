@@ -139,6 +139,9 @@ module.exports.loop = function() {
     }
     else if(Memory.CreepStat.Upgrader.name_list.length == Memory.CreepStat.Upgrader.max_num
             && Memory.Spawn["Spawn1"].spawn_cool_down == 0) {
+        if(Memory.CreepStat.Upgrader.max_num == 0) {
+            Memory.CreepStat.Upgrader.max_num = 1;
+        }
         if(Memory.Room[room_name].cpu_stat["10000_tick_avg"] < 15
                 && (Memory.Room[room_name].energy_stat["1000_tick_sum_trend"] > 50 || room.energyAvailable > 800000)
                 && Memory.CreepStat.Upgrader.max_num < room.controller.level) {
@@ -146,7 +149,7 @@ module.exports.loop = function() {
         }
         else if((Memory.Room[room_name].cpu_stat["10000_tick_avg"] > 15
                 || Memory.Room[room_name].cpu_stat["10000_tick_avg"] < 0)
-                && Memory.MaxUpgrader > 1) {
+                && Memory.CreepStat.Upgrader.max_num > 1) {
             Memory.CreepStat.Upgrader.max_num -= 1;
         }
     }

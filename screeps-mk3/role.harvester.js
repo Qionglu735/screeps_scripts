@@ -1,4 +1,6 @@
 
+var find_path_and_move = require("tool.find_path_and_move");
+
 var roleHarvester = {
     run: function(creep) {
         if(creep.memory.status == null) {
@@ -21,23 +23,26 @@ var roleHarvester = {
         }
         else {
             if(creep.memory.status === "harvest") {
-                if(Memory.CreepStat.Miner.name_list.length > 0 && Memory.Room[creep.room.name].container_list.length > 0) {
+                if(Memory.CreepStat.Miner.name_list.length > 0
+                        && Memory.Room[creep.room.name].container_list.length > 0) {
                     var target = Game.structures[creep.memory.target_id];
                     if(!target) {
-                        var target = find_container_with_energy(creep.room.name, creep.carryCapacity - creep.carry.energy, 1);
+                        var target = find_container_with_energy(creep.room.name,
+                                                                creep.carryCapacity - creep.carry.energy, 1);
                     }
                     if(target) {
                         creep.memory.target_id = target.id;
                         var withdraw_status = creep.withdraw(target, RESOURCE_ENERGY,
                                                              creep.carryCapacity - creep.carry.energy);
-                        find_path_and_move(creep, target, withdraw_status, 3);
+                        find_path_and_move.find(creep, target, withdraw_status, 3);
                     }
                     else {
                         creep.moveTo(Game.flags['HarvesterPark'], {visualizePathStyle: {stroke: '#ffff88'}});
                     }
                 }
                 else {
-                    var target = creep.room.find(FIND_SOURCES, {filter: (target) => target.id == creep.memory.target_id})[0];
+                    var target = creep.room.find(FIND_SOURCES, {
+                        filter: (target) => target.id == creep.memory.target_id})[0];
                     if(!target) {
                         var targets = creep.room.find(FIND_SOURCES);
                         target = targets[parseInt(Math.random() * 1000) % targets.length];
@@ -45,12 +50,13 @@ var roleHarvester = {
                     }
                     if(target) {
                         var harvest_status = creep.harvest(target);
-                        find_path_and_move(creep, target, harvest_status, 3);
+                        find_path_and_move.find(creep, target, harvest_status, 3);
                     }
                 }
             }
             else {
-                var target = creep.room.find(FIND_STRUCTURES, {filter: (target) => target.id == creep.memory.target_id})[0];
+                var target = creep.room.find(FIND_STRUCTURES, {
+                    filter: (target) => target.id == creep.memory.target_id})[0];
                 if(target && target.energy == target.energyCapacity) {
                     creep.memory.target_id = '';
                     target = null;
@@ -90,7 +96,7 @@ var roleHarvester = {
                 }
                 if(target) {
                     var transfer_status = creep.transfer(target, RESOURCE_ENERGY);
-                    find_path_and_move(creep, target, transfer_status, 3);
+                    find_path_and_move.find(creep, target, transfer_status, 3);
                 }
                 else {
                     creep.moveTo(Game.flags['HarvesterPark'], {visualizePathStyle: {stroke: '#ffff88'}});
@@ -117,51 +123,6 @@ var find_container_with_energy = function(room_name, min_energy=0, random_choose
     else if(random_choose === 1) { // return a random one
         return target_list[Math.random() * 1000 % target_list.length];
     }
-}
-
-var find_path_and_move = function(creep, target, action_status, close_range) {
-    switch(action_status) {
-        case ERR_NOT_IN_RANGE:
-            if(creep.pos.getRangeTo(target.pos) < close_range) {
-                moveTo_status = creep.moveTo(target.pos);
-                switch(moveTo_status) {
-                    case OK:
-                    case ERR_TIRED:
-                        break;
-                    case ERR_NO_PATH:
-                        creep.say("Jam");
-                        break;
-                    default:
-                        creep.say(moveTo_status);
-                }
-            }
-            else {
-                var pathFinder = PathFinder.search(creep.pos, target.pos);
-                if(pathFinder.incomplete == false || pathFinder.path.length > 0) {
-                    creep.memory.path_list = pathFinder.path;
-                    moveTo_status = creep.moveTo(creep.memory.path_list[0]);
-                    switch(moveTo_status) {
-                        case OK:
-                        case ERR_TIRED:
-                            break;
-                        case ERR_NO_PATH:
-                            creep.say("Jam");
-                            break;
-                        default:
-                            creep.say(moveTo_status);
-                    }
-                }
-                else {
-                    creep.say("No Path");
-                }
-            }
-            break;
-        case ERR_NOT_ENOUGH_RESOURCES:
-            creep.memory.target_id = "";
-            break;
-        default:
-            creep.say(action_status);
-    }
-}
+};
 
 module.exports = roleHarvester;

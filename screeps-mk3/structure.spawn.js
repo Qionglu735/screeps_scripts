@@ -43,6 +43,34 @@ var structureSpawn = {
                     Memory.CreepStat.Harvester.name_list.push(creep_name);
                 }
             }
+            //Upgrader
+            else if(Memory.CreepStat.Upgrader.name_list.length < Memory.CreepStat.Upgrader.max_num) {
+                var body = [];
+                var energy = room.energyAvailable;
+                var creepLevel = 0;
+                while(energy >= 200) {
+                    body.push(WORK);
+                    body.push(CARRY);
+                    body.push(MOVE);
+                    energy -= 200;
+                    creepLevel += 1;
+                }
+                var creep_name = "Upgrader" + Game.time % 10000 + "Lv" + creepLevel;
+                console.log("Spawning: " + creep_name);
+                var res = spawn.spawnCreep(body, creep_name, {
+                        memory: {
+                            role: "Upgrader",
+                        }
+                    }
+                );
+                if(res != OK) {
+                    console.log(res);
+                }
+                else {
+                    Memory.SpawnCooldown = body.length * CREEP_SPAWN_TIME * 3;
+                    Memory.CreepStat.Upgrader.name_list.push(creep_name);
+                }
+            }
         }
     }
 };

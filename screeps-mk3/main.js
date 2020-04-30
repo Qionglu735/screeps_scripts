@@ -115,44 +115,7 @@ module.exports.loop = function() {
             console.log(name + " passed away.");
         }
     }
-    ////    Adjust Worker Num
-    var room_name = Game.spawns["Spawn1"].room.name;
-    var room = Game.rooms[room_name];
-    Memory.CreepStat.Miner.max_num = Memory.Room[room_name].container_list.length;
-    Memory.CreepStat.Carrier.max_num = Memory.CreepStat.Miner.name_list.length;
-//    Memory.CreepStat.Builder.max_num = 1;
-    if(Memory.Room[room_name].storage_list.length > 0) {
-        Memory.CreepStat.Refueler.max_num = Memory.Room[room_name].tower_list.length;
-    }
-    if(Memory.CreepStat.Carrier.name_list.length == 0) {
-        Memory.CreepStat.Harvester.max_num = Object.keys(Memory.Room[room_name].source).length;
-    }
-    else {
-        Memory.CreepStat.Harvester.max_num = 0;
-    }
-    if(Memory.CreepStat.Upgrader.name_list.length < Memory.CreepStat.Upgrader.max_num
-            && Memory.Room[room_name].energy_stat["1000_tick_sum_trend"] < 0) {
-        Memory.CreepStat.Upgrader.max_num = parseInt(Memory.CreepStat.Upgrader.max_num / 2);
-        if(Memory.CreepStat.Upgrader.max_num == 0) {
-            Memory.CreepStat.Upgrader.max_num = 1;
-        }
-    }
-    else if(Memory.CreepStat.Upgrader.name_list.length == Memory.CreepStat.Upgrader.max_num
-            && Memory.Spawn["Spawn1"].spawn_cool_down == 0) {
-        if(Memory.CreepStat.Upgrader.max_num == 0) {
-            Memory.CreepStat.Upgrader.max_num = 1;
-        }
-        if(Memory.Room[room_name].cpu_stat["10000_tick_avg"] < 15
-                && (Memory.Room[room_name].energy_stat["1000_tick_sum_trend"] > 50 || room.energyAvailable > 800000)
-                && Memory.CreepStat.Upgrader.max_num < room.controller.level) {
-            Memory.CreepStat.Upgrader.max_num += 1;
-        }
-        else if((Memory.Room[room_name].cpu_stat["10000_tick_avg"] > 15
-                || Memory.Room[room_name].cpu_stat["10000_tick_avg"] < 0)
-                && Memory.CreepStat.Upgrader.max_num > 1) {
-            Memory.CreepStat.Upgrader.max_num -= 1;
-        }
-    }
+
 
 
     // TODO: run spawn

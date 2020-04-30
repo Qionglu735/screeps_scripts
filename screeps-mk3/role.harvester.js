@@ -16,10 +16,19 @@ var roleHarvester = {
             creep.memory.target_id = "";
             creep.say("Harvest");
         }
-
-        if(creep.path_list != null && creep.path_list.length > 0) {
-            creep.moveTo(creep.path_list[0]);
-            creep.path_list.shift();
+        if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
+            var move_status = creep.moveTo(creep.memory.path_list[0]);
+            switch(move_status) {
+                case OK:
+                case ERR_TIRED:
+                    creep.memory.path_list.shift();
+                    break;
+                case ERR_NO_PATH:
+                    creep.memory.path_list = null;
+                    break;
+                default:
+                    creep.say(move_status);
+            }
         }
         else {
             if(creep.memory.status === "harvest") {
@@ -34,7 +43,19 @@ var roleHarvester = {
                         creep.memory.target_id = target.id;
                         var withdraw_status = creep.withdraw(target, RESOURCE_ENERGY,
                                                              creep.carryCapacity - creep.carry.energy);
-                        find_path_and_move.find(creep, target, withdraw_status, 3);
+                        switch(withdraw_status) {
+                            case OK:
+                            case ERR_TIRED:
+                                break;
+                            case ERR_NOT_IN_RANGE:
+                                find_path_and_move.find(creep, target, 1, 3);
+                                break;
+                            case ERR_NOT_ENOUGH_RESOURCES:
+                                creep.memory.target_id = "";
+                                break;
+                            default:
+                                creep.say(withdraw_status);
+                        }
                     }
                     else {
                         creep.moveTo(Game.flags['HarvesterPark'], {visualizePathStyle: {stroke: '#ffff88'}});
@@ -50,7 +71,19 @@ var roleHarvester = {
                     }
                     if(target) {
                         var harvest_status = creep.harvest(target);
-                        find_path_and_move.find(creep, target, harvest_status, 3);
+                        switch(harvest_status) {
+                            case OK:
+                            case ERR_TIRED:
+                                break;
+                            case ERR_NOT_IN_RANGE:
+                                find_path_and_move.find(creep, target, 1, 3);
+                                break;
+                            case ERR_NOT_ENOUGH_RESOURCES:
+                                creep.memory.target_id = "";
+                                break;
+                            default:
+                                creep.say(harvest_status);
+                        }
                     }
                 }
             }
@@ -96,7 +129,16 @@ var roleHarvester = {
                 }
                 if(target) {
                     var transfer_status = creep.transfer(target, RESOURCE_ENERGY);
-                    find_path_and_move.find(creep, target, transfer_status, 3);
+                    switch(transfer_status) {
+                        case OK:
+                        case ERR_TIRED:
+                            break;
+                        case ERR_NOT_IN_RANGE:
+                            find_path_and_move.find(creep, target, 1, 3);
+                            break;
+                        default:
+                            creep.say(transfer_status);
+                    }
                 }
                 else {
                     creep.moveTo(Game.flags['HarvesterPark'], {visualizePathStyle: {stroke: '#ffff88'}});

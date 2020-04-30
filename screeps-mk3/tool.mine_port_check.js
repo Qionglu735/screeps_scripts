@@ -21,8 +21,22 @@ var mine_port_check = {
                         "y": mine_port.y
                     },
                     "assigned_miner": null,
-                    "container": null
+                    "container": null,
                 }
+                var container = null;
+                var container_list = res.path[0].lookFor(LOOK_STRUCTURES);
+                var construction_site_list = res.path[0].lookFor(LOOK_CONSTRUCTION_SITES);
+                if(container_list.length == 0 && construction_site_list.length == 0) {
+                    room.createConstructionSite(mine_port, STRUCTURE_CONTAINER);
+                    container = mine_port.lookFor(LOOK_CONSTRUCTION_SITES)[0];
+                }
+                else if(construction_site_list.length > 0) {
+                    container = construction_site_list[0];
+                }
+                else if(container_list.length > 0) {
+                    container = container_list[0];
+                }
+                Memory.Room[room_name].source[source_list[i].id].container = container.id;
             }
         }
         var mineral_list = room.find(FIND_MINERALS);
@@ -44,7 +58,23 @@ var mine_port_check = {
                         "y": mine_port.y
                     },
                     "assigned_miner": null,
-                    "container": null
+                    "container": null,
+                }
+                if(room.controller.level >= 6) {
+                    var container = null;
+                    var container_list = res.path[0].lookFor(LOOK_STRUCTURES);
+                    var construction_site_list = res.path[0].lookFor(LOOK_CONSTRUCTION_SITES);
+                    if(container_list.length == 0 && construction_site_list.length == 0) {
+                        room.createConstructionSite(mine_port, STRUCTURE_CONTAINER);
+                        container = mine_port.lookFor(LOOK_CONSTRUCTION_SITES)[0];
+                    }
+                    else if(construction_site_list.length > 0) {
+                        container = construction_site_list[0];
+                    }
+                    else if(container_list.length > 0) {
+                        container = container_list[0];
+                    }
+                    Memory.Room[room_name].source[source_list[i].id].container = container.id;
                 }
             }
         }

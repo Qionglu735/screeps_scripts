@@ -5,6 +5,7 @@ var structureSpawn = require("structure.spawn");
 
 var roleHarvester = require("role.harvester");
 var roleUpgrader = require("role.upgrader");
+var roleMiner = require("role.miner");
 
 var mine_port_check = require("tool.mine_port_check");
 
@@ -62,7 +63,6 @@ module.exports.loop = function() {
                 "10000_tick_avg": 0,
             }
         };
-        mine_port_check.run(Game.spawns["Spawn1"].room.name);
         Memory.CreepStat = {
             "Harvester": {
                 "name_list": [],
@@ -116,17 +116,22 @@ module.exports.loop = function() {
         }
     }
 
+    //  check energy, cpu, mine, worker number
+    stat.run();
 
-
-    // TODO: run spawn
+    // run spawn
     for(var spawn_name in Memory.Spawn) {
         structureSpawn.run(Game.spawns[spawn_name]);
     }
 
-    // TODO: run tower
+    // run tower
 
+    // run creep
     for(var name in Memory.creeps) {
         switch(Memory.creeps[name].role) {
+            case "Miner":
+                roleMiner.run(Game.creeps[name]);
+                break;
             case "Harvester":
                 roleHarvester.run(Game.creeps[name]);
                 break;
@@ -134,8 +139,6 @@ module.exports.loop = function() {
                 roleUpgrader.run(Game.creeps[name]);
                 break;
             case "builder":
-                break;
-            case "miner":
                 break;
             case "carrier":
                 break;
@@ -145,9 +148,6 @@ module.exports.loop = function() {
                 break;
         }
     }
-
-    //  check energy and cpu
-    stat.run();
 
 }
 

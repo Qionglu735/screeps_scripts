@@ -15,8 +15,38 @@ var structureSpawn = {
             ;
         }
         else {
+            //Miner
+            if(Memory.CreepStat.Miner.name_list.length < Memory.CreepStat.Miner.max_num) {
+                var body = [];
+                var energy = room.energyAvailable;
+                var creepLevel = 0;
+                body.push(CARRY);
+                energy -= 50;
+                while(energy >= 250 && creepLevel < 4) {
+                    body.push(WORK);
+                    body.push(WORK);
+                    body.push(MOVE);
+                    energy -= 250;
+                    creepLevel += 1;
+                }
+                var creep_name = "Miner" + Game.time % 10000 + "Lv" + creepLevel;
+                console.log("Spawning: " + creep_name);
+                var res = spawn.spawnCreep(body, creep_name, {
+                                    memory: {
+                                        role: "Miner",
+                                    }
+                                }
+                            )
+                if(res != OK) {
+                    console.log(res);
+                }
+                else {
+                    Memory.SpawnCooldown = body.length * CREEP_SPAWN_TIME * 3;
+                    Memory.CreepStat.Miner.name_list.push(creep_name);
+                }
+            }
             //Harvester
-            if(Memory.CreepStat.Harvester.name_list.length < Memory.CreepStat.Harvester.max_num) {
+            else if(Memory.CreepStat.Harvester.name_list.length < Memory.CreepStat.Harvester.max_num) {
                 var body = [];
                 var energy = room.energyAvailable;
                 var creepLevel = 0;

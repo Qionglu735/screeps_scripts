@@ -69,6 +69,7 @@ var find_path_and_move = {
                 switch(moveTo_status) {
                     case OK:
                     case ERR_TIRED:
+                        creep.memory.path_list.shift();
                         break;
                     case ERR_NO_PATH:
                         creep.say("Jam");

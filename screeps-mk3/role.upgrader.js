@@ -17,7 +17,10 @@ var roleUpgrader = {
 	        creep.say("Withdraw");
 	    }
 	    if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
-            var move_status = creep.moveTo(creep.memory.path_list[0]);
+            var pos = new RoomPosition(creep.memory.path_list[0].x,
+                                       creep.memory.path_list[0].y,
+                                       creep.memory.path_list[0].roomName);
+            var move_status = creep.moveTo(pos);
             switch(move_status) {
                 case OK:
                     creep.memory.path_list.shift();

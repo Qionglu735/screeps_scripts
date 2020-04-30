@@ -17,7 +17,10 @@ var roleHarvester = {
             creep.say("Harvest");
         }
         if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
-            var move_status = creep.moveTo(creep.memory.path_list[0]);
+            var pos = new RoomPosition(creep.memory.path_list[0].x,
+                                       creep.memory.path_list[0].y,
+                                       creep.memory.path_list[0].roomName);
+            var move_status = creep.moveTo(pos);
             switch(move_status) {
                 case OK:
                 case ERR_TIRED:
@@ -152,8 +155,10 @@ var find_container_with_energy = function(room_name, min_energy=0, random_choose
     var container_list = Memory.Room[room_name].container_list;
     var target_list = [];
     for(var i in container_list) {
-        if(Game.structures[container_list[i]].store[RESOURCE_ENERGY] > min_energy) {
-            target_list.push(container_list[i]);
+        if(Game.structures[container_list[i]] != null) {
+            if(Game.structures[container_list[i]].store[RESOURCE_ENERGY] > min_energy) {
+                target_list.push(container_list[i]);
+            }
         }
     }
     if(target_list === 0) {  // not found

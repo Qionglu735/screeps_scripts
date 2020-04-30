@@ -1,6 +1,10 @@
 
+var mine_port_check = require("tool.mine_port_check");
+
 var stat = {
     run: function() {
+        ///////////////////////////////////////////////////////////////////////
+        ////    Energy Stat
         for(var spawn_name in Memory.Spawn) {
             var room_name = Game.spawns[spawn_name].room.name;
             var energy_stat = Memory.Room[room_name].energy_stat;
@@ -82,7 +86,8 @@ var stat = {
                         "1000Tick:" + energy_stat["1000_tick_sum_trend"],
                         "10000Tick:" + energy_stat["10000_tick_sum_trend"]);
         }
-        //////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+        ////    CPU Stat
         var cpu_stat = Memory.Room[room_name].cpu_stat;
         cpu_stat.cpu_track.unshift(Game.cpu.getUsed().toFixed(3));
         cpu_stat["10000_tick_sum"] += parseFloat(cpu_stat.cpu_track[0]);
@@ -95,7 +100,17 @@ var stat = {
                     "UsedCpu:" + cpu_stat.cpu_track[cpu_stat.cpu_track.length - 1],
                     "AvgUsedCpu:" + cpu_stat["10000_tick_avg"],
                     "Bucket:" + Game.cpu.bucket);
-        ///////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+        ////    Mine Check
+        for(var room_name in Memory.Room) {
+            for(var i in Memory.Room[room_name].container_list) {
+                if(Game.getObjectById(Memory.Room[room_name].container_list[i]) == null) {
+                    Memory.Room[room_name].container_list.splice(i, 1);
+                }
+            }
+            mine_port_check.run(room_name);
+        }
+        ///////////////////////////////////////////////////////////////////////
         ////    Adjust Worker Number
         Memory.CreepStat.Miner.max_num = 0;
         Memory.CreepStat.Carrier.max_num = 0;
@@ -109,7 +124,7 @@ var stat = {
             }
             for(var source_id in Memory.Room[room_name].source) {
                 var source_info = Memory.Room[room_name].source[source_id];
-                if(source_info.assigned_miner == null) {
+                if(source_info.assigned_miner == null || Game.creeps[source_info.assigned_miner] == null) {
                     for(var i in Memory.CreepStat.Miner.name_list) {
                         var miner_name = Memory.CreepStat.Miner.name_list[i];
                         if(Memory.creeps[miner_name].target_id == null) {

@@ -64,19 +64,19 @@ module.exports.loop = function() {
             }
         };
         Memory.CreepStat = {
-            "Harvester": {
+            "Miner": {
                 "name_list": [],
-                "max_num": 0
+                "max_num": 1
             },
             "Upgrader": {
                 "name_list": [],
                 "max_num": 0
             },
-            "Builder": {
+            "Harvester": {
                 "name_list": [],
                 "max_num": 0
             },
-            "Miner": {
+            "Builder": {
                 "name_list": [],
                 "max_num": 0
             },

@@ -4,6 +4,16 @@ var mine_port_check = require("tool.mine_port_check");
 var stat = {
     run: function() {
         ///////////////////////////////////////////////////////////////////////
+        ////    Mine Check
+        for(var room_name in Memory.Room) {
+            for(var i in Memory.Room[room_name].container_list) {
+                if(Game.getObjectById(Memory.Room[room_name].container_list[i]) == null) {
+                    Memory.Room[room_name].container_list.splice(i, 1);
+                }
+            }
+            mine_port_check.run(room_name);
+        }
+        ///////////////////////////////////////////////////////////////////////
         ////    Energy Stat
         for(var spawn_name in Memory.Spawn) {
             var room_name = Game.spawns[spawn_name].room.name;
@@ -101,16 +111,6 @@ var stat = {
                     "AvgUsedCpu:" + cpu_stat["10000_tick_avg"],
                     "Bucket:" + Game.cpu.bucket);
         ///////////////////////////////////////////////////////////////////////
-        ////    Mine Check
-        for(var room_name in Memory.Room) {
-            for(var i in Memory.Room[room_name].container_list) {
-                if(Game.getObjectById(Memory.Room[room_name].container_list[i]) == null) {
-                    Memory.Room[room_name].container_list.splice(i, 1);
-                }
-            }
-            mine_port_check.run(room_name);
-        }
-        ///////////////////////////////////////////////////////////////////////
         ////    Adjust Worker Number
         Memory.CreepStat.Miner.max_num = 0;
         Memory.CreepStat.Carrier.max_num = 0;
@@ -123,11 +123,16 @@ var stat = {
                 Memory.CreepStat.Refueler.max_num = Memory.Room[room_name].tower_list.length;
             }
             for(var source_id in Memory.Room[room_name].source) {
+                console.log("source_id", source_id)
                 var source_info = Memory.Room[room_name].source[source_id];
+                console.log("assigned_miner", source_info.assigned_miner)
                 if(source_info.assigned_miner == null || Game.creeps[source_info.assigned_miner] == null) {
+                    Memory.Room[room_name].source[source_id].assigned_miner == null;
                     for(var i in Memory.CreepStat.Miner.name_list) {
                         var miner_name = Memory.CreepStat.Miner.name_list[i];
+                        console.log("check miner", miner_name, Memory.creeps[miner_name].target_id)
                         if(Memory.creeps[miner_name].target_id == null) {
+                            console.log("assign", miner_name)
                             Memory.creeps[miner_name].target_id = source_id;
                             Memory.creeps[miner_name].container_id = source_info.container;
                             Memory.Room[room_name].source[source_id].assigned_miner = miner_name;

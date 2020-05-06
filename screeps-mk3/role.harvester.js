@@ -34,7 +34,7 @@ var roleHarvester = {
             }
         }
         else {
-            if(creep.memory.status === "harvest") {
+            if(creep.memory.status == "harvest") {
                 if(Memory.CreepStat.Miner.name_list.length > 0
                         && Memory.Room[creep.room.name].container_list.length > 0) {
                     var target = Game.structures[creep.memory.target_id];
@@ -155,9 +155,10 @@ var find_container_with_energy = function(room_name, min_energy=0, random_choose
     var container_list = Memory.Room[room_name].container_list;
     var target_list = [];
     for(var i in container_list) {
-        if(Game.structures[container_list[i]] != null) {
-            if(Game.structures[container_list[i]].store[RESOURCE_ENERGY] > min_energy) {
-                target_list.push(container_list[i]);
+        var container = Game.getObjectById(container_list[i])
+        if(container != null) {
+            if(container.store[RESOURCE_ENERGY] > min_energy) {
+                target_list.push(container);
             }
         }
     }
@@ -168,7 +169,7 @@ var find_container_with_energy = function(room_name, min_energy=0, random_choose
         return target_list[0];
     }
     else if(random_choose === 1) { // return a random one
-        return target_list[Math.random() * 1000 % target_list.length];
+        return target_list[parseInt(Math.random() * 1000) % target_list.length];
     }
 };
 

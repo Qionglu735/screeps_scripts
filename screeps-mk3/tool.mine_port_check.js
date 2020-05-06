@@ -21,7 +21,7 @@ var mine_port_check = {
                     break;
                 }
             }
-            if(need_check_flag != false && room.controller.level >= 6) {
+            if(need_check_flag == false && room.controller.level >= 6) {
                 for(var mineral_id in Memory.Room[room_name].mineral) {
                     if(Memory.Room[room_name].mineral[mineral_id].container == null) {
                         need_check_flag = true;
@@ -29,6 +29,15 @@ var mine_port_check = {
                     }
                     else if(Game.getObjectById(Memory.Room[room_name].mineral[mineral_id].container) == null) {
                         Memory.Room[room_name].mineral[mineral_id].container = null;
+                        need_check_flag = true;
+                        break;
+                    }
+                }
+            }
+            if(need_check_flag == false) {
+                for(var i in Memory.CreepStat.Miner.name_list) {
+                    var miner_name = Memory.CreepStat.Miner.name_list[i];
+                    if(Memory.creeps[miner_name].container_id == null) {
                         need_check_flag = true;
                         break;
                     }
@@ -65,12 +74,20 @@ var mine_port_check = {
                     else if(construction_site_list.length > 0) {
                         var container = construction_site_list[0];
                         Memory.Room[room_name].source[source_list[i].id].container = container.id;
-                        Memory.Room[room_name].container_list.push(container.id);
+                        if(!Memory.Room[room_name].container_list.includes(container.id)) {
+                            Memory.Room[room_name].container_list.push(container.id);
+                        }
                     }
                     else if(container_list.length > 0) {
                         var container = container_list[0];
                         Memory.Room[room_name].source[source_list[i].id].container = container.id;
-                        Memory.Room[room_name].container_list.push(container.id);
+                        if(!Memory.Room[room_name].container_list.includes(container.id)) {
+                            Memory.Room[room_name].container_list.push(container.id);
+                        }
+                        var miner_name = Memory.Room[room_name].source[source_list[i].id].assigned_miner;
+                        if(miner_name != null) {
+                            Memory.creeps[miner_name].container_id = container.id;
+                        }
                     }
                 }
             }
@@ -103,13 +120,21 @@ var mine_port_check = {
                         }
                         else if(construction_site_list.length > 0) {
                             var container = construction_site_list[0];
-                            Memory.Room[room_name].source[source_list[i].id].container = container.id;
-                            Memory.Room[room_name].container_list.push(container.id);
+                            Memory.Room[room_name].mineral[mineral_list[i].id].container = container.id;
+                            if(!Memory.Room[room_name].container_list.includes(container.id)) {
+                                Memory.Room[room_name].container_list.push(container.id);
+                            }
                         }
                         else if(container_list.length > 0) {
                             var container = container_list[0];
-                            Memory.Room[room_name].source[source_list[i].id].container = container.id;
-                            Memory.Room[room_name].container_list.push(container.id);
+                            Memory.Room[room_name].mineral[mineral_list[i].id].container = container.id;
+                            if(!Memory.Room[room_name].container_list.includes(container.id)) {
+                                Memory.Room[room_name].container_list.push(container.id);
+                            }
+                            var miner_name = Memory.Room[room_name].mineral[mineral_list[i].id].assigned_miner;
+                            if(miner_name != null) {
+                                Memory.creeps[miner_name].container_id = container.id;
+                            }
                         }
                     }
                 }

@@ -49,7 +49,7 @@ var find_path_and_move = {
     },
     find: function(creep, target, distance, close_range) {
         if(creep.pos.getRangeTo(target.pos) < close_range) {
-            moveTo_status = creep.moveTo(target.pos);
+            moveTo_status = creep.moveTo(target);
             switch(moveTo_status) {
                 case OK:
                 case ERR_TIRED:

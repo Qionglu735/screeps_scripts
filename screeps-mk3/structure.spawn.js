@@ -41,7 +41,7 @@ var structureSpawn = {
                     console.log(res);
                 }
                 else {
-                    Memory.SpawnCooldown = body.length * CREEP_SPAWN_TIME * 3;
+                    Memory.Spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
                     Memory.CreepStat.Miner.name_list.push(creep_name);
                 }
             }
@@ -97,7 +97,7 @@ var structureSpawn = {
                     console.log(res);
                 }
                 else {
-                    Memory.SpawnCooldown = body.length * CREEP_SPAWN_TIME * 3;
+                    Memory.Spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
                     Memory.CreepStat.Upgrader.name_list.push(creep_name);
                 }
             }

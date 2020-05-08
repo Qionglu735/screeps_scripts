@@ -9,6 +9,7 @@ var roleMiner = require("role.miner");
 
 var mine_port_check = require("tool.mine_port_check");
 
+var global_manage = require("tool.global_manage");
 var stat = require("tool.stat");
 
 module.exports.loop = function() {
@@ -56,11 +57,6 @@ module.exports.loop = function() {
                 "500_tick_sum_a": 0, "500_tick_sum_b": 0, "500_tick_sum_trend": 0,
                 "1000_tick_sum_a": 0, "1000_tick_sum_b": 0, "1000_tick_sum_trend": 0,
                 "10000_tick_sum_a": 0, "10000_tick_sum_b": 0, "10000_tick_sum_trend": 0,
-            },
-            "cpu_stat": {
-                "cpu_track": [],
-                "10000_tick_sum": 0,
-                "10000_tick_avg": 0,
             }
         };
         Memory.CreepStat = {
@@ -93,6 +89,13 @@ module.exports.loop = function() {
                 "max_num": 0
             }
         };
+        Memory.Cpu_Stat = {
+            "cpu_track": [],
+            "100_tick_sum": 0,
+            "100_tick_avg": 0,
+            "10000_tick_sum": 0,
+            "10000_tick_avg": 0,
+        };
     }
 
     ////    Check Creeps
@@ -116,8 +119,8 @@ module.exports.loop = function() {
         }
     }
 
-    //  check energy, cpu, mine, worker number
-    stat.run();
+    // check building, adjust worker number
+    global_manage();
 
     // run spawn
     for(var spawn_name in Memory.Spawn) {
@@ -130,12 +133,18 @@ module.exports.loop = function() {
     for(var name in Memory.creeps) {
         switch(Memory.creeps[name].role) {
             case "Miner":
+                if(!Memory.CreepStat.Miner.name_list.includes(name))
+                    Memory.CreepStat.Miner.name_list.push(name);
                 roleMiner.run(Game.creeps[name]);
                 break;
             case "Harvester":
+                if(!Memory.CreepStat.Harvester.name_list.includes(name))
+                    Memory.CreepStat.Harvester.name_list.push(name);
                 roleHarvester.run(Game.creeps[name]);
                 break;
             case "Upgrader":
+                if(!Memory.CreepStat.Upgrader.name_list.includes(name))
+                    Memory.CreepStat.Upgrader.name_list.push(name);
                 roleUpgrader.run(Game.creeps[name]);
                 break;
             case "builder":
@@ -148,6 +157,9 @@ module.exports.loop = function() {
                 break;
         }
     }
+
+    // check energy, cpu
+    stat();
 
 }
 

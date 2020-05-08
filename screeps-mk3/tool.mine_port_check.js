@@ -57,14 +57,12 @@ var mine_port_check = {
                     }
                 }
                 if(min_cost != -1 && mine_port != null) {
-                    Memory.Room[room_name].source[source_list[i].id] = {
-                        "type": RESOURCE_ENERGY,
-                        "mine_port": {
-                            "x": mine_port.x,
-                            "y": mine_port.y
-                        },
-                        "assigned_miner": null,
-                        "container": null,
+                    if(Memory.Room[room_name].source[source_list[i].id] == null) {
+                        Memory.Room[room_name].source[source_list[i].id] = {
+                            "type": RESOURCE_ENERGY,
+                            "assigned_miner": null,
+                            "container": null,
+                        }
                     }
                     var container_list = res.path[0].lookFor(LOOK_STRUCTURES);
                     var construction_site_list = res.path[0].lookFor(LOOK_CONSTRUCTION_SITES);
@@ -74,9 +72,9 @@ var mine_port_check = {
                     else if(construction_site_list.length > 0) {
                         var container = construction_site_list[0];
                         Memory.Room[room_name].source[source_list[i].id].container = container.id;
-                        if(!Memory.Room[room_name].container_list.includes(container.id)) {
-                            Memory.Room[room_name].container_list.push(container.id);
-                        }
+//                        if(!Memory.Room[room_name].container_list.includes(container.id)) {
+//                            Memory.Room[room_name].container_list.push(container.id);
+//                        }
                     }
                     else if(container_list.length > 0) {
                         var container = container_list[0];
@@ -86,7 +84,12 @@ var mine_port_check = {
                         }
                         var miner_name = Memory.Room[room_name].source[source_list[i].id].assigned_miner;
                         if(miner_name != null) {
-                            Memory.creeps[miner_name].container_id = container.id;
+                            if(Memory.creeps[miner_name] == null) {
+                                Memory.Room[room_name].source[source_list[i].id].assigned_miner = null;
+                            }
+                            else {
+                                Memory.creeps[miner_name].container_id = container.id;
+                            }
                         }
                     }
                 }
@@ -103,14 +106,12 @@ var mine_port_check = {
                     }
                 }
                 if(min_cost != -1 && mine_port != null) {
-                    Memory.Room[room_name].mineral[mineral_list[i].id] = {
-                        "type": mineral_list[i].mineralType,
-                        "mine_port": {
-                            "x": mine_port.x,
-                            "y": mine_port.y
-                        },
-                        "assigned_miner": null,
-                        "container": null,
+                    if(Memory.Room[room_name].source[source_list[i].id] == null) {
+                        Memory.Room[room_name].mineral[mineral_list[i].id] = {
+                            "type": mineral_list[i].mineralType,
+                            "assigned_miner": null,
+                            "container": null,
+                        }
                     }
                     if(room.controller.level >= 6) {
                         var container_list = res.path[0].lookFor(LOOK_STRUCTURES);
@@ -121,9 +122,9 @@ var mine_port_check = {
                         else if(construction_site_list.length > 0) {
                             var container = construction_site_list[0];
                             Memory.Room[room_name].mineral[mineral_list[i].id].container = container.id;
-                            if(!Memory.Room[room_name].container_list.includes(container.id)) {
-                                Memory.Room[room_name].container_list.push(container.id);
-                            }
+//                            if(!Memory.Room[room_name].container_list.includes(container.id)) {
+//                                Memory.Room[room_name].container_list.push(container.id);
+//                            }
                         }
                         else if(container_list.length > 0) {
                             var container = container_list[0];
@@ -133,7 +134,12 @@ var mine_port_check = {
                             }
                             var miner_name = Memory.Room[room_name].mineral[mineral_list[i].id].assigned_miner;
                             if(miner_name != null) {
-                                Memory.creeps[miner_name].container_id = container.id;
+                                if(Memory.creeps[miner_name] == null) {
+                                    Memory.Room[room_name].source[source_list[i].id].assigned_miner = null;
+                                }
+                                else {
+                                    Memory.creeps[miner_name].container_id = container.id;
+                                }
                             }
                         }
                     }

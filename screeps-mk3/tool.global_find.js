@@ -2,7 +2,7 @@
 var global_find = {
     find: function(type) {
         var res = null;
-        for(var room_name in Memory.Rooms) {
+        for(var room_name in Memory.Room) {
             var room = Game.rooms[room_name];
             if(room != null) {
                 var out = room.find(type);
@@ -19,7 +19,7 @@ var global_find = {
     
     find: function(type, filter) {
         var res = null;
-        for(var room_name in Memory.Rooms) {
+        for(var room_name in Memory.Room) {
             var room = Game.rooms[room_name];
             if(room != null) {
                 var out = room.find(type, filter);

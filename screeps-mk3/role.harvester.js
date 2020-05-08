@@ -220,7 +220,7 @@ var find_container_with_energy = function(room_name, min_energy=0, random_choose
     var target_list = [];
     for(var i in container_list) {
         var container = Game.getObjectById(container_list[i])
-        if(container != null) {
+        if(container != null && container.progress == null) {
             if(container.store[RESOURCE_ENERGY] > min_energy) {
                 target_list.push(container);
             }

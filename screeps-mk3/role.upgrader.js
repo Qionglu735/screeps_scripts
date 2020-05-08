@@ -77,7 +77,7 @@ var roleUpgrader = {
                             creep.memory.target_id = "";
                             break;
                         default:
-                            creep.say(harvest_status);
+                            creep.say(status);
                     }
                 }
                 else {

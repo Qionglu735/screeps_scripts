@@ -5,7 +5,7 @@ var global_find = require("tool.global_find");
 var roleHarvester = {
     run: function(creep) {
         if(creep.memory.status == null) {
-            creep.memory.status = "harvest";  // harvest, transfer
+            creep.memory.status = "harvest";  // harvest, transfer, build
         }
         if(creep.memory.status == "harvest" && creep.carry.energy == creep.carryCapacity) {
             creep.memory.status = "transfer";
@@ -37,7 +37,7 @@ var roleHarvester = {
         else if(creep.memory.status == "harvest") {
             if(Memory.CreepStat.Miner.name_list.length > 0
                     && Memory.Room[creep.room.name].container_list.length > 0) {
-                var target = Game.structures[creep.memory.target_id];
+                var target = Game.getObjectById(creep.memory.target_id);
                 if(!target) {
                     var target = find_container_with_energy(creep.room.name,
                                                             creep.carryCapacity - creep.carry.energy, 1);

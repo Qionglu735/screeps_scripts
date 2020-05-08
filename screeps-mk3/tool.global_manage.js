@@ -3,7 +3,7 @@ var mine_port_check = require("tool.mine_port_check");
 
 var global_manage = function() {
     ///////////////////////////////////////////////////////////////////////
-    ////    Mine Check
+    ////    Check Mine
     for(var room_name in Memory.Room) {
         for(var i in Memory.Room[room_name].container_list) {
             if(Game.getObjectById(Memory.Room[room_name].container_list[i]) == null) {
@@ -13,58 +13,60 @@ var global_manage = function() {
         mine_port_check.run(room_name);
     }
     ///////////////////////////////////////////////////////////////////////
-    ////    Add Extension
+    ////    Check Extension
     for(var spawn_name in Memory.Spawn) {
         var room = Game.spawns[spawn_name].room;
-        var extension_num = room.find(STRUCTURE_EXTENSION).length;
-        extension_num += room.find(FIND_CONSTRUCTION_SITES, {
+        var extension_num_site = room.find(FIND_CONSTRUCTION_SITES, {
             filter: (target) => target.structureType == STRUCTURE_EXTENSION
         }).length;
-        var extension_max = 0;
-        switch(room.controller.level) {
-            case 2:
-                extension_max = 5;
-                break;
-            case 3:
-                extension_max = 10;
-                break;
-            case 4:
-                extension_max = 20;
-                break;
-            case 5:
-                extension_max = 30;
-                break;
-            case 6:
-                extension_max = 40;
-                break;
-            case 7:
-                extension_max = 50;
-                break;
-            case 8:
-                extension_max = 60;
-                break;
-        }
-        var extension_table = {
-            "1": [-1, 1], "2": [1, 1], "3": [-2, 2], "4": [0, 2], "5": [2, 2],
-            "6": [-3, 3], "7": [-1, 3], "8": [1, 3], "9": [3, 3], "10": [-4, 4],
-            "11": [-2, 4], "12": [0, 4], "13": [2, 4], "14": [4, 4], "15": [-5, 5],
-            "16": [-3, 5], "17": [-1, 5], "18": [1, 5], "19": [3, 5], "20": [5, 5],
-        };
-        var spawn = Game.spawns[spawn_name];
-        var i = 1;
-        while(extension_num < extension_max && i <= 20) {
-            var new_pos = new RoomPosition(spawn.pos.x + extension_table[i][0],
-                                           spawn.pos.y + extension_table[i][1],
-                                           room.name);
-            var create_status = room.createConstructionSite(new_pos, STRUCTURE_EXTENSION);
-            switch(create_status) {
-                case OK:
-                    extension_num += 1;
+        if(extension_num_site == 0) {
+            var extension_num = room.find(STRUCTURE_EXTENSION).length;
+            var extension_max = 0;
+            switch(room.controller.level) {
+                case 2:
+                    extension_max = 5;
                     break;
-                default:
-                    console.log("create extension failed:", create_status)
+                case 3:
+                    extension_max = 10;
+                    break;
+                case 4:
+                    extension_max = 20;
+                    break;
+                case 5:
+                    extension_max = 30;
+                    break;
+                case 6:
+                    extension_max = 40;
+                    break;
+                case 7:
+                    extension_max = 50;
+                    break;
+                case 8:
+                    extension_max = 60;
+                    break;
             }
-            i += 1;
+            var extension_table = {
+                "1": [-1, 1], "2": [1, 1], "3": [-2, 2], "4": [0, 2], "5": [2, 2],
+                "6": [-3, 3], "7": [-1, 3], "8": [1, 3], "9": [3, 3], "10": [-4, 4],
+                "11": [-2, 4], "12": [0, 4], "13": [2, 4], "14": [4, 4], "15": [-5, 5],
+                "16": [-3, 5], "17": [-1, 5], "18": [1, 5], "19": [3, 5], "20": [5, 5],
+            };
+            var spawn = Game.spawns[spawn_name];
+            var i = 1;
+            while(extension_site == 0 && extension_num < extension_max && i <= 20) {
+                var new_pos = new RoomPosition(spawn.pos.x + extension_table[i][0],
+                                               spawn.pos.y + extension_table[i][1],
+                                               room.name);
+                var create_status = room.createConstructionSite(new_pos, STRUCTURE_EXTENSION);
+                switch(create_status) {
+                    case OK:
+                        extension_site += 1;
+                        break;
+                    default:
+                        console.log("create extension failed:", create_status)
+                }
+                i += 1;
+            }
         }
     }
     ///////////////////////////////////////////////////////////////////////
@@ -121,15 +123,13 @@ var global_manage = function() {
         if(Memory.CreepStat.Upgrader.max_num == 0) {
             Memory.CreepStat.Upgrader.max_num = 1;
         }
-        if(Memory.Room[first_room_name].cpu_stat["10000_tick_avg"] < 15
+        if(Memory.Cpu_Stat["10000_tick_avg"] < 15
                 && (Memory.Room[first_room_name].energy_stat["1000_tick_sum_trend"] > 50
                     || first_room.energyAvailable > 800000)
                 && Memory.CreepStat.Upgrader.max_num < first_room.controller.level) {
             Memory.CreepStat.Upgrader.max_num += 1;
         }
-        else if((Memory.Room[first_room_name].cpu_stat["10000_tick_avg"] > 15
-                || Memory.Room[first_room_name].cpu_stat["10000_tick_avg"] < 0)
-                && Memory.CreepStat.Upgrader.max_num > 1) {
+        else if(Memory.Cpu_Stat["10000_tick_avg"] > 15 && Memory.CreepStat.Upgrader.max_num > 1) {
             Memory.CreepStat.Upgrader.max_num -= 1;
         }
     }

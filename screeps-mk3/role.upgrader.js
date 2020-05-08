@@ -91,6 +91,7 @@ var roleUpgrader = {
                         break;
                     case ERR_NOT_IN_RANGE:
                         find_path_and_move.find(creep, creep.room.controller, 1, 3);
+                        break;
                     default:
                         creep.say(upgrade_status);
                 }

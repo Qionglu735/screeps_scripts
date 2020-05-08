@@ -11,7 +11,7 @@ var structureSpawn = {
                 Memory.Spawn[spawn.name].spawn_cool_down -= 1;
             }
         }
-        else if (spawn.spawning != null || room.energyAvailable < 300) {
+        else if (spawn.spawning != null || !room.energyAvailable || room.energyAvailable < 300) {
             ;
         }
         else {

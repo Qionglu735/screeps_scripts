@@ -19,7 +19,7 @@ var stat = {
             var room_name = Game.spawns[spawn_name].room.name;
             var energy_stat = Memory.Room[room_name].energy_stat;
             var energy = Game.rooms[room_name].energyAvailable;
-            if(energy == null) energy = 0;
+            if(!energy) energy = 0;
             for(var i in Memory.Room[room_name].container_list) {
                 var obj = Game.getObjectById(Memory.Room[room_name].container_list[i]);
                 if(obj.structureType == STRUCTURE_CONTAINER && obj.progress == null){

@@ -36,65 +36,66 @@ module.exports.loop = function() {
     if(Memory.MemoryControl == 1 && Game.spawns["Spawn1"]) {
         Memory.MemoryControl = 0;
         //// init memory
-        Memory.Spawn = {
+        Memory.my_spawn = {
             "Spawn1": {
                 "creep_spawn_list": [],
                 "spawn_cool_down": 0,
+                "container_list": [],
+                "storage_list": [],
+                "tower_list": [],
+                "energy_stat": {
+                    "energy_track": [],
+                    "10_tick_sum_a": 0, "10_tick_sum_b": 0, "10_tick_sum_trend": 0,  // 10 second
+                    "60_tick_sum_a": 0, "60_tick_sum_b": 0, "60_tick_sum_trend": 0,  // 1 minute
+                    "600_tick_sum_a": 0, "600_tick_sum_b": 0, "600_tick_sum_trend": 0,  // 10 minute
+                    "3600_tick_sum_a": 0, "3600_tick_sum_b": 0, "3600_tick_sum_trend": 0,  // 1 hour
+                    "36000_tick_sum_a": 0, "36000_tick_sum_b": 0, "36000_tick_sum_trend": 0,  // 10 hour
+                },
+                "room": {
+                    Game.spawns["Spawn1"].room.name: {
+                        "spawn_name": "Spawn1",
+                        "source": {},
+                        "mineral": {},
+                        "claim_status": "claimed",
+                    }
+                },
+                "creep": {
+                    "miner": {
+                        "name_list": [],
+                        "max_num": 1
+                    },
+                    "upgrader": {
+                        "name_list": [],
+                        "max_num": 0
+                    },
+                    "harvester": {
+                        "name_list": [],
+                        "max_num": 0
+                    },
+                    "builder": {
+                        "name_list": [],
+                        "max_num": 0
+                    },
+                    "carrier": {
+                        "name_list": [],
+                        "max_num": 0
+                    },
+                    "refueler": {
+                        "name_list": [],
+                        "max_num": 0
+                    },
+                    "claimer": {
+                        "name_list": [],
+                        "max_num": 0
+                    }
+                }
             }
         };
-        Memory.Room = {};
-        Memory.Room[Game.spawns["Spawn1"].room.name] = {
-            "source": {},
-            "mineral": {},
-            "claim_status": "claimed",
-            "container_list": [],
-            "storage_list": [],
-            "tower_list": [],
-            "energy_stat": {
-                "energy_track": [],
-                "10_tick_sum_a": 0, "10_tick_sum_b": 0, "10_tick_sum_trend": 0,
-                "100_tick_sum_a": 0, "100_tick_sum_b": 0, "100_tick_sum_trend": 0,
-                "500_tick_sum_a": 0, "500_tick_sum_b": 0, "500_tick_sum_trend": 0,
-                "1000_tick_sum_a": 0, "1000_tick_sum_b": 0, "1000_tick_sum_trend": 0,
-                "10000_tick_sum_a": 0, "10000_tick_sum_b": 0, "10000_tick_sum_trend": 0,
-            }
-        };
-        Memory.CreepStat = {
-            "Miner": {
-                "name_list": [],
-                "max_num": 1
-            },
-            "Upgrader": {
-                "name_list": [],
-                "max_num": 0
-            },
-            "Harvester": {
-                "name_list": [],
-                "max_num": 0
-            },
-            "Builder": {
-                "name_list": [],
-                "max_num": 0
-            },
-            "Carrier": {
-                "name_list": [],
-                "max_num": 0
-            },
-            "Refueler": {
-                "name_list": [],
-                "max_num": 0
-            },
-            "Claimer": {
-                "name_list": [],
-                "max_num": 0
-            }
-        };
-        Memory.Cpu_Stat = {
+        Memory.cpu_stat = {
             "cpu_track": [],
-            "100_tick_sum": 0,
-            "100_tick_avg": 0,
-            "10000_tick_sum": 0,
-            "10000_tick_avg": 0,
+            "60_tick_sum": 0, "60_tick_avg": 0,  // 1 minute
+            "600_tick_sum": 0, "600_tick_avg": 0,  // 10 minute
+            "3600_tick_sum": 0, "3600_tick_avg": 0,  // 1 hour
         };
     }
 
@@ -120,7 +121,9 @@ module.exports.loop = function() {
     }
 
     // check building, adjust worker number
-    global_manage();
+    for(var spawn_name in Memory.my_spawn) {
+        global_manage(spawn_name);
+    }
 
     // run spawn
     for(var spawn_name in Memory.Spawn) {
@@ -130,21 +133,25 @@ module.exports.loop = function() {
     // run tower
 
     // run creep
-    for(var name in Memory.creeps) {
-        switch(Memory.creeps[name].role) {
+    for(var creep_name in Memory.creeps) {
+        var room_name = Game.creeps[creep_name].room.name;
+        switch(Memory.creeps[creep_name].role) {
             case "Miner":
-                if(!Memory.CreepStat.Miner.name_list.includes(name))
-                    Memory.CreepStat.Miner.name_list.push(name);
+                if(room_name in Memory.my_spawn["Spawn_1"].room
+                        && !Memory.my_spawn["Spawn_1"].creep.miner.name_list.includes(name))
+                    Memory.my_spawn["Spawn_1"].creep.miner.name_list.push(name);
                 roleMiner.run(Game.creeps[name]);
                 break;
             case "Harvester":
-                if(!Memory.CreepStat.Harvester.name_list.includes(name))
-                    Memory.CreepStat.Harvester.name_list.push(name);
+                if(room_name in Memory.my_spawn["Spawn_1"].room
+                        && !Memory.my_spawn["Spawn_1"].creep.harvester.name_list.includes(name))
+                    Memory.my_spawn["Spawn_1"].creep.harvester.name_list.push(name);
                 roleHarvester.run(Game.creeps[name]);
                 break;
             case "Upgrader":
-                if(!Memory.CreepStat.Upgrader.name_list.includes(name))
-                    Memory.CreepStat.Upgrader.name_list.push(name);
+                if(room_name in Memory.my_spawn["Spawn_1"].room
+                        && !Memory.my_spawn["Spawn_1"].creep.upgrader.name_list.includes(name))
+                    Memory.my_spawn["Spawn_1"].creep.upgrader.name_list.push(name);
                 roleUpgrader.run(Game.creeps[name]);
                 break;
             case "builder":
@@ -161,57 +168,4 @@ module.exports.loop = function() {
     // check energy, cpu
     stat();
 
-}
-
-var DataStruct = function() {
-    Memory.Room = {
-        "ROOM_NAME_1": {
-            "source": {
-                "SOURCE_ID_1": {
-                    "mine_port": {
-                        "x": "X_1",
-                        "y": "Y_1"
-                    },
-                    "assigned_miner": "MINER_NAME_1",
-                    "container": "CONTAINER_ID_1"
-                },
-                "SOURCE_ID_2": {
-                    "mine_port": {
-                        "x": "X_2",
-                        "y": "Y_2"
-                    },
-                    "assigned_miner": "MINER_NAME_2",
-                    "container": "CONTAINER_ID_2"
-                }
-            },
-            "mineral": {
-                "MINE_ID_1": {
-                    "mine_port": {
-                        "x": "X_3",
-                        "y": "Y_3"
-                    },
-                    "assigned_miner": "MINER_NAME_3",
-                    "container": "CONTAINER_ID_3"
-                }
-            },
-            "claim_status": "neutral/to_reverse/reversing/to_claim/claiming/claimed",
-            "container_list": [],
-            "storage_list": [],
-        }
-    };
-    Memory.Spawn = {
-        "SPAWN_NAME_1": {
-            "creep_spawn_list": ["harvester", "builder"]
-        }
-    };
-    Memory.CreepStat = {
-        "harvester": {
-            "name_list": [],
-            "max_num": 0
-        },
-        "builder": {
-            "name_list": [],
-            "max_num": 0
-        }
-    }
 }

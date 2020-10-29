@@ -15,6 +15,14 @@ var structureSpawn = function(spawn) {
         ;
     }
     else {
+        //if (Memory.my_spawn[spawn.name].creep_spawning != null) {
+        //    let creep_name = Memory.my_spawn[spawn.name].creep_spawning;
+        //    Memory.my_spawn[spawn.name].creep_spawning = null;
+        //    if (Game.creep[creep_name] != null) {
+        //        let creep = Game.creep[creep_name];
+        //        memory_creep[creep.memeory.role].name_list.push(creep_name);
+        //    }
+        //}
         //Miner
         if(memory_creep.miner.name_list.length < memory_creep.miner.max_num) {
             var body = [];
@@ -32,17 +40,18 @@ var structureSpawn = function(spawn) {
             var creep_name = "Miner" + Game.time % 10000 + "Lv" + creepLevel;
             console.log("Spawning: " + creep_name);
             var res = spawn.spawnCreep(body, creep_name, {
-                                memory: {
-                                    role: "Miner",
-                                }
-                            }
-                        )
+                    memory: {
+                        role: "miner",
+                    }
+                }
+            )
             if(res != OK) {
                 console.log(res);
             }
             else {
                 Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
-                memory_creep.miner.name_list.push(creep_name);
+                //Memory.my_spawn[spawn.name].creep_spawning = creep_name;
+                //memory_creep.miner.name_list.push(creep_name);
             }
         }
         //Harvester
@@ -61,7 +70,7 @@ var structureSpawn = function(spawn) {
             console.log("Spawning: " + creep_name);
             var res = spawn.spawnCreep(body, creep_name, {
                     memory: {
-                        role: "Harvester",
+                        role: "harvester",
                     }
                 }
             );
@@ -70,7 +79,8 @@ var structureSpawn = function(spawn) {
             }
             else {
                 Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
-                memory_creep.harvester.name_list.push(creep_name);
+                //Memory.my_spawn[spawn.name].creep_spawning = creep_name;
+                //memory_creep.harvester.name_list.push(creep_name);
             }
         }
         //Upgrader
@@ -89,7 +99,7 @@ var structureSpawn = function(spawn) {
             console.log("Spawning: " + creep_name);
             var res = spawn.spawnCreep(body, creep_name, {
                     memory: {
-                        role: "Upgrader",
+                        role: "upgrader",
                     }
                 }
             );
@@ -98,7 +108,8 @@ var structureSpawn = function(spawn) {
             }
             else {
                 Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
-                memory_creep.upgrader.name_list.push(creep_name);
+                //Memory.my_spawn[spawn.name].spawning_creep = creep_name;
+                //memory_creep.upgrader.name_list.push(creep_name);
             }
         }
     }

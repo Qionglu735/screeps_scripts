@@ -28,7 +28,7 @@ var global_find = {
         }
         return res;
     },
-    
+
     find: function(type, filter, spawn_name="all") {
         var res = null;
         var spawn_name_list = [];
@@ -99,9 +99,6 @@ var global_find = {
             return null;
         }
     },
-};
-
-
 };
 
 module.exports = global_find;

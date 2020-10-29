@@ -1,23 +1,21 @@
 
-var mine_port_check = require("tool.mine_port_check");
-
-var stat = function() {
+let stat = function() {
     ///////////////////////////////////////////////////////////////////////
     ////    Energy Stat
-    for(var spawn_name in Memory.Spawn) {
-        var room_name = Game.spawns[spawn_name].room.name;
-        var energy_stat = Memory.Room[room_name].energy_stat;
-        var energy = Game.rooms[room_name].energyAvailable;
+    for(let spawn_name in Memory.my_spawn) {
+        let room_name = Game.spawns[spawn_name].room.name;
+        let energy_stat = Memory.my_spawn[spawn_name].energy_stat;
+        let energy = Game.rooms[room_name].energyAvailable;
         if(!energy) energy = 0;
-        for(var i in Memory.Room[room_name].container_list) {
-            var obj = Game.getObjectById(Memory.Room[room_name].container_list[i]);
-            if(obj.structureType == STRUCTURE_CONTAINER && obj.progress == null){
+        for(let i in Memory.my_spawn[spawn_name].room[room_name].container_list) {
+            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].room[room_name].container_list[i]);
+            if(obj.structureType === STRUCTURE_CONTAINER && obj.progress == null){
                 energy += obj.store[RESOURCE_ENERGY];
             }
         }
-        for(var id in Memory.Room[room_name].storage_list) {
-            var obj = Game.getObjectById(Memory.Room[room_name].storage_list[i]);
-            if(obj.structureType == STRUCTURE_STORAGE && obj.progress == null) {
+        for(let id in Memory.my_spawn[spawn_name].room[room_name].storage_list) {
+            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].room[room_name].storage_list[i]);
+            if(obj.structureType === STRUCTURE_STORAGE && obj.progress == null) {
                 energy += obj.store[RESOURCE_ENERGY];
             }
         }
@@ -75,26 +73,26 @@ var stat = function() {
             energy_stat["36000_tick_sum_b"] -= energy_stat.energy_track[72000];
         }
         while(energy_stat.energy_track.length > 72000) energy_stat.energy_track.pop();
-        if(energy_stat.energy_track.length >= 10) energy_stat["10_tick_sum_trend"] = (energy_stat["10_tick_sum_a"] - energy_stat["10_tick_sum_b"]) / 10;
-        if(energy_stat.energy_track.length >= 60) energy_stat["60_tick_sum_trend"] = (energy_stat["60_tick_sum_a"] - energy_stat["60_tick_sum_b"]) / 60;
-        if(energy_stat.energy_track.length >= 600) energy_stat["600_tick_sum_trend"] = (energy_stat["600_tick_sum_a"] - energy_stat["600_tick_sum_b"]) / 600;
-        if(energy_stat.energy_track.length >= 3600) energy_stat["3600_tick_sum_trend"] = (energy_stat["3600_tick_sum_a"] - energy_stat["3600_tick_sum_b"]) / 3600;
-        if(energy_stat.energy_track.length >= 36000) energy_stat["36000_tick_sum_trend"] = (energy_stat["36000_tick_sum_a"] - energy_stat["36000_tick_sum_b"]) / 36000;
+        if(energy_stat.energy_track.length >= 10) energy_stat["10_tick_sum_trend"] = ((energy_stat["10_tick_sum_a"] - energy_stat["10_tick_sum_b"]) / 10).toFixed(3);
+        if(energy_stat.energy_track.length >= 60) energy_stat["60_tick_sum_trend"] = ((energy_stat["60_tick_sum_a"] - energy_stat["60_tick_sum_b"]) / 60).toFixed(3);
+        if(energy_stat.energy_track.length >= 600) energy_stat["600_tick_sum_trend"] = ((energy_stat["600_tick_sum_a"] - energy_stat["600_tick_sum_b"]) / 600).toFixed(3);
+        if(energy_stat.energy_track.length >= 3600) energy_stat["3600_tick_sum_trend"] = ((energy_stat["3600_tick_sum_a"] - energy_stat["3600_tick_sum_b"]) / 3600).toFixed(3);
+        if(energy_stat.energy_track.length >= 36000) energy_stat["36000_tick_sum_trend"] = ((energy_stat["36000_tick_sum_a"] - energy_stat["36000_tick_sum_b"]) / 36000).toFixed(3);
         console.log("[" + spawn_name + " Energy Log]Energy:" + energy,
-                    "10s:" + energy_stat["10_tick_sum_trend"],
-                    "1m:" + energy_stat["60_tick_sum_trend"],
-                    "10m:" + energy_stat["600_tick_sum_trend"],
-                    "1h:" + energy_stat["3600_tick_sum_trend"],
-                    "10h:" + energy_stat["36000_tick_sum_trend"]);
+            "10s:" + energy_stat["10_tick_sum_trend"],
+            "1m:" + energy_stat["60_tick_sum_trend"],
+            "10m:" + energy_stat["600_tick_sum_trend"],
+            "1h:" + energy_stat["3600_tick_sum_trend"],
+            "10h:" + energy_stat["36000_tick_sum_trend"]);
     }
     ///////////////////////////////////////////////////////////////////////
     ////    CPU Stat
-    var cpu_stat = Memory.cpu_stat;
+    let cpu_stat = Memory.cpu_stat;
     cpu_stat.cpu_track.unshift(Game.cpu.getUsed().toFixed(3));
-    if(energy_stat.energy_track.length > 0) {
-        if(energy_stat["60_tick_sum"] == null) energy_stat["60_tick_sum"] = 0;
-        if(energy_stat["600_tick_sum"] == null) energy_stat["600_tick_sum"] = 0;
-        if(energy_stat["3600_tick_sum"] == null) energy_stat["3600_tick_sum"] = 0;
+    if(cpu_stat.cpu_track.length > 0) {
+        if(cpu_stat["60_tick_sum"] == null) cpu_stat["60_tick_sum"] = 0;
+        if(cpu_stat["600_tick_sum"] == null) cpu_stat["600_tick_sum"] = 0;
+        if(cpu_stat["3600_tick_sum"] == null) cpu_stat["3600_tick_sum"] = 0;
         cpu_stat["60_tick_sum"] += parseFloat(cpu_stat.cpu_track[0]);
         cpu_stat["600_tick_sum"] += parseFloat(cpu_stat.cpu_track[0]);
         cpu_stat["3600_tick_sum"] += parseFloat(cpu_stat.cpu_track[0]);
@@ -123,11 +121,11 @@ var stat = function() {
     }
     cpu_stat["3600_tick_avg"] = (parseFloat(cpu_stat["3600_tick_sum"]) / cpu_stat.cpu_track.length).toFixed(3);
     console.log("[Cpu Log]Time:" + Game.time % 10000,
-                "UsedCpu:" + cpu_stat.cpu_track[0],
-                "1m:" + cpu_stat["60_tick_avg"],
-                "10m:" + cpu_stat["600_tick_avg"],
-                "1h:" + cpu_stat["3600_tick_avg"],
-                "Bucket:" + Game.cpu.bucket);
+        "UsedCpu:" + cpu_stat.cpu_track[0],
+        "1m:" + cpu_stat["60_tick_avg"],
+        "10m:" + cpu_stat["600_tick_avg"],
+        "1h:" + cpu_stat["3600_tick_avg"],
+        "Bucket:" + Game.cpu.bucket);
 };
 
 module.exports = stat;

@@ -1,6 +1,6 @@
 
-var find_path_and_move = {
-    find: function(creep, target, action_status, distance, close_range) {
+var path_handler = {
+    status_find: function(creep, target, action_status, distance, close_range) {
         switch(action_status) {
             case OK:
             case ERR_TIRED:
@@ -21,7 +21,7 @@ var find_path_and_move = {
                 }
                 else {
                     var pathFinder = PathFinder.search(creep.pos, {pos: target.pos, range: distance});
-                    if(pathFinder.incomplete == false || pathFinder.path.length > 0) {
+                    if(pathFinder.incomplete === false || pathFinder.path.length > 0) {
                         creep.memory.path_list = pathFinder.path;
                         moveTo_status = creep.moveTo(creep.memory.path_list[0]);
                         switch(moveTo_status) {
@@ -47,6 +47,24 @@ var find_path_and_move = {
                 creep.say(action_status);
         }
     },
+    move: function(creep) {
+        let pos = new RoomPosition(creep.memory.path_list[0].x,
+            creep.memory.path_list[0].y,
+            creep.memory.path_list[0].roomName);
+        let move_status = creep.moveTo(pos);
+        switch(move_status) {
+            case OK:
+                creep.memory.path_list.shift();
+                break;
+            case ERR_TIRED:
+                break;
+            case ERR_NO_PATH:
+                creep.memory.path_list = null;
+                break;
+            default:
+                creep.say(move_status);
+        }
+    },
     find: function(creep, target, distance, close_range) {
         if(creep.pos.getRangeTo(target.pos) < close_range) {
             moveTo_status = creep.moveTo(target);
@@ -63,7 +81,7 @@ var find_path_and_move = {
         }
         else {
             var pathFinder = PathFinder.search(creep.pos, {pos: target.pos, range: distance});
-            if(pathFinder.incomplete == false || pathFinder.path.length > 0) {
+            if(pathFinder.incomplete === false || pathFinder.path.length > 0) {
                 creep.memory.path_list = pathFinder.path;
                 moveTo_status = creep.moveTo(creep.memory.path_list[0]);
                 switch(moveTo_status) {
@@ -85,4 +103,4 @@ var find_path_and_move = {
     }
 };
 
-module.exports = find_path_and_move;
+module.exports = path_handler;

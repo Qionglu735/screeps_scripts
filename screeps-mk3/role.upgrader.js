@@ -1,10 +1,10 @@
 
-var find_path_and_move = require("tool.find_path_and_move");
+let path_handler = require("tool.path_handler");
 
-var roleUpgrader = function(creep) {
+let roleUpgrader = function(creep) {
     if(creep.memory.status == null) {
-            creep.memory.status = "withdraw";  // withdraw, upgrade
-        }
+        creep.memory.status = "withdraw";  // withdraw, upgrade
+    }
     if(creep.memory.status == "withdraw" && creep.carry.energy == creep.carryCapacity) {
         creep.memory.status = "upgrade";
         creep.memory.target_id = "";
@@ -16,49 +16,34 @@ var roleUpgrader = function(creep) {
         creep.say("Withdraw");
     }
     if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
-        var pos = new RoomPosition(creep.memory.path_list[0].x,
-                                   creep.memory.path_list[0].y,
-                                   creep.memory.path_list[0].roomName);
-        var move_status = creep.moveTo(pos);
-        switch(move_status) {
-            case OK:
-                creep.memory.path_list.shift();
-                break;
-            case ERR_TIRED:
-                break;
-            case ERR_NO_PATH:
-                creep.memory.path_list = null;
-                break;
-            default:
-                creep.say(move_status);
-        }
+        path_handler.move(creep);
     }
     else {
         if(creep.memory.status == "withdraw") {
-            var target = Game.getObjectById(creep.memory.target_id);
+            let target = Game.getObjectById(creep.memory.target_id);
             if(!target) {
-                var targets = creep.room.find(FIND_STRUCTURES, {
+                let targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (target) => target.structureType == STRUCTURE_STORAGE
-                                        && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});
+                        && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});
                 if(targets.length > 0) {
                     target = targets[0];
                 }
             }
             if(!target) {
-                var targets = creep.room.find(FIND_STRUCTURES, {
+                let targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (target) => target.structureType == STRUCTURE_CONTAINER
-                                        && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});
+                        && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});
                 if(targets.length > 0) {
                     target = targets[parseInt(Math.random() * 1000) % targets.length];
                 }
             }
             if(!target) {
-                var targets = creep.room.find(FIND_SOURCES);
+                let targets = creep.room.find(FIND_SOURCES);
                 target = targets[parseInt(Math.random() * 1000) % targets.length];
             }
             if(target) {
                 creep.memory.target_id = target.id;
-                var status = null;
+                let status = null;
                 if(target.structureType == null) {
                     status = creep.harvest(target);
                 }
@@ -70,7 +55,7 @@ var roleUpgrader = function(creep) {
                     case ERR_TIRED:
                         break;
                     case ERR_NOT_IN_RANGE:
-                        find_path_and_move.find(creep, target, 1, 3);
+                        path_handler.find(creep, target, 1, 3);
                         break;
                     case ERR_NOT_ENOUGH_RESOURCES:
                         creep.memory.target_id = "";
@@ -84,12 +69,12 @@ var roleUpgrader = function(creep) {
             }
         }
         else {
-            var upgrade_status = creep.upgradeController(creep.room.controller);
+            let upgrade_status = creep.upgradeController(creep.room.controller);
             switch(upgrade_status) {
                 case OK:
                     break;
                 case ERR_NOT_IN_RANGE:
-                    find_path_and_move.find(creep, creep.room.controller, 1, 3);
+                    path_handler.find(creep, creep.room.controller, 1, 3);
                     break;
                 default:
                     creep.say(upgrade_status);

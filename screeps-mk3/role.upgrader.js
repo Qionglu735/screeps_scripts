@@ -1,16 +1,16 @@
 
 let path_handler = require("tool.path_handler");
 
-let roleUpgrader = function(creep) {
+let role_upgrader = function(creep) {
     if(creep.memory.status == null) {
         creep.memory.status = "withdraw";  // withdraw, upgrade
     }
-    if(creep.memory.status == "withdraw" && creep.carry.energy == creep.carryCapacity) {
+    if(creep.memory.status === "withdraw" && creep.carry.energy === creep.carryCapacity) {
         creep.memory.status = "upgrade";
         creep.memory.target_id = "";
         creep.say("Upgrade");
     }
-    else if(creep.memory.status == "upgrade" && creep.carry.energy == 0) {
+    else if(creep.memory.status === "upgrade" && creep.carry.energy === 0) {
         creep.memory.status = "withdraw";
         creep.memory.target_id = "";
         creep.say("Withdraw");
@@ -19,11 +19,11 @@ let roleUpgrader = function(creep) {
         path_handler.move(creep);
     }
     else {
-        if(creep.memory.status == "withdraw") {
+        if(creep.memory.status === "withdraw") {
             let target = Game.getObjectById(creep.memory.target_id);
             if(!target) {
                 let targets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (target) => target.structureType == STRUCTURE_STORAGE
+                    filter: (target) => target.structureType === STRUCTURE_STORAGE
                         && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});
                 if(targets.length > 0) {
                     target = targets[0];
@@ -31,7 +31,7 @@ let roleUpgrader = function(creep) {
             }
             if(!target) {
                 let targets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (target) => target.structureType == STRUCTURE_CONTAINER
+                    filter: (target) => target.structureType === STRUCTURE_CONTAINER
                         && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});
                 if(targets.length > 0) {
                     target = targets[parseInt(Math.random() * 1000) % targets.length];
@@ -83,4 +83,4 @@ let roleUpgrader = function(creep) {
     }
 };
 
-module.exports = roleUpgrader;
+module.exports = role_upgrader;

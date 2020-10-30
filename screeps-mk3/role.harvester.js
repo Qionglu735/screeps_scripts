@@ -2,18 +2,18 @@
 let path_handler = require("tool.path_handler");
 let global_find = require("tool.global_find");
 
-let roleHarvester = function(creep) {
+let role_harvester = function(creep) {
     if(creep.memory.status == null) {
         creep.memory.status = "harvest";  // harvest, transfer, build
     }
     if(creep.memory.status === "harvest" && creep.carry.energy === creep.carryCapacity) {
         creep.memory.status = "transfer";
-        creep.memory.target_id = "";
+        creep.memory.target_id = null;
         creep.say("Transfer");
     }
     else if(creep.memory.status !== "harvest" && creep.carry.energy === 0) {
         creep.memory.status = "harvest";
-        creep.memory.target_id = "";
+        creep.memory.target_id = null;
         creep.say("Harvest");
     }
     if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
@@ -38,7 +38,8 @@ let roleHarvester = function(creep) {
                         path_handler.find(creep, target, 1, 3);
                         break;
                     case ERR_NOT_ENOUGH_RESOURCES:
-                        creep.memory.target_id = "";
+                    case ERR_INVALID_TARGET:
+                        creep.memory.target_id = null;
                         break;
                     default:
                         creep.say(withdraw_status);
@@ -53,7 +54,7 @@ let roleHarvester = function(creep) {
                 filter: (target) => target.id === creep.memory.target_id})[0];
             if(!target) {
                 let targets = creep.room.find(FIND_SOURCES);
-                target = targets[parseInt(Math.random() * 1000) % targets.length];
+                target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
             }
             if(target) {
@@ -78,31 +79,39 @@ let roleHarvester = function(creep) {
         let target = creep.room.find(FIND_STRUCTURES, {
             filter: (target) => target.id === creep.memory.target_id})[0];
         if(target && target.energy === target.energyCapacity) {
-            creep.memory.target_id = '';
+            creep.memory.target_id = null;
             target = null;
         }
         if(!target) {
             let targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (target) =>
-                    (target.structureType === STRUCTURE_SPAWN || target.structureType === STRUCTURE_EXTENSION)
-                    && target.energy < target.energyCapacity});
+                    target.structureType === STRUCTURE_EXTENSION && target.energy < target.energyCapacity});
             if(targets.length > 0) {
-                target = targets[parseInt(Math.random() * 1000) % targets.length];
+                target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
             }
         }
         if(!target) {
-            targets = creep.room.find(FIND_STRUCTURES, {
+            let targets = creep.room.find(FIND_STRUCTURES, {
+                filter: (target) =>
+                    target.structureType === STRUCTURE_SPAWN && target.energy < target.energyCapacity});
+            if(targets.length > 0) {
+                target = targets[Math.floor(Math.random() * 1000) % targets.length];
+                creep.memory.target_id = target.id;
+            }
+        }
+        if(!target) {
+            let targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (target) =>
                     target.structureType === STRUCTURE_TOWER &&
                     target.energy < target.energyCapacity});
             if(targets.length > 0) {
-                target = targets[parseInt(Math.random() * 1000) % targets.length];
+                target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
             }
         }
         if(!target) {
-            targets = creep.room.find(FIND_STRUCTURES, {
+            let targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (target) =>
                         target.structureType === STRUCTURE_STORAGE
                         && target.store[RESOURCE_ENERGY] < target.storeCapacity
@@ -138,7 +147,31 @@ let roleHarvester = function(creep) {
             && (target.hits === target.hitsMax
                 || target.structureType === STRUCTURE_WALL && target.hits < creep.room.controller.progressTotal)) {
             target = null;
-            creep.memory.target_id = '';
+            creep.memory.target_id = null;
+        }
+        if(!target) {
+            let targets = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+                filter: (construction_site) => construction_site.structureType === STRUCTURE_EXTENSION});
+            if(targets != null && targets.length > 0) {
+                target = targets[0];
+                creep.memory.target_id = target.id;
+            }
+        }
+        if(!target) {
+            let targets = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+                filter: (construction_site) => construction_site.structureType === STRUCTURE_CONTAINER});
+            if(targets != null && targets.length > 0) {
+                target = targets[0];
+                creep.memory.target_id = target.id;
+            }
+        }
+        if(!target) {
+            let targets = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+                filter: (construction_site) => construction_site.structureType === STRUCTURE_TOWER});
+            if(targets != null && targets.length > 0) {
+                target = targets[0];
+                creep.memory.target_id = target.id;
+            }
         }
         if(!target) {
             let targets = global_find.find(FIND_CONSTRUCTION_SITES);
@@ -148,24 +181,24 @@ let roleHarvester = function(creep) {
             }
         }
         if(!target) {
-            let targets = global_find.find(FIND_STRUCTURES, {
+            let targets = global_find.find_by_filter(FIND_STRUCTURES, {
                 filter: (structure) =>
                     structure.hits < structure.hitsMax * 0.95
                     && structure.structureType !== STRUCTURE_WALL});
             if(targets.length > 0) {
-                target = targets[parseInt(Math.random() * 1000) % targets.length];
+                target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
             }
         }
-//            if(!target) {
-//                let targets = creep.room.find(FIND_STRUCTURES, {
-//                                                filter: (structure) =>
-//                                                    structure.structureType == STRUCTURE_WALL
-//                                                    && structure.hits < creep.room.controller.progressTotal});
-//                if(targets.length > 0) {
-//                    target = targets[parseInt(Math.random() * 1000) % targets.length];
-//                }
-//            }
+        // if(!target) {
+        //    let targets = creep.room.find(FIND_STRUCTURES, {
+        //                                    filter: (structure) =>
+        //                                        structure.structureType == STRUCTURE_WALL
+        //                                        && structure.hits < creep.room.controller.progressTotal});
+        //    if(targets.length > 0) {
+        //        target = targets[parseInt(Math.random() * 1000) % targets.length];
+        //    }
+        // }
         if(target) {
             let repair_status = creep.repair(target);
             switch(repair_status) {
@@ -182,12 +215,16 @@ let roleHarvester = function(creep) {
                         case ERR_NOT_IN_RANGE:
                             path_handler.find(creep, target, 1, 3);
                             break;
+                        case ERR_INVALID_TARGET:
+                            creep.memory.status = "harvest"
+                            creep.memory.target_id = null;
+                            break;
                         default:
                             creep.say(build_status)
                     }
                     break;
                 default:
-                    creep.say(transfer_status);
+                    creep.say(repair_status);
             }
         }
         else {
@@ -197,4 +234,4 @@ let roleHarvester = function(creep) {
     }
 };
 
-module.exports = roleHarvester;
+module.exports = role_harvester;

@@ -1,13 +1,12 @@
 
 // https://docs.screeps.com/api/#Game
 
-let structureSpawn = require("structure.spawn");
+let structure_spawn = require("structure.spawn");
+let structure_tower = require("structure.tower");
 
 let role_harvester = require("role.harvester");
 let role_upgrader = require("role.upgrader");
 let role_miner = require("role.miner");
-
-let mine_port_check = require("tool.mine_port_check");
 
 let global_manage = require("tool.global_manage");
 let stat = require("tool.stat");
@@ -42,7 +41,6 @@ module.exports.loop = function () {
         Memory.my_spawn = {
             "Spawn1": {
                 "creep_spawn_list": [],
-                "creep_spawning": null,
                 "spawn_cool_down": 0,
                 "container_list": [],
                 "storage_list": [],
@@ -149,10 +147,21 @@ module.exports.loop = function () {
 
     // run spawn
     for(let spawn_name in Memory.my_spawn) {
-        structureSpawn(Game.spawns[spawn_name]);
+        structure_spawn(Game.spawns[spawn_name]);
     }
 
     // run tower
+    for(let spawn_name in Memory.my_spawn) {
+        let towers = Game.spawns[spawn_name].room.find(
+            FIND_MY_STRUCTURES, {
+                filter: (target) => target.structureType === STRUCTURE_TOWER
+            });
+        for(let tower in towers) {
+            if(towers.hasOwnProperty(tower)) {
+                structure_tower(towers[tower]);
+            }
+        }
+    }
 
     // run creep
     for (let creep_name in Memory.creeps) {
@@ -184,5 +193,4 @@ module.exports.loop = function () {
 
     // check energy, cpu
     stat();
-
 }

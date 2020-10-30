@@ -1,22 +1,22 @@
 
-var global_find = {
+let global_find = {
     find: function(type, spawn_name="all") {
-        var res = null;
-        var spawn_name_list = [];
-        if(spawn_name == "all" || !(spawn_name in Memory.my_spawn)) {
-            for(var i in Memory.my_spawn) {
+        let res = null;
+        let spawn_name_list = [];
+        if(spawn_name === "all" || !(spawn_name in Memory.my_spawn)) {
+            for(let i in Memory.my_spawn) {
                 spawn_name_list.push(i);
             }
         }
         else {
             spawn_name_list.push(i);
         }
-        for(var i in spawn_name_list) {
-            var _spawn_name = spawn_name_list[i];
-            for(var room_name in Memory.my_spawn[_spawn_name].room) {
-                var room = Game.rooms[room_name];
+        for(let i in spawn_name_list) {
+            let _spawn_name = spawn_name_list[i];
+            for(let room_name in Memory.my_spawn[_spawn_name].room) {
+                let room = Game.rooms[room_name];
                 if(room != null) {
-                    var out = room.find(type);
+                    let out = room.find(type);
                     if(res == null) {
                         res = out;
                     }
@@ -29,23 +29,23 @@ var global_find = {
         return res;
     },
 
-    find: function(type, filter, spawn_name="all") {
-        var res = null;
-        var spawn_name_list = [];
-        if(spawn_name == "all" || !(spawn_name in Memory.my_spawn)) {
-            for(var i in Memory.my_spawn) {
+    find_by_filter: function(type, filter, spawn_name="all") {
+        let res = null;
+        let spawn_name_list = [];
+        if(spawn_name === "all" || !(spawn_name in Memory.my_spawn)) {
+            for(let i in Memory.my_spawn) {
                 spawn_name_list.push(i);
             }
         }
         else {
             spawn_name_list.push(i);
         }
-        for(var i in spawn_name_list) {
-            var _spawn_name = spawn_name_list[i];
-            for(var room_name in Memory.my_spawn[_spawn_name].room) {
-                var room = Game.rooms[room_name];
+        for(let i in spawn_name_list) {
+            let _spawn_name = spawn_name_list[i];
+            for(let room_name in Memory.my_spawn[_spawn_name].room) {
+                let room = Game.rooms[room_name];
                 if(room != null) {
-                    var out = room.find(type, filter);
+                    let out = room.find(type, filter);
                     if(res == null) {
                         res = out;
                     }
@@ -59,24 +59,24 @@ var global_find = {
     },
 
     find_container_with_energy: function(range="spawn", location_name="all", min_energy=0, random_choose=0) {
-        var target_list = [];
-        var spawn_name_list = [];
-        if(range == "spawn" && (location_name == "all" || !(location_name in Memory.my_spawn)) || range == "room") {
-            for(var i in Memory.my_spawn) {
+        let target_list = [];
+        let spawn_name_list = [];
+        if(range === "spawn" && (location_name === "all" || !(location_name in Memory.my_spawn)) || range === "room") {
+            for(let i in Memory.my_spawn) {
                 spawn_name_list.push(i);
             }
         }
         else {
             spawn_name_list.push(location_name);
         }
-        for(var i in spawn_name_list) {
-            var _spawn_name = spawn_name_list[i];
+        for(let i in spawn_name_list) {
+            let _spawn_name = spawn_name_list[i];
             if(_spawn_name in Memory.my_spawn) {
-                var container_list = Memory.my_spawn[_spawn_name].container_list;
-                for(var j in container_list) {
-                    var container = Game.getObjectById(container_list[j])
+                let container_list = Memory.my_spawn[_spawn_name].container_list;
+                for(let j in container_list) {
+                    let container = Game.getObjectById(container_list[j])
                     if(container != null && container.progress == null) {
-                        if(range == "room" && container.room.name != location_name) {
+                        if(range === "room" && container.room.name !== location_name) {
                             continue;
                         }
                         if(container.store[RESOURCE_ENERGY] > min_energy) {

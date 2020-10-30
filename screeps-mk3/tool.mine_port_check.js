@@ -13,26 +13,30 @@ let mine_port_check = {
         }
         else {
             for (let source_id in room_memory.source) {
-                if (room_memory.source[source_id].container == null) {  // no container info in source
-                    need_check_flag = true;
-                    break;
-                }
-                else if(Game.getObjectById(room_memory.source[source_id].container) == null) {  // container not exist
-                    room_memory.source[source_id].container = null;
-                    need_check_flag = true;
-                    break;
+                if(room_memory.source.hasOwnProperty(source_id)) {
+                    if (room_memory.source[source_id].container == null) {  // no container info in source
+                        need_check_flag = true;
+                        break;
+                    }
+                    else if(Game.getObjectById(room_memory.source[source_id].container) == null) {  // container not exist
+                        room_memory.source[source_id].container = null;
+                        need_check_flag = true;
+                        break;
+                    }
                 }
             }
             if(need_check_flag === false && room.controller.level >= 6) {  // room level >= 6, need to check mineral
                 for(let mineral_id in room_memory.mineral) {
-                    if (room_memory.mineral[mineral_id].container == null) {  // no container info in mineral
-                        need_check_flag = true;
-                        break;
-                    }
-                    else if (Game.getObjectById(room_memory.mineral[mineral_id].container) == null) {  // container not exist
-                        room_memory.mineral[mineral_id].container = null;
-                        need_check_flag = true;
-                        break;
+                    if(room_memory.mineral.hasOwnProperty(mineral_id)) {
+                        if (room_memory.mineral[mineral_id].container == null) {  // no container info in mineral
+                            need_check_flag = true;
+                            break;
+                        }
+                        else if (Game.getObjectById(room_memory.mineral[mineral_id].container) == null) {  // container not exist
+                            room_memory.mineral[mineral_id].container = null;
+                            need_check_flag = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -74,9 +78,6 @@ let mine_port_check = {
                     else if(construction_site_list.length > 0) {
                         let container = construction_site_list[0];
                         room_memory.source[source_list[i].id].container = container.id;
-//                        if(!room_memory.container_list.includes(container.id)) {
-//                            room_memory.container_list.push(container.id);
-//                        }
                         let miner_name = room_memory.source[source_list[i].id].assigned_miner;
                         if(miner_name != null) {
                             if(Memory.creeps[miner_name] == null) {
@@ -93,15 +94,15 @@ let mine_port_check = {
                         if(!spawn_memory.container_list.includes(container.id)) {
                             spawn_memory.container_list.push(container.id);
                         }
-                        let miner_name = room_memory.source[source_list[i].id].assigned_miner;
-                        if(miner_name != null) {
-                            if(Memory.creeps[miner_name] == null) {
-                                room_memory.source[source_list[i].id].assigned_miner = null;
-                            }
-                            else {
-                                Memory.creeps[miner_name].container_id = container.id;
-                            }
-                        }
+                        // let miner_name = room_memory.source[source_list[i].id].assigned_miner;
+                        // if(miner_name != null) {
+                        //     if(Memory.creeps[miner_name] == null) {
+                        //         room_memory.source[source_list[i].id].assigned_miner = null;
+                        //     }
+                        //     else {
+                        //         Memory.creeps[miner_name].container_id = container.id;
+                        //     }
+                        // }
                     }
                 }
             }
@@ -133,9 +134,6 @@ let mine_port_check = {
                         else if(construction_site_list.length > 0) {
                             let container = construction_site_list[0];
                             room_memory.mineral[mineral_list[i].id].container = container.id;
-//                            if(!room_memory.container_list.includes(container.id)) {
-//                                room_memory.container_list.push(container.id);
-//                            }
                         }
                         else if(container_list.length > 0) {
                             let container = container_list[0];
@@ -143,15 +141,15 @@ let mine_port_check = {
                             if(!spawn_memory.container_list.includes(container.id)) {
                                 spawn_memory.container_list.push(container.id);
                             }
-                            let miner_name = room_memory.mineral[mineral_list[i].id].assigned_miner;
-                            if(miner_name != null) {
-                                if(Memory.creeps[miner_name] == null) {
-                                    room_memory.source[source_list[i].id].assigned_miner = null;
-                                }
-                                else {
-                                    Memory.creeps[miner_name].container_id = container.id;
-                                }
-                            }
+                            // let miner_name = room_memory.mineral[mineral_list[i].id].assigned_miner;
+                            // if(miner_name != null) {
+                            //     if(Memory.creeps[miner_name] == null) {
+                            //         room_memory.source[source_list[i].id].assigned_miner = null;
+                            //     }
+                            //     else {
+                            //         Memory.creeps[miner_name].container_id = container.id;
+                            //     }
+                            // }
                         }
                     }
                 }

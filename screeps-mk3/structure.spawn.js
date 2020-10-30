@@ -1,10 +1,9 @@
 
-
-var structureSpawn = function(spawn) {
-    var room = spawn.room;
-    var memory_creep = Memory.my_spawn[spawn.name].creep;
+let structure_spawn = function(spawn) {
+    let room = spawn.room;
+    let memory_creep = Memory.my_spawn[spawn.name].creep;
     if(Memory.my_spawn[spawn.name].spawn_cool_down > 0) {
-        if(room.energyAvailable == room.energyCapacityAvailable) {
+        if(room.energyAvailable === room.energyCapacityAvailable) {
             Memory.my_spawn[spawn.name].spawn_cool_down = 0;
         }
         else {
@@ -12,7 +11,7 @@ var structureSpawn = function(spawn) {
         }
     }
     else if (spawn.spawning != null || !room.energyAvailable || room.energyAvailable < 300) {
-        ;
+
     }
     else {
         //if (Memory.my_spawn[spawn.name].creep_spawning != null) {
@@ -25,9 +24,9 @@ var structureSpawn = function(spawn) {
         //}
         //Miner
         if(memory_creep.miner.name_list.length < memory_creep.miner.max_num) {
-            var body = [];
-            var energy = room.energyAvailable;
-            var creepLevel = 0;
+            let body = [];
+            let energy = room.energyAvailable;
+            let creepLevel = 0;
             body.push(CARRY);
             energy -= 50;
             while(energy >= 250 && creepLevel < 4) {
@@ -37,15 +36,15 @@ var structureSpawn = function(spawn) {
                 energy -= 250;
                 creepLevel += 1;
             }
-            var creep_name = "Miner" + Game.time % 10000 + "Lv" + creepLevel;
+            let creep_name = "Miner" + Game.time % 10000 + "Lv" + creepLevel;
             console.log("Spawning: " + creep_name);
-            var res = spawn.spawnCreep(body, creep_name, {
+            let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
                         role: "miner",
                     }
                 }
             )
-            if(res != OK) {
+            if(res !== OK) {
                 console.log(res);
             }
             else {
@@ -56,9 +55,9 @@ var structureSpawn = function(spawn) {
         }
         //Harvester
         else if(memory_creep.harvester.name_list.length < memory_creep.harvester.max_num) {
-            var body = [];
-            var energy = room.energyAvailable;
-            var creepLevel = 0;
+            let body = [];
+            let energy = room.energyAvailable;
+            let creepLevel = 0;
             while(energy >= 200) {
                 body.push(WORK);
                 body.push(CARRY);
@@ -66,15 +65,15 @@ var structureSpawn = function(spawn) {
                 energy -= 200;
                 creepLevel += 1;
             }
-            var creep_name = "Harvester" + Game.time % 10000 + "Lv" + creepLevel;
+            let creep_name = "Harvester" + Game.time % 10000 + "Lv" + creepLevel;
             console.log("Spawning: " + creep_name);
-            var res = spawn.spawnCreep(body, creep_name, {
+            let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
                         role: "harvester",
                     }
                 }
             );
-            if(res != OK) {
+            if(res !== OK) {
                 console.log(res);
             }
             else {
@@ -85,9 +84,9 @@ var structureSpawn = function(spawn) {
         }
         //Upgrader
         else if(memory_creep.upgrader.name_list.length < memory_creep.upgrader.max_num) {
-            var body = [];
-            var energy = room.energyAvailable;
-            var creepLevel = 0;
+            let body = [];
+            let energy = room.energyAvailable;
+            let creepLevel = 0;
             while(energy >= 200) {
                 body.push(WORK);
                 body.push(CARRY);
@@ -95,15 +94,15 @@ var structureSpawn = function(spawn) {
                 energy -= 200;
                 creepLevel += 1;
             }
-            var creep_name = "Upgrader" + Game.time % 10000 + "Lv" + creepLevel;
+            let creep_name = "Upgrader" + Game.time % 10000 + "Lv" + creepLevel;
             console.log("Spawning: " + creep_name);
-            var res = spawn.spawnCreep(body, creep_name, {
+            let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
                         role: "upgrader",
                     }
                 }
             );
-            if(res != OK) {
+            if(res !== OK) {
                 console.log(res);
             }
             else {
@@ -115,4 +114,4 @@ var structureSpawn = function(spawn) {
     }
 };
 
-module.exports = structureSpawn;
+module.exports = structure_spawn;

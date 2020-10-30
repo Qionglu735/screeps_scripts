@@ -1,7 +1,7 @@
 
 let path_handler = require("tool.path_handler");
 
-let roleMiner = function (creep) {
+let role_miner = function (creep) {
     if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);
     }
@@ -40,4 +40,4 @@ let roleMiner = function (creep) {
     }
 };
 
-module.exports = roleMiner;
+module.exports = role_miner;

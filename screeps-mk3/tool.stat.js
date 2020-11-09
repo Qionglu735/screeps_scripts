@@ -7,14 +7,14 @@ let stat = function() {
         let energy_stat = Memory.my_spawn[spawn_name].energy_stat;
         let energy = Game.rooms[room_name].energyAvailable;
         if(!energy) energy = 0;
-        for(let i in Memory.my_spawn[spawn_name].room[room_name].container_list) {
-            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].room[room_name].container_list[i]);
+        for(let i in Memory.my_spawn[spawn_name].container_list) {
+            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].container_list[i]);
             if(obj.structureType === STRUCTURE_CONTAINER && obj.progress == null){
                 energy += obj.store[RESOURCE_ENERGY];
             }
         }
-        for(let id in Memory.my_spawn[spawn_name].room[room_name].storage_list) {
-            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].room[room_name].storage_list[i]);
+        for(let i in Memory.my_spawn[spawn_name].storage_list) {
+            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].storage_list[i]);
             if(obj.structureType === STRUCTURE_STORAGE && obj.progress == null) {
                 energy += obj.store[RESOURCE_ENERGY];
             }

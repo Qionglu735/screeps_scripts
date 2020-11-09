@@ -7,6 +7,7 @@ let structure_tower = require("structure.tower");
 let role_harvester = require("role.harvester");
 let role_upgrader = require("role.upgrader");
 let role_miner = require("role.miner");
+let role_carrier = require("role.carrier");
 
 let global_manage = require("tool.global_manage");
 let stat = require("tool.stat");
@@ -179,9 +180,10 @@ module.exports.loop = function () {
                 case "upgrader":
                     role_upgrader(Game.creeps[creep_name]);
                     break;
-                case "builder":
-                    break;
                 case "carrier":
+                    role_carrier(Game.creeps[creep_name]);
+                    break;
+                case "builder":
                     break;
                 case "refueler":
                     break;

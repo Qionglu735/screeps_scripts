@@ -2,17 +2,17 @@
 let path_handler = require("tool.path_handler");
 
 let role_upgrader = function(creep) {
-    if(creep.memory.status == null) {
-        creep.memory.status = "withdraw";  // withdraw, upgrade
+    if(creep.memory.status == null || !["withdraw", "upgrade"].includes(creep.memory.status)) {
+        creep.memory.status = "withdraw";
     }
-    if(creep.memory.status === "withdraw" && creep.carry.energy === creep.carryCapacity) {
+    else if(creep.memory.status === "withdraw" && creep.carry.energy === creep.carryCapacity) {
         creep.memory.status = "upgrade";
-        creep.memory.target_id = "";
+        creep.memory.target_id = null;
         creep.say("Upgrade");
     }
     else if(creep.memory.status === "upgrade" && creep.carry.energy === 0) {
         creep.memory.status = "withdraw";
-        creep.memory.target_id = "";
+        creep.memory.target_id = null;
         creep.say("Withdraw");
     }
     if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
@@ -34,12 +34,12 @@ let role_upgrader = function(creep) {
                     filter: (target) => target.structureType === STRUCTURE_CONTAINER
                         && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});
                 if(targets.length > 0) {
-                    target = targets[parseInt(Math.random() * 1000) % targets.length];
+                    target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 }
             }
             if(!target) {
                 let targets = creep.room.find(FIND_SOURCES);
-                target = targets[parseInt(Math.random() * 1000) % targets.length];
+                target = targets[Math.floor(Math.random() * 1000) % targets.length];
             }
             if(target) {
                 creep.memory.target_id = target.id;
@@ -52,20 +52,20 @@ let role_upgrader = function(creep) {
                 }
                 switch(status) {
                     case OK:
-                    case ERR_TIRED:
                         break;
                     case ERR_NOT_IN_RANGE:
                         path_handler.find(creep, target, 1, 3);
                         break;
                     case ERR_NOT_ENOUGH_RESOURCES:
-                        creep.memory.target_id = "";
+                        creep.memory.target_id = null;
                         break;
                     default:
+                        console.log(creep.name, "harvest/withdraw", status);
                         creep.say(status);
                 }
             }
             else {
-                creep.moveTo(Game.flags['UpgraderPark'], {visualizePathStyle: {stroke: '#88ffff'}});
+                creep.say("No Energy")
             }
         }
         else {
@@ -76,7 +76,12 @@ let role_upgrader = function(creep) {
                 case ERR_NOT_IN_RANGE:
                     path_handler.find(creep, creep.room.controller, 1, 3);
                     break;
+                case ERR_NOT_ENOUGH_RESOURCES:
+                    creep.memory.status = "withdraw";
+                    creep.memory.target_id = null;
+                    break;
                 default:
+                    console.log(creep.name, "upgrade", upgrade_status);
                     creep.say(upgrade_status);
             }
         }

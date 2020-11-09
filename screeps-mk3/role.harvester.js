@@ -1,10 +1,10 @@
 
-let path_handler = require("tool.path_handler");
 let global_find = require("tool.global_find");
+let path_handler = require("tool.path_handler");
 
 let role_harvester = function(creep) {
-    if(creep.memory.status == null) {
-        creep.memory.status = "harvest";  // harvest, transfer, build
+    if(creep.memory.status == null || !["harvest", "transfer", "build"].includes(creep.memory.status)) {
+        creep.memory.status = "harvest";
     }
     if(creep.memory.status === "harvest" && creep.carry.energy === creep.carryCapacity) {
         creep.memory.status = "transfer";
@@ -32,7 +32,6 @@ let role_harvester = function(creep) {
                 let withdraw_status = creep.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy);
                 switch(withdraw_status) {
                     case OK:
-                    case ERR_TIRED:
                         break;
                     case ERR_NOT_IN_RANGE:
                         path_handler.find(creep, target, 1, 3);
@@ -42,6 +41,7 @@ let role_harvester = function(creep) {
                         creep.memory.target_id = null;
                         break;
                     default:
+                        console.log(creep.name, "withdraw", withdraw_status);
                         creep.say(withdraw_status);
                 }
             }
@@ -50,8 +50,7 @@ let role_harvester = function(creep) {
             }
         }
         else {
-            let target = creep.room.find(FIND_SOURCES, {
-                filter: (target) => target.id === creep.memory.target_id})[0];
+            let target = Game.getObjectById(creep.memory.target_id);
             if(!target) {
                 let targets = creep.room.find(FIND_SOURCES);
                 target = targets[Math.floor(Math.random() * 1000) % targets.length];
@@ -61,7 +60,6 @@ let role_harvester = function(creep) {
                 let harvest_status = creep.harvest(target);
                 switch(harvest_status) {
                     case OK:
-                    case ERR_TIRED:
                         break;
                     case ERR_NOT_IN_RANGE:
                         path_handler.find(creep, target, 1, 3);
@@ -70,14 +68,14 @@ let role_harvester = function(creep) {
                         creep.memory.target_id = "";
                         break;
                     default:
+                        console.log(creep.name, "harvest", harvest_status);
                         creep.say(harvest_status);
                 }
             }
         }
     }
     else if(creep.memory.status === "transfer") {
-        let target = creep.room.find(FIND_STRUCTURES, {
-            filter: (target) => target.id === creep.memory.target_id})[0];
+        let target = Game.getObjectById(creep.memory.target_id);
         if(target && target.energy === target.energyCapacity) {
             creep.memory.target_id = null;
             target = null;
@@ -103,8 +101,7 @@ let role_harvester = function(creep) {
         if(!target) {
             let targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (target) =>
-                    target.structureType === STRUCTURE_TOWER &&
-                    target.energy < target.energyCapacity});
+                    target.structureType === STRUCTURE_TOWER && target.energy < target.energyCapacity});
             if(targets.length > 0) {
                 target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
@@ -114,7 +111,7 @@ let role_harvester = function(creep) {
             let targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (target) =>
                         target.structureType === STRUCTURE_STORAGE
-                        && target.store[RESOURCE_ENERGY] < target.storeCapacity
+                        && target.store[RESOURCE_ENERGY] < target.storeCapacity / 2
                 }
             );
             if(targets.length > 0) {
@@ -126,17 +123,19 @@ let role_harvester = function(creep) {
             let transfer_status = creep.transfer(target, RESOURCE_ENERGY);
             switch(transfer_status) {
                 case OK:
-                case ERR_TIRED:
                     break;
                 case ERR_NOT_IN_RANGE:
                     path_handler.find(creep, target, 1, 3);
                     break;
+                case ERR_INVALID_TARGET:
+                    creep.memory.target_id = null;
+                    break;
                 default:
+                    console.log(creep.name, "transfer", transfer_status);
                     creep.say(transfer_status);
             }
         }
         else {
-//                creep.moveTo(Game.flags['HarvesterPark'], {visualizePathStyle: {stroke: '#ffff88'}});
             creep.memory.status = "build";
             creep.say("Build");
         }
@@ -220,16 +219,18 @@ let role_harvester = function(creep) {
                             creep.memory.target_id = null;
                             break;
                         default:
+                            console.log(creep.name, "build", build_status);
                             creep.say(build_status)
                     }
                     break;
                 default:
+                    console.log(creep.name, "repair", repair_status);
                     creep.say(repair_status);
             }
         }
         else {
             creep.memory.status = "harvest";
-            creep.say("Harvest");
+            creep.say("Idle");
         }
     }
 };

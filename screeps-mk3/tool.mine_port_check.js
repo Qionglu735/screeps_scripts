@@ -1,20 +1,32 @@
 
 let mine_port_check = {
     run:function(spawn_name, room_name){
+        let spawn_room = Game.spawns[spawn_name].room;
         let room = Game.rooms[room_name];
-        let room_memory = Memory.my_spawn[spawn_name].room[room_name];
+        if(room == null) {
+            return;
+        }
+        let room_memory = Memory.my_room[room_name];
+        if(!["claimed", "reversing", "to_reverse"].includes(room_memory.claim_status)) {
+            return;
+        }
         let spawn_memory = Memory.my_spawn[spawn_name];
         let need_check_flag = false;
         if (Object.keys(room_memory.source).length === 0) {  // no source info
             need_check_flag = true;
         }
-        else if (Object.keys(room_memory.mineral).length === 0) {  // no mineral info
+        else if (spawn_room.controller.level >= 6
+            && Object.keys(room_memory.mineral).length === 0) {  // no mineral info
             need_check_flag = true;
         }
         else {
             for (let source_id in room_memory.source) {
                 if(room_memory.source.hasOwnProperty(source_id)) {
-                    if (room_memory.source[source_id].container == null) {  // no container info in source
+                    if(room_memory.source[source_id].container == null) {  // no container info in source
+                        need_check_flag = true;
+                        break;
+                    }
+                    else if(!spawn_memory.container_list.includes(room_memory.source[source_id].container)) {
                         need_check_flag = true;
                         break;
                     }
@@ -25,10 +37,14 @@ let mine_port_check = {
                     }
                 }
             }
-            if(need_check_flag === false && room.controller.level >= 6) {  // room level >= 6, need to check mineral
+            if(need_check_flag === false && spawn_room.controller.level >= 6) {  // room level >= 6, need to check mineral
                 for(let mineral_id in room_memory.mineral) {
                     if(room_memory.mineral.hasOwnProperty(mineral_id)) {
                         if (room_memory.mineral[mineral_id].container == null) {  // no container info in mineral
+                            need_check_flag = true;
+                            break;
+                        }
+                        else if(!spawn_memory.container_list.includes(room_memory.source[mineral_id].container)) {
                             need_check_flag = true;
                             break;
                         }
@@ -41,8 +57,7 @@ let mine_port_check = {
                 }
             }
             if(need_check_flag === false) {
-                for(let i in Memory.CreepStat.Miner.name_list) {
-                    let miner_name = Memory.CreepStat.Miner.name_list[i];
+                for(let miner_name of Memory.my_spawn[spawn_name].creep.miner.name_list) {
                     if (Memory.creeps[miner_name].container_id == null) {  // no container info in miner
                         need_check_flag = true;
                         break;
@@ -72,7 +87,11 @@ let mine_port_check = {
                     }
                     let container_list = mine_port.lookFor(LOOK_STRUCTURES);
                     let construction_site_list = mine_port.lookFor(LOOK_CONSTRUCTION_SITES);
-                    if (container_list.length === 0 && construction_site_list.length === 0) {  // no contianer or construction site
+                    // console.log(room_name, room_memory.claim_status)
+                    // console.log(["claimed", "reversed"].includes(room_memory.claim_status))
+                    if (["claimed", "reversing", "to_reverse"].includes(room_memory.claim_status)
+                        && container_list.length === 0
+                        && construction_site_list.length === 0) {  // no contianer or construction site
                         room.createConstructionSite(mine_port, STRUCTURE_CONTAINER);
                     }
                     else if(construction_site_list.length > 0) {
@@ -125,7 +144,7 @@ let mine_port_check = {
                             "container": null,
                         }
                     }
-                    if(room.controller.level >= 6) {
+                    if(spawn_room.controller.level >= 6) {
                         let container_list = mine_port.lookFor(LOOK_STRUCTURES);
                         let construction_site_list = mine_port.lookFor(LOOK_CONSTRUCTION_SITES);
                         if (container_list.length === 0 && construction_site_list.length === 0) {  // no contianer or construction site

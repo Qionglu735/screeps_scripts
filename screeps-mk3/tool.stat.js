@@ -7,15 +7,15 @@ let stat = function() {
         let energy_stat = Memory.my_spawn[spawn_name].energy_stat;
         let energy = Game.rooms[room_name].energyAvailable;
         if(!energy) energy = 0;
-        for(let i in Memory.my_spawn[spawn_name].container_list) {
-            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].container_list[i]);
-            if(obj.structureType === STRUCTURE_CONTAINER && obj.progress == null){
+        for(let i of Memory.my_spawn[spawn_name].container_list) {
+            let obj = Game.getObjectById(i);
+            if(obj != null && obj.structureType === STRUCTURE_CONTAINER && obj.progress == null){
                 energy += obj.store[RESOURCE_ENERGY];
             }
         }
-        for(let i in Memory.my_spawn[spawn_name].storage_list) {
-            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].storage_list[i]);
-            if(obj.structureType === STRUCTURE_STORAGE && obj.progress == null) {
+        for(let i of Memory.my_spawn[spawn_name].storage_list) {
+            let obj = Game.getObjectById(i);
+            if(obj != null && obj.structureType === STRUCTURE_STORAGE && obj.progress == null) {
                 energy += obj.store[RESOURCE_ENERGY];
             }
         }
@@ -73,17 +73,23 @@ let stat = function() {
             energy_stat["36000_tick_sum_b"] -= energy_stat.energy_track[72000];
         }
         while(energy_stat.energy_track.length > 72000) energy_stat.energy_track.pop();
-        if(energy_stat.energy_track.length >= 10) energy_stat["10_tick_sum_trend"] = ((energy_stat["10_tick_sum_a"] - energy_stat["10_tick_sum_b"]) / 10).toFixed(3);
-        if(energy_stat.energy_track.length >= 60) energy_stat["60_tick_sum_trend"] = ((energy_stat["60_tick_sum_a"] - energy_stat["60_tick_sum_b"]) / 60).toFixed(3);
-        if(energy_stat.energy_track.length >= 600) energy_stat["600_tick_sum_trend"] = ((energy_stat["600_tick_sum_a"] - energy_stat["600_tick_sum_b"]) / 600).toFixed(3);
-        if(energy_stat.energy_track.length >= 3600) energy_stat["3600_tick_sum_trend"] = ((energy_stat["3600_tick_sum_a"] - energy_stat["3600_tick_sum_b"]) / 3600).toFixed(3);
-        if(energy_stat.energy_track.length >= 36000) energy_stat["36000_tick_sum_trend"] = ((energy_stat["36000_tick_sum_a"] - energy_stat["36000_tick_sum_b"]) / 36000).toFixed(3);
-        console.log("[" + spawn_name + " Energy Log]Energy:" + energy,
+        energy_stat["10_tick_sum_trend"] = ((energy_stat["10_tick_sum_a"] - energy_stat["10_tick_sum_b"]) / 10).toFixed(3);
+        energy_stat["60_tick_sum_trend"] = ((energy_stat["60_tick_sum_a"] - energy_stat["60_tick_sum_b"]) / 60).toFixed(3);
+        energy_stat["600_tick_sum_trend"] = ((energy_stat["600_tick_sum_a"] - energy_stat["600_tick_sum_b"]) / 600).toFixed(3);
+        energy_stat["3600_tick_sum_trend"] = ((energy_stat["3600_tick_sum_a"] - energy_stat["3600_tick_sum_b"]) / 3600).toFixed(3);
+        energy_stat["36000_tick_sum_trend"] = ((energy_stat["36000_tick_sum_a"] - energy_stat["36000_tick_sum_b"]) / 36000).toFixed(3);
+        let spawn_room = Game.spawns[spawn_name].room;
+        console.log("[" + spawn_name + " Log]" +
+            "Lv:" + spawn_room.controller.level + "(" +
+            (spawn_room.controller.progress / spawn_room.controller.progressTotal * 100).toFixed(4) + "%)",
+            spawn_room.controller.progress - Memory.my_spawn[spawn_name].controller_progress,
+            "Energy:" + energy,
             "10s:" + energy_stat["10_tick_sum_trend"],
             "1m:" + energy_stat["60_tick_sum_trend"],
             "10m:" + energy_stat["600_tick_sum_trend"],
             "1h:" + energy_stat["3600_tick_sum_trend"],
             "10h:" + energy_stat["36000_tick_sum_trend"]);
+        Memory.my_spawn[spawn_name].controller_progress = spawn_room.controller.progress;
     }
     ///////////////////////////////////////////////////////////////////////
     ////    CPU Stat

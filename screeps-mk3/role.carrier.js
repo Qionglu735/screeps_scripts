@@ -3,6 +3,16 @@ let global_find = require("tool.global_find");
 let path_handler = require("tool.path_handler");
 
 let role_carrier = function(creep) {
+    // if(creep.memory.status === "withdraw"
+    //     && creep.memory.target_id != null && Game.getObjectById(creep.memory.target_id) != null) {
+    //     let obj = Game.getObjectById(creep.memory.target_id)
+    //     if(obj.store) {
+    //         console.log(creep.name, creep.carry.energy, creep.memory.status, obj.structureType, obj.pos.x, obj.pos.y, obj.room.name, obj.store[RESOURCE_ENERGY])
+    //     }
+    // }
+    // else {
+    //     console.log(creep.name, creep.carry.energy, creep.memory.status)
+    // }
     if(creep.memory.status == null || !["withdraw", "transfer"].includes(creep.memory.status)) {
         creep.memory.status = "withdraw";
     }
@@ -16,19 +26,19 @@ let role_carrier = function(creep) {
         creep.memory.target_id = null;
         creep.say('Transfer');
     }
-    if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
+    let target = Game.getObjectById(creep.memory.target_id);
+    if(target != null && creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);
     }
     else if(creep.memory.status === "withdraw") {
-        let target = Game.getObjectById(creep.memory.target_id);
         if(!target) {
             let targets = global_find.find_by_filter(FIND_TOMBSTONES, {
-                                            filter: (target) =>
-                                                target.creep.carry["RESOURCE_ENERGY"] > 0
-                                                && 5 <= target.pos.x && target.pos.x <= 45
-                                                && 5 <= target.pos.y && target.pos.y <= 45
-                                            }
-                                        );
+                    filter: (target) =>
+                        target.creep.carry["RESOURCE_ENERGY"] > 0
+                        && 5 <= target.pos.x && target.pos.x <= 45
+                        && 5 <= target.pos.y && target.pos.y <= 45
+                }
+            );
             if(targets.length > 0) {
                 target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
@@ -36,49 +46,57 @@ let role_carrier = function(creep) {
         }
         if(!target) {
             let targets = global_find.find_by_filter(FIND_DROPPED_RESOURCES, {
-                                            filter: (target) =>
-                                                target.resourceType === RESOURCE_ENERGY
-                                                && 5 <= target.pos.x && target.pos.x <= 45
-                                                && 5 <= target.pos.y && target.pos.y <= 45
-                                            }
-                                        );
+                    filter: (target) =>
+                        target.resourceType === RESOURCE_ENERGY
+                        && 5 <= target.pos.x && target.pos.x <= 45
+                        && 5 <= target.pos.y && target.pos.y <= 45
+                }
+            );
             if(targets.length > 0) {
                 target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
             }
         }
+        // if(!target) {
+        //     let targets = global_find.find_by_filter(FIND_STRUCTURES, {
+        //             filter: (target) =>
+        //                 target.structureType === STRUCTURE_CONTAINER
+        //                 && target.store[RESOURCE_ENERGY] === target.store.getCapacity[RESOURCE_ENERGY]
+        //         }
+        //     );
+        //     if(targets.length > 0) {
+        //         target = targets[Math.floor(Math.random() * 1000) % targets.length];
+        //         creep.memory.target_id = target.id;
+        //     }
+        // }
+        // if(!target) {
+        //     let targets = global_find.find_by_filter(FIND_STRUCTURES, {
+        //             filter: (target) =>
+        //                 target.structureType === STRUCTURE_CONTAINER
+        //                 && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy
+        //         }
+        //     );
+        //     if(targets.length > 0) {
+        //
+        //         // target = targets[Math.floor(Math.random() * 1000) % targets.length];
+        //         target = targets[0];
+        //         creep.memory.target_id = target.id;
+        //     }
+        // }
         if(!target) {
-            let targets = global_find.find_by_filter(FIND_STRUCTURES, {
-                                            filter: (target) =>
-                                                target.structureType === STRUCTURE_CONTAINER
-                                                && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy
-                                            }
-                                        );
-            if(targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
+            target = global_find.find_container_with_energy("spawn", "",
+                creep.carryCapacity - creep.carry.energy);
+            if(target) {
                 creep.memory.target_id = target.id;
             }
         }
         if(!target) {
-            let targets = global_find.find_by_filter(FIND_STRUCTURES, {
-                                            filter: (target) =>
-                                                target.structureType === STRUCTURE_CONTAINER
-                                                && target.store[RESOURCE_ENERGY] > 0
-                                            }
-                                        );
-            if(targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
-                creep.memory.target_id = target.id;
-            }
-        }
-        if(!target) {
-            let targets = global_find.find_by_filter(FIND_STRUCTURES, {
-                                            filter: (target) =>
-                                                target.structureType === STRUCTURE_STORAGE
-                                                && target.store[RESOURCE_ENERGY] >= 0});
-            if(targets.length > 0) {
-                target = targets[0];
-                creep.memory.target_id = target.id;
+            if(Memory.my_spawn["Spawn1"].storage_list.length > 0) {
+                let _t = Game.getObjectById(_t_id);
+                if(_t != null) {
+                    target = _t;
+                    creep.memory.target_id = target.id;
+                }
             }
         }
         if(!target) {
@@ -114,46 +132,54 @@ let role_carrier = function(creep) {
             }
         }
     }
-    else {
-        let target = Game.getObjectById(creep.memory.target_id);
-        if(target && target.energy === target.energyCapacity) {
+    else if(creep.memory.status === "transfer"){
+        if(target != null && target.store[RESOURCE_ENERGY] === target.store.getCapacity[RESOURCE_ENERGY]) {
             creep.memory.target_id = null;
             target = null;
         }
         if(!target && Memory.my_spawn["Spawn1"].creep.refueler.name_list.length === 0) {
-            let targets = global_find.find_by_filter(FIND_STRUCTURES, {
-                                            filter: (target) =>
-                                                (target.structureType === STRUCTURE_EXTENSION
-                                                || target.structureType === STRUCTURE_SPAWN)
-                                                && target.energy < target.energyCapacity
-                                            }
-                                        );
+            let _spawn = Game.spawns["Spawn1"];
+            if(_spawn.store[RESOURCE_ENERGY] < _spawn.store.getCapacity(RESOURCE_ENERGY)) {
+                target = _spawn;
+                creep.memory.target_id = target.id;
+            }
+        }
+        if(!target && Memory.my_spawn["Spawn1"].creep.refueler.name_list.length === 0) {
+            let targets = [];
+            for(let _e_id of Memory.my_spawn["Spawn1"].extension_list) {
+                let _e = Game.getObjectById(_e_id);
+                if(_e.store[RESOURCE_ENERGY] < _e.store.getCapacity(RESOURCE_ENERGY)) {
+                    targets.push(_e);
+                }
+            }
             if(targets.length > 0) {
                 target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
             }
         }
         if(!target && Memory.my_spawn["Spawn1"].creep.refueler.name_list.length === 0) {
-            targets = global_find.find_by_filter(FIND_STRUCTURES, {
-                                        filter: (target) =>
-                                            target.structureType === STRUCTURE_TOWER
-                                            && target.energy < target.energyCapacity
-                                        }
-                                    );
+            let targets = [];
+            for(let _t_id of Memory.my_spawn["Spawn1"].tower_list) {
+                let _t = Game.getObjectById(_t_id);
+                if(_t.store[RESOURCE_ENERGY] < _t.store.getCapacity(RESOURCE_ENERGY)) {
+                    targets.push(_t);
+                }
+            }
             if(targets.length > 0) {
                 target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
             }
         }
         if(!target) {
-            let targets = global_find.find_by_filter(FIND_STRUCTURES, {
-                                        filter: (target) =>
-                                            target.structureType === STRUCTURE_STORAGE
-                                            && target.store[RESOURCE_ENERGY] < target.storeCapacity / 2
-                                        }
-                                    );
+            let targets = [];
+            for(let _s_id of Memory.my_spawn["Spawn1"].storage_list) {
+                let _s = Game.getObjectById(_s_id);
+                if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity(RESOURCE_ENERGY)) {
+                    targets.push(_s);
+                }
+            }
             if(targets.length > 0) {
-                target = targets[0];
+                target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 creep.memory.target_id = target.id;
             }
         }

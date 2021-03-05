@@ -1,5 +1,5 @@
 
-var path_handler = {
+let path_handler = {
     status_find: function(creep, target, action_status, distance, close_range) {
         switch(action_status) {
             case OK:
@@ -7,7 +7,7 @@ var path_handler = {
                 break;
             case ERR_NOT_IN_RANGE:
                 if(creep.pos.getRangeTo(target.pos) < close_range) {
-                    moveTo_status = creep.moveTo(target.pos);
+                    let moveTo_status = creep.moveTo(target.pos);
                     switch(moveTo_status) {
                         case OK:
                         case ERR_TIRED:
@@ -20,10 +20,10 @@ var path_handler = {
                     }
                 }
                 else {
-                    var pathFinder = PathFinder.search(creep.pos, {pos: target.pos, range: distance});
+                    let pathFinder = PathFinder.search(creep.pos, {pos: target.pos, range: distance});
                     if(pathFinder.incomplete === false || pathFinder.path.length > 0) {
                         creep.memory.path_list = pathFinder.path;
-                        moveTo_status = creep.moveTo(creep.memory.path_list[0]);
+                        let moveTo_status = creep.moveTo(creep.memory.path_list[0]);
                         switch(moveTo_status) {
                             case OK:
                             case ERR_TIRED:
@@ -51,10 +51,19 @@ var path_handler = {
         let pos = new RoomPosition(creep.memory.path_list[0].x,
             creep.memory.path_list[0].y,
             creep.memory.path_list[0].roomName);
+        while(creep.memory.path_list.length > 0 && (pos.x === 0 || pos.y === 0 || pos.x === 49 || pos.y === 49)) {
+            creep.memory.path_list.shift();
+            pos = new RoomPosition(creep.memory.path_list[0].x,
+                creep.memory.path_list[0].y,
+                creep.memory.path_list[0].roomName);
+        }  // avoid blinking at room edge
         let move_status = creep.moveTo(pos);
         switch(move_status) {
             case OK:
-                creep.memory.path_list.shift();
+                if((creep.pos.x - pos.x) ** 2 + (creep.pos.y - pos.y) ** 2 <= 2
+                    && creep.pos.roomName === pos.roomName) {
+                    creep.memory.path_list.shift();
+                }
                 break;
             case ERR_TIRED:
                 break;
@@ -66,8 +75,11 @@ var path_handler = {
         }
     },
     find: function(creep, target, distance, close_range) {
-        if(creep.pos.getRangeTo(target.pos) < close_range) {
-            moveTo_status = creep.moveTo(target);
+        this.find_pos(creep, target.pos, distance, close_range);
+    },
+    find_pos: function(creep, pos, distance, close_range) {
+        if(creep.pos.getRangeTo(pos) < close_range) {
+            let moveTo_status = creep.moveTo(pos);
             switch(moveTo_status) {
                 case OK:
                 case ERR_TIRED:
@@ -80,10 +92,10 @@ var path_handler = {
             }
         }
         else {
-            var pathFinder = PathFinder.search(creep.pos, {pos: target.pos, range: distance});
+            let pathFinder = PathFinder.search(creep.pos, {pos: pos, range: distance});
             if(pathFinder.incomplete === false || pathFinder.path.length > 0) {
                 creep.memory.path_list = pathFinder.path;
-                moveTo_status = creep.moveTo(creep.memory.path_list[0]);
+                let moveTo_status = creep.moveTo(creep.memory.path_list[0]);
                 switch(moveTo_status) {
                     case OK:
                     case ERR_TIRED:

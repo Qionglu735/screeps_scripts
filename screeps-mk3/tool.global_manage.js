@@ -219,7 +219,7 @@ let global_manage = function(main_room_name) {
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check / Build Road
     let road_site_num = 0;
-    if (extension_site_num + storage_site_num + tower_site_num === 0) {
+    if (main_room.controller.level >= 4 && extension_site_num + storage_site_num + tower_site_num === 0) {
         road_site_num = global_find.find(FIND_MY_CONSTRUCTION_SITES, {
             filter: (target) => target.structureType === STRUCTURE_ROAD}).length;
         if (road_site_num <= 2) {
@@ -383,7 +383,15 @@ let global_manage = function(main_room_name) {
         }
     }
     ////    adjust carrier number
-    main_room_memory.creep.carrier.max_num = main_room_memory.container_list.length;
+    main_room_memory.creep.carrier.max_num = 0;
+    for(let i in main_room_memory.container_list) {
+        if(main_room_memory.container_list.hasOwnProperty(i)) {
+            if(Game.getObjectById(main_room_memory.container_list[i]) != null
+                && Game.getObjectById(main_room_memory.container_list[i]).progress == null) {
+                main_room_memory.creep.carrier.max_num += 1;
+            }
+        }
+    }
     ////    adjust refueler number
     main_room_memory.creep.refueler.max_num = 0;
     if(main_room_memory.storage_list.length > 0) {

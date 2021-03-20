@@ -21,7 +21,9 @@ let role_harvester = function(creep) {
     }
     else if(creep.memory.status === "harvest") {
         if(Memory.room_dict[creep.memory.main_room].creep.miner.name_list.length > 0
-                && Memory.room_dict[creep.memory.main_room].container_list.length > 0) {
+                && Memory.room_dict[creep.memory.main_room].container_list.length > 0
+                && Game.getObjectById(Memory.room_dict[creep.memory.main_room].container_list[0]) != null
+                && Game.getObjectById(Memory.room_dict[creep.memory.main_room].container_list[0]).progress == null) {
             let target = Game.getObjectById(creep.memory.target_id);
             if(!target && Memory.room_dict[creep.memory.main_room].creep.carrier.name_list.length > 0) {
                 let targets = [];

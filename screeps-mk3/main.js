@@ -20,6 +20,8 @@ let stat = require("tool.stat");
 module.exports.loop = function () {
     // return;  // All Stop
 
+    let cpu = Game.cpu.getUsed();
+
     ////    Loop Control
     ////    Memory.LoopControl: -1 == normal, 0 == pause, N(N>0) == N step
     ////    Use console to set value: Memory.LoopControl = -1
@@ -34,9 +36,7 @@ module.exports.loop = function () {
         Memory.LoopControl -= 1;
     }
 
-    console.log("################################################################################")
-    let cpu = Game.cpu.getUsed();
-    Memory.mark = 1;
+    console.log("################################################################################");
     console.log("parse memory", (Game.cpu.getUsed() - cpu).toFixed(3))
 
     ////    Memory Control
@@ -50,47 +50,22 @@ module.exports.loop = function () {
         console.log("init memory");
 
         for(let i in Memory) {
-            delete Memory[i];
+            if(i !== "creeps") {
+                delete Memory[i];
+            }
         }
         let first_room_name = Game.spawns[FIRST_SPAWN_NAME].room.name
         Memory.room_list = [first_room_name];
         Memory.room_dict = {};
-        let distance_list = [0];
-        let i = 0;
-        while(i < Memory.room_list.length) {
-            Memory.room_dict[Memory.room_list[i]] = {...ROOM_TEMPLATE};
-            Memory.room_dict[Memory.room_list[i]].main_room = first_room_name;
-            Memory.room_dict[Memory.room_list[i]].room_distance[first_room_name] = distance_list[i];
-            if(distance_list[i] + 1 < 10) {
-                let exit_info = Game.map.describeExits(Memory.room_list[i]);
-                for(let j of ["1", "3", "5", "7"]){
-                    if(exit_info[j] != null) {
-                        if(! Memory.room_list.includes(exit_info[j])) {
-                            Memory.room_list.push(exit_info[j]);
-                            distance_list.push(distance_list[i] + 1);
-                        }
-                    }
-                }
-            }
-            i += 1;
-        }
-        Memory.room_dict[Memory.room_list[0]].claim_status = "claimed";
-        console.log(Memory.room_list[0])
-        for(let room_name of Memory.room_list) {
-            console.log(room_name, Memory.room_dict[room_name].claim_status);
-        }
-        // TODO: detect room claim status
-        Memory.main_room_list = [];
-        for(let room_name of Memory.room_list) {
-            if(Memory.room_dict[room_name].claim_status === "claimed") {
-                Memory.main_room_list.push(room_name);
-                Memory.room_dict[room_name] = {
-                    ...Memory.room_dict[room_name],
-                    ...MAIN_ROOM_TEMPLATE,
-                }
-            }
-        }
-        Memory.room_dict[Memory.room_list[0]].spawn_list.push(FIRST_SPAWN_NAME);
+        Memory.room_dict[first_room_name] = {
+            ...ROOM_TEMPLATE,
+            ...MAIN_ROOM_TEMPLATE
+        };
+        Memory.room_dict[first_room_name].main_room = first_room_name;
+        Memory.room_dict[first_room_name].room_distance[first_room_name] = 0;
+        Memory.room_dict[first_room_name].claim_status = "claimed";
+        Memory.room_dict[first_room_name].spawn_list.push(FIRST_SPAWN_NAME);
+        Memory.main_room_list = [first_room_name];
         Memory.cpu_stat = {...CPU_STAT_TEMPLATE};
 
         Memory.MemoryControl = 0;
@@ -196,11 +171,13 @@ module.exports.loop = function () {
 
     // run creep
     cpu = Game.cpu.getUsed();
+    let large_cpu_creep_list = []
     for (let creep_name in Memory.creeps) {
         if(Memory.creeps.hasOwnProperty(creep_name)) {
             if (Game.creeps[creep_name].spawning) {
                 continue;
             }
+            let role_cpu = Game.cpu.getUsed();
             switch (Memory.creeps[creep_name].role) {
                 case "harvester":
                     role_harvester(Game.creeps[creep_name]);
@@ -226,9 +203,19 @@ module.exports.loop = function () {
                 case "builder":
                     break;
             }
+            role_cpu = Game.cpu.getUsed() - role_cpu;
+            if(role_cpu > 1) {
+                large_cpu_creep_list.push(creep_name + ":" + role_cpu.toFixed(3) + "s");
+            }
         }
     }
     console.log("run creep", (Game.cpu.getUsed() - cpu).toFixed(3));
+    // if(large_cpu_creep_list.length > 0) {
+    //     console.log(large_cpu_creep_list.join(","))
+    // }
+    // else {
+    //     console.log();
+    // }
 
     // check energy, cpu
     stat();

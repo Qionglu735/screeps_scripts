@@ -3,8 +3,9 @@ let path_handler = require("tool.path_handler");
 
 let role_claimer = function(creep) {
     if(creep.memory.target_room == null) {
-        for(let room_name of Memory.room_list) {
-            if(Game.rooms[creep.memory.main_room].controller.level >=4 && Memory.room_dict[room_name].room_distance <= 1
+        for(let room_name of Memory.room_dict[creep.memory.main_room].sub_room_list) {
+            if(Game.rooms[creep.memory.main_room].controller.level >=4
+                && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 1
                 && ["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)
                 && Memory.room_dict[room_name].assigned_claimer == null) {
                 creep.memory.target_room = room_name;

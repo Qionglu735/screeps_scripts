@@ -40,7 +40,9 @@ let structure_spawn = function(spawn) {
                 creepLevel += 1;
             }
             let creep_name = "Harvester" + Game.time % 10000 + "_Lv" + creepLevel;
-            console.log(spawn.name, "spawn", creep_name);
+            console.log(spawn.name, "spawn", creep_name,
+                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
                         main_room: room.name,
@@ -70,7 +72,9 @@ let structure_spawn = function(spawn) {
                 creepLevel += 1;
             }
             let creep_name = "Miner" + Game.time % 10000 + "_Lv" + creepLevel;
-            console.log(spawn.name, "spawn", creep_name);
+            console.log(spawn.name, "spawn", creep_name,
+                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
                         main_room: room.name,
@@ -99,7 +103,9 @@ let structure_spawn = function(spawn) {
                 creepLevel += 1;
             }
             let creep_name = "Carrier" + Game.time % 10000 + "_Lv" + creepLevel;
-            console.log(spawn.name, "spawn " + creep_name);
+            console.log(spawn.name, "spawn " + creep_name,
+                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, "Carrier" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
                         main_room: room.name,
@@ -128,7 +134,9 @@ let structure_spawn = function(spawn) {
                 creepLevel += 1;
             }
             let creep_name = "Refueler" + Game.time % 10000 + "_Lv" + creepLevel;
-            console.log(spawn.name, "spawn", creep_name);
+            console.log(spawn.name, "spawn", creep_name,
+                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, "Refueler" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
                         main_room: room.name,
@@ -154,7 +162,9 @@ let structure_spawn = function(spawn) {
                 creepLevel += 1;
             }
             let creep_name = "Scout" + Game.time % 10000 + "_Lv" + creepLevel;
-            console.log(spawn.name, "spawn", creep_name);
+            console.log(spawn.name, "spawn", creep_name,
+                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, "Scout" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
                         main_room: room.name,
@@ -173,7 +183,7 @@ let structure_spawn = function(spawn) {
             }
         }
         // Claimer
-        else if(memory_creep.claimer.name_list.length < memory_creep.claimer.max_num) {
+        else if(memory_creep.claimer.name_list.length < memory_creep.claimer.max_num && energy > 650) {
             while(energy > 650 && creepLevel < 1) {
                 body.push(CLAIM);
                 body.push(MOVE);
@@ -181,7 +191,9 @@ let structure_spawn = function(spawn) {
                 creepLevel += 1;
             }
             let creep_name = "Claimer" + Game.time % 10000 + "_Lv" + creepLevel;
-            console.log(spawn.name, "spawn", creep_name);
+            console.log(spawn.name, "spawn", creep_name,
+                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, "Claimer" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
                         main_room: room.name,
@@ -209,7 +221,9 @@ let structure_spawn = function(spawn) {
                 creepLevel += 1;
             }
             let creep_name = "Upgrader" + Game.time % 10000 + "_Lv" + creepLevel;
-            console.log(spawn.name, "spawn", creep_name);
+            console.log(spawn.name, "spawn", creep_name,
+                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
                         main_room: room.name,

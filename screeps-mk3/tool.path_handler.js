@@ -134,6 +134,13 @@ let path_handler = {
                 }
             });
             if(pathFinder.incomplete === false || pathFinder.path.length > 0) {
+                for(let i of pathFinder.path) {
+                    let room = Game.rooms[i.roomName];
+                    if (room == null) {
+                        continue;
+                    }
+                    room.visual.circle(i.x, i.y, {fill: "#ff00ff", radius: 0.1, opacity: 0.7});
+                }
                 creep.memory.path_list = pathFinder.path;
                 let moveTo_status = creep.moveTo(creep.memory.path_list[0]);
                 switch(moveTo_status) {
@@ -156,8 +163,8 @@ let path_handler = {
 
     get_cost_matrix: function(room_name, update=0) {
         let cost_matrix = new PathFinder.CostMatrix;
-        let room = Game.rooms[room_name]
-        if(room != null) {
+        let room = Game.rooms[room_name];
+        if(room != null && room_name in Memory.room_dict) {
             let room_memory = Memory.room_dict[room_name];
             if(room_memory.cost_matrix == null || update !== 0) {
                 room.find(FIND_STRUCTURES).forEach(function (struct) {

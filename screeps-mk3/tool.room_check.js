@@ -4,11 +4,18 @@ let room_check = function(main_room_name) {
     let main_room_memory = Memory.room_dict[main_room_name];
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Main Room
-    let max_distance = 0;
+    let max_scout_distance = 0;
+    let max_reverse_distance = 0;
     switch(main_room.controller.level) {
+        case 1:
+        case 2:
+        case 3:
+            max_scout_distance = 1;
+            break;
         case 4:
         case 5:
-            max_distance = 1;
+            max_scout_distance = 2;
+            max_reverse_distance = 1;
             break;
     }
     let room_list = [main_room_name];
@@ -16,19 +23,29 @@ let room_check = function(main_room_name) {
     main_room_memory.sub_room_list = [];
     let i = 0;
     while(i < room_list.length) {
-        if(!room_list[i] in Memory.room_dict) {
-            Memory.room_dict[room_list[i]] = ROOM_TEMPLATE;
+        if(!(room_list[i] in Memory.room_dict)) {
+            Memory.room_dict[room_list[i]] = {...ROOM_TEMPLATE};
         }
         Memory.room_dict[room_list[i]].main_room = main_room_name;
         if(distance_list[i] === 0) {
 
         }
-        else if(!main_room_memory.sub_room_list.includes(room_list[i])) {
+        else if(distance_list[i] <= max_reverse_distance
+            && !main_room_memory.sub_room_list.includes(room_list[i])) {
             main_room_memory.sub_room_list.push(room_list[i]);
+        }
+        else {
+            // if(main_room_memory.sub_room_list.includes(room_list[i])) {
+            //     for(let j in main_room_memory.sub_room_list) {
+            //         if(main_room_memory.sub_room_list[j] === room_list[i]) {
+            //             main_room_memory.sub_room_list.splice(j, 1);
+            //         }
+            //     }
+            // }
         }
         Memory.room_dict[room_list[i]].room_distance[main_room_name] = distance_list[i];
         // console.log(room_list[i], distance_list[i])
-        if(distance_list[i] + 1 <= max_distance) {
+        if(distance_list[i] + 1 <= max_scout_distance) {
             let exit_info = Game.map.describeExits(room_list[i]);
             for(let j of ["1", "3", "5", "7"]){
                 if(exit_info[j] != null) {
@@ -41,9 +58,13 @@ let room_check = function(main_room_name) {
         }
         i += 1;
     }
+    Memory.room_list = room_list;
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Sub Room
-    for(let room_name of main_room_memory.sub_room_list) {
+    // for(let room_name in Memory.room_dict) {
+    //     Memory.room_dict[room_name].claim_status = "neutral";
+    // }
+    for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
         //// check hostile status
         if(Game.rooms[room_name] == null) {
 

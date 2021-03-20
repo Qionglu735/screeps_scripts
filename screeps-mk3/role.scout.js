@@ -6,8 +6,8 @@ let role_scout = function(creep) {
     if(creep.memory.target_room == null) {
         for(let room_name of Memory.room_list) {
             if(Game.rooms[room_name] == null) {
-                if(control_level < 4 && Memory.room_dict[room_name].room_distance <= 1
-                    || control_level < 6 && Memory.room_dict[room_name].room_distance <= 2) {
+                if(control_level < 4 && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 1
+                    || control_level < 6 && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 2) {
                     creep.memory.target_room = room_name;
                     break;
                 }
@@ -16,6 +16,7 @@ let role_scout = function(creep) {
     }
     if(creep.memory.target_room == null) {
         creep.say("Idle");
+        console.log(creep.name, "idle")
     }
     else if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);

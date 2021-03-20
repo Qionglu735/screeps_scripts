@@ -76,6 +76,18 @@ let mine_port_check = function(main_room_name, room_name) {
     if(need_check_flag) {
         console.log("need_check_flag", need_check_flag)
         let source_list = room.find(FIND_SOURCES);
+        // for(let i in room_memory.source) {
+        //     let found_flag = false;
+        //     for(let j of source_list) {
+        //         if(i === j.id) {
+        //             found_flag = true;
+        //             break;
+        //         }
+        //     }
+        //     if(!found_flag) {
+        //         delete room_memory.source[i];
+        //     }
+        // }
         for(let i in source_list) {
             let min_cost = -1;
             let mine_port = null;
@@ -105,6 +117,7 @@ let mine_port_check = function(main_room_name, room_name) {
                 }
                 else if(construction_site_list.length > 0) {
                     let container = construction_site_list[0];
+                    console.log(room_name, container, source_list[i].id)
                     room_memory.source[source_list[i].id].container = container.id;
                     if(!main_room_memory.container_list.includes(container.id)) {
                         main_room_memory.container_list.push(container.id);

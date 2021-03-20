@@ -19,10 +19,6 @@ let stat = require("tool.stat");
 
 module.exports.loop = function () {
     // return;  // All Stop
-    console.log("################################################################################")
-    let cpu = Game.cpu.getUsed();
-    Memory.mark = 1;
-    console.log("parse memory", (Game.cpu.getUsed() - cpu).toFixed(3))
 
     ////    Loop Control
     ////    Memory.LoopControl: -1 == normal, 0 == pause, N(N>0) == N step
@@ -38,6 +34,11 @@ module.exports.loop = function () {
         Memory.LoopControl -= 1;
     }
 
+    console.log("################################################################################")
+    let cpu = Game.cpu.getUsed();
+    Memory.mark = 1;
+    console.log("parse memory", (Game.cpu.getUsed() - cpu).toFixed(3))
+
     ////    Memory Control
     ////    Memory.MemoryControl: 0 == normal, 1 == reset
     ////    Use console to set value: Memory.MemoryControl = 1
@@ -45,17 +46,19 @@ module.exports.loop = function () {
         Memory.MemoryControl = 1;
     }
     if(Memory.MemoryControl === 1 && Game.spawns[FIRST_SPAWN_NAME]) {
-        Memory.MemoryControl = 0;
         //// init memory
         console.log("init memory");
 
+        for(let i in Memory) {
+            delete Memory[i];
+        }
         let first_room_name = Game.spawns[FIRST_SPAWN_NAME].room.name
         Memory.room_list = [first_room_name];
         Memory.room_dict = {};
         let distance_list = [0];
         let i = 0;
         while(i < Memory.room_list.length) {
-            Memory.room_dict[Memory.room_list[i]] = ROOM_TEMPLATE;
+            Memory.room_dict[Memory.room_list[i]] = {...ROOM_TEMPLATE};
             Memory.room_dict[Memory.room_list[i]].main_room = first_room_name;
             Memory.room_dict[Memory.room_list[i]].room_distance[first_room_name] = distance_list[i];
             if(distance_list[i] + 1 < 10) {
@@ -72,6 +75,10 @@ module.exports.loop = function () {
             i += 1;
         }
         Memory.room_dict[Memory.room_list[0]].claim_status = "claimed";
+        console.log(Memory.room_list[0])
+        for(let room_name of Memory.room_list) {
+            console.log(room_name, Memory.room_dict[room_name].claim_status);
+        }
         // TODO: detect room claim status
         Memory.main_room_list = [];
         for(let room_name of Memory.room_list) {
@@ -84,7 +91,9 @@ module.exports.loop = function () {
             }
         }
         Memory.room_dict[Memory.room_list[0]].spawn_list.push(FIRST_SPAWN_NAME);
-        Memory.cpu_stat = CPU_STAT_TEMPLATE;
+        Memory.cpu_stat = {...CPU_STAT_TEMPLATE};
+
+        Memory.MemoryControl = 0;
     }
     ////    Memory Hotfix
     ////    Use console to set value: Memory.MemoryControl = 2

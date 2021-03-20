@@ -2,6 +2,7 @@
 FIRST_SPAWN_NAME = "Spawn1";
 
 ////    Memory Template
+////    deep copy is necessary
 
 ROOM_TEMPLATE = {
     "source": {},
@@ -109,7 +110,7 @@ MAIN_ROOM_TEMPLATE = {
     "sub_room_list": [],
 };
 
-const CPU_STAT_TEMPLATE = {
+CPU_STAT_TEMPLATE = {
     "cpu_track": [],
     "60_tick_sum": 0, "60_tick_avg": 0,  // 1 minute
     "600_tick_sum": 0, "600_tick_avg": 0,  // 10 minute

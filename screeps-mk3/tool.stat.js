@@ -2,18 +2,17 @@
 let stat = function() {
     ///////////////////////////////////////////////////////////////////////
     ////    Energy Stat
-    for(let spawn_name in Memory.my_spawn) {
-        let room_name = Game.spawns[spawn_name].room.name;
-        let energy_stat = Memory.my_spawn[spawn_name].energy_stat;
-        let energy = Game.rooms[room_name].energyAvailable;
+    for(let room_name of Memory.main_room_list) {
+        let energy_stat = Memory.room_dict[room_name].energy_stat;
+        let energy = Memory.room_dict[room_name].energyAvailable;
         if(!energy) energy = 0;
-        for(let i of Memory.my_spawn[spawn_name].container_list) {
+        for(let i of Memory.room_dict[room_name].container_list) {
             let obj = Game.getObjectById(i);
             if(obj != null && obj.structureType === STRUCTURE_CONTAINER && obj.progress == null){
                 energy += obj.store[RESOURCE_ENERGY];
             }
         }
-        for(let i of Memory.my_spawn[spawn_name].storage_list) {
+        for(let i of Memory.room_dict[room_name].storage_list) {
             let obj = Game.getObjectById(i);
             if(obj != null && obj.structureType === STRUCTURE_STORAGE && obj.progress == null) {
                 energy += obj.store[RESOURCE_ENERGY];
@@ -78,18 +77,18 @@ let stat = function() {
         energy_stat["600_tick_sum_trend"] = ((energy_stat["600_tick_sum_a"] - energy_stat["600_tick_sum_b"]) / 600).toFixed(3);
         energy_stat["3600_tick_sum_trend"] = ((energy_stat["3600_tick_sum_a"] - energy_stat["3600_tick_sum_b"]) / 3600).toFixed(3);
         energy_stat["36000_tick_sum_trend"] = ((energy_stat["36000_tick_sum_a"] - energy_stat["36000_tick_sum_b"]) / 36000).toFixed(3);
-        let spawn_room = Game.spawns[spawn_name].room;
-        console.log("[" + spawn_name + " Log]" +
-            "Lv:" + spawn_room.controller.level + "(" +
-            (spawn_room.controller.progress / spawn_room.controller.progressTotal * 100).toFixed(4) + "%)",
-            spawn_room.controller.progress - Memory.my_spawn[spawn_name].controller_progress,
+        let room = Game.rooms[room_name];
+        console.log("[" + room_name + " Log]" +
+            "Lv:" + room.controller.level + "(" +
+            (room.controller.progress / room.controller.progressTotal * 100).toFixed(4) + "%)",
+            room.controller.progress - Memory.room_dict[room_name].controller_progress,
             "Energy:" + energy,
             "10s:" + energy_stat["10_tick_sum_trend"],
             "1m:" + energy_stat["60_tick_sum_trend"],
             "10m:" + energy_stat["600_tick_sum_trend"],
             "1h:" + energy_stat["3600_tick_sum_trend"],
             "10h:" + energy_stat["36000_tick_sum_trend"]);
-        Memory.my_spawn[spawn_name].controller_progress = spawn_room.controller.progress;
+        Memory.room_dict[room_name].controller_progress = room.controller.progress;
     }
     ///////////////////////////////////////////////////////////////////////
     ////    CPU Stat

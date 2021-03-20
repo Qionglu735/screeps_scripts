@@ -1,36 +1,65 @@
 
 let structure_spawn = function(spawn) {
     let room = spawn.room;
-    let memory_creep = Memory.my_spawn[spawn.name].creep;
+    let memory_creep = Memory.room_dict[room.name].creep;
     if (spawn.spawning != null) {
-        console.log(spawn.name, "spawning", spawn.spawning.name, room.energyAvailable);
+        Memory.room_dict[room.name].spawn_busy_time += 1;
+        console.log(spawn.name, "spawning", spawn.spawning.name,
+            room.energyAvailable + "/" + room.energyCapacityAvailable,
+            "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
     }
     else if(!room.energyAvailable || room.energyAvailable < 300) {
-        console.log(spawn.name, "energy_low", room.energyAvailable);
+        Memory.room_dict[room.name].spawn_busy_time += 1;
+        console.log(spawn.name, "energy_low",
+            room.energyAvailable + "/" + room.energyCapacityAvailable,
+            "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
     }
-    else if(Memory.my_spawn[spawn.name].spawn_cool_down > 0) {
-        console.log(spawn.name, "spawn_cool_down", Memory.my_spawn[spawn.name].spawn_cool_down, room.energyAvailable);
+    else if(Memory.room_dict[room.name].spawn_cool_down > 0) {
+        Memory.room_dict[room.name].spawn_busy_time += 1;
+        console.log(spawn.name, "Cool_Down:", Memory.room_dict[room.name].spawn_cool_down + "s",
+            room.energyAvailable + "/" + room.energyCapacityAvailable,
+            "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
         if(room.energyAvailable === room.energyCapacityAvailable) {
-            Memory.my_spawn[spawn.name].spawn_cool_down = 0;
+            Memory.room_dict[room.name].spawn_cool_down = 0;
         }
         else {
-            Memory.my_spawn[spawn.name].spawn_cool_down -= 1;
+            Memory.room_dict[room.name].spawn_cool_down -= 1;
         }
     }
     else {
-        //if (Memory.my_spawn[spawn.name].creep_spawning != null) {
-        //    let creep_name = Memory.my_spawn[spawn.name].creep_spawning;
-        //    Memory.my_spawn[spawn.name].creep_spawning = null;
-        //    if (Game.creep[creep_name] != null) {
-        //        let creep = Game.creep[creep_name];
-        //        memory_creep[creep.memeory.role].name_list.push(creep_name);
-        //    }
-        //}
         let body = [];
         let energy = room.energyAvailable;
         let creepLevel = 0;
+        // Harvester
+        if(memory_creep.harvester.name_list.length < memory_creep.harvester.max_num) {
+            while(energy >= 200) {
+                body.push(WORK);
+                body.push(CARRY);
+                body.push(MOVE);
+                energy -= 200;
+                creepLevel += 1;
+            }
+            let creep_name = "Harvester" + Game.time % 10000 + "_Lv" + creepLevel;
+            console.log(spawn.name, "spawn", creep_name);
+            let res = spawn.spawnCreep(body, creep_name, {
+                    memory: {
+                        main_room: room.name,
+                        level: creepLevel,
+                        role: "harvester",
+                    }
+                }
+            );
+            if(res !== OK) {
+                console.log(res);
+            }
+            else {
+                Memory.room_dict[room.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_idle_time = 0;
+                Memory.room_dict[room.name].spawn_busy_time += 1;
+            }
+        }
         //Miner
-        if(memory_creep.miner.name_list.length < memory_creep.miner.max_num) {
+        else if(memory_creep.miner.name_list.length < memory_creep.miner.max_num) {
             body.push(CARRY);
             energy -= 50;
             while(energy >= 250 && creepLevel < 4) {
@@ -40,10 +69,12 @@ let structure_spawn = function(spawn) {
                 energy -= 250;
                 creepLevel += 1;
             }
-            let creep_name = "Miner" + Game.time % 10000 + "Lv" + creepLevel;
+            let creep_name = "Miner" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name);
             let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
+                        main_room: room.name,
+                        level: creepLevel,
                         role: "miner",
                     }
                 }
@@ -52,35 +83,9 @@ let structure_spawn = function(spawn) {
                 console.log(res);
             }
             else {
-                Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
-                //Memory.my_spawn[spawn.name].creep_spawning = creep_name;
-                //memory_creep.miner.name_list.push(creep_name);
-            }
-        }
-        // Harvester
-        else if(memory_creep.harvester.name_list.length < memory_creep.harvester.max_num) {
-            while(energy >= 200) {
-                body.push(WORK);
-                body.push(CARRY);
-                body.push(MOVE);
-                energy -= 200;
-                creepLevel += 1;
-            }
-            let creep_name = "Harvester" + Game.time % 10000 + "Lv" + creepLevel;
-            console.log(spawn.name, "spawn", creep_name);
-            let res = spawn.spawnCreep(body, creep_name, {
-                    memory: {
-                        role: "harvester",
-                    }
-                }
-            );
-            if(res !== OK) {
-                console.log(res);
-            }
-            else {
-                Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
-                //Memory.my_spawn[spawn.name].creep_spawning = creep_name;
-                //memory_creep.harvester.name_list.push(creep_name);
+                Memory.room_dict[room.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_idle_time = 0;
+                Memory.room_dict[room.name].spawn_busy_time += 1;
             }
         }
         // Carrier
@@ -93,10 +98,12 @@ let structure_spawn = function(spawn) {
                 energy -= 200;
                 creepLevel += 1;
             }
-            let creep_name = "Carrier" + Game.time % 10000 + "Lv" + creepLevel;
+            let creep_name = "Carrier" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn " + creep_name);
-            let res = spawn.spawnCreep(body, "Carrier" + Game.time % 10000 + "Lv" + creepLevel, {
+            let res = spawn.spawnCreep(body, "Carrier" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
+                        main_room: room.name,
+                        level: creepLevel,
                         role: "carrier",
                     }
                 }
@@ -105,7 +112,9 @@ let structure_spawn = function(spawn) {
                 console.log(res);
             }
             else {
-                Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_idle_time = 0;
+                Memory.room_dict[room.name].spawn_busy_time += 1;
             }
         }
         // Refueler
@@ -118,10 +127,12 @@ let structure_spawn = function(spawn) {
                 energy -= 200;
                 creepLevel += 1;
             }
-            let creep_name = "Refueler" + Game.time % 10000 + "Lv" + creepLevel;
+            let creep_name = "Refueler" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name);
-            let res = spawn.spawnCreep(body, "Refueler" + Game.time % 10000 + "Lv" + creepLevel, {
+            let res = spawn.spawnCreep(body, "Refueler" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
+                        main_room: room.name,
+                        level: creepLevel,
                         role: "refueler",
                     }
                 }
@@ -130,7 +141,9 @@ let structure_spawn = function(spawn) {
                 console.log(res);
             }
             else {
-                Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_idle_time = 0;
+                Memory.room_dict[room.name].spawn_busy_time += 1;
             }
         }
         // Scout
@@ -140,11 +153,12 @@ let structure_spawn = function(spawn) {
                 energy -= 50;
                 creepLevel += 1;
             }
-            creepLevel += 1;
-            let creep_name = "Scout" + Game.time % 10000 + "Lv" + creepLevel;
+            let creep_name = "Scout" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name);
-            let res = spawn.spawnCreep(body, "Scout" + Game.time % 10000 + "Lv" + creepLevel, {
+            let res = spawn.spawnCreep(body, "Scout" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
+                        main_room: room.name,
+                        level: creepLevel,
                         role: "scout",
                     }
                 }
@@ -153,7 +167,9 @@ let structure_spawn = function(spawn) {
                 console.log(res);
             }
             else {
-                Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_idle_time = 0;
+                Memory.room_dict[room.name].spawn_busy_time += 1;
             }
         }
         // Claimer
@@ -164,10 +180,12 @@ let structure_spawn = function(spawn) {
                 energy -= 650;
                 creepLevel += 1;
             }
-            let creep_name = "Claimer" + Game.time % 10000 + "Lv" + creepLevel;
+            let creep_name = "Claimer" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name);
-            let res = spawn.spawnCreep(body, "Claimer" + Game.time % 10000 + "Lv" + creepLevel, {
+            let res = spawn.spawnCreep(body, "Claimer" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
+                        main_room: room.name,
+                        level: creepLevel,
                         role: "claimer",
                     }
                 }
@@ -176,7 +194,9 @@ let structure_spawn = function(spawn) {
                 console.log(res);
             }
             else {
-                Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_idle_time = 0;
+                Memory.room_dict[room.name].spawn_busy_time += 1;
             }
         }
         // Upgrader
@@ -188,10 +208,12 @@ let structure_spawn = function(spawn) {
                 energy -= 200;
                 creepLevel += 1;
             }
-            let creep_name = "Upgrader" + Game.time % 10000 + "Lv" + creepLevel;
+            let creep_name = "Upgrader" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name);
             let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
+                        main_room: room.name,
+                        level: creepLevel,
                         role: "upgrader",
                     }
                 }
@@ -200,13 +222,16 @@ let structure_spawn = function(spawn) {
                 console.log(res);
             }
             else {
-                Memory.my_spawn[spawn.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
-                //Memory.my_spawn[spawn.name].spawning_creep = creep_name;
-                //memory_creep.upgrader.name_list.push(creep_name);
+                Memory.room_dict[room.name].spawn_cool_down = body.length * CREEP_SPAWN_TIME * 3;
+                Memory.room_dict[room.name].spawn_idle_time = 0;
+                Memory.room_dict[room.name].spawn_busy_time += 1;
             }
         }
         else {
-            console.log(spawn.name, "Idle")
+            Memory.room_dict[room.name].spawn_idle_time += 1;
+            Memory.room_dict[room.name].spawn_busy_time = 0;
+            console.log(spawn.name, room.energyAvailable + "/" + room.energyCapacityAvailable,
+                "Idle:", Memory.room_dict[room.name].spawn_idle_time + "s");
         }
     }
 };

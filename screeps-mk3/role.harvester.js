@@ -20,11 +20,24 @@ let role_harvester = function(creep) {
         path_handler.move(creep);
     }
     else if(creep.memory.status === "harvest") {
-        if(Memory.my_spawn["Spawn1"].creep.miner.name_list.length > 0
-                && Memory.my_spawn["Spawn1"].container_list.length > 0) {
+        if(Memory.room_dict[creep.memory.main_room].creep.miner.name_list.length > 0
+                && Memory.room_dict[creep.memory.main_room].container_list.length > 0) {
             let target = Game.getObjectById(creep.memory.target_id);
+            if(!target && Memory.room_dict[creep.memory.main_room].creep.carrier.name_list.length > 0) {
+                let targets = [];
+                for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
+                    let _s = Game.getObjectById(_s_id);
+                    if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity(RESOURCE_ENERGY)) {
+                        targets.push(_s);
+                    }
+                }
+                if(targets.length > 0) {
+                    target = targets[0];
+                    creep.memory.target_id = target.id;
+                }
+            }
             if(!target) {
-                target = global_find.find_container_with_energy("room", creep.room.name,
+                target = global_find.find_container_with_energy(creep.memory.main_room,
                     creep.carryCapacity - creep.carry.energy);
             }
             if(target) {
@@ -80,16 +93,16 @@ let role_harvester = function(creep) {
             creep.memory.target_id = null;
             target = null;
         }
-        if(!target) {
+        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
             let _spawn = Game.spawns["Spawn1"];
             if(_spawn.store[RESOURCE_ENERGY] < _spawn.store.getCapacity(RESOURCE_ENERGY)) {
                 target = _spawn;
                 creep.memory.target_id = target.id;
             }
         }
-        if(!target) {
+        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
             let targets = [];
-            for(let _e_id of Memory.my_spawn["Spawn1"].extension_list) {
+            for(let _e_id of Memory.room_dict[creep.memory.main_room].extension_list) {
                 let _e = Game.getObjectById(_e_id);
                 if(_e.store[RESOURCE_ENERGY] < _e.store.getCapacity(RESOURCE_ENERGY)) {
                     targets.push(_e);
@@ -100,9 +113,9 @@ let role_harvester = function(creep) {
                 creep.memory.target_id = target.id;
             }
         }
-        if(!target) {
+        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
             let targets = [];
-            for(let _t_id of Memory.my_spawn["Spawn1"].tower_list) {
+            for(let _t_id of Memory.room_dict[creep.memory.main_room].tower_list) {
                 let _t = Game.getObjectById(_t_id);
                 if(_t.store[RESOURCE_ENERGY] < _t.store.getCapacity(RESOURCE_ENERGY)) {
                     targets.push(_t);
@@ -113,9 +126,9 @@ let role_harvester = function(creep) {
                 creep.memory.target_id = target.id;
             }
         }
-        if(!target && Memory.my_spawn["Spawn1"].creep.refueler.name_list.length === 0) {
+        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
             let targets = [];
-            for(let _s_id of Memory.my_spawn["Spawn1"].storage_list) {
+            for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
                 let _s = Game.getObjectById(_s_id);
                 if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity(RESOURCE_ENERGY)) {
                     targets.push(_s);
@@ -187,7 +200,7 @@ let role_harvester = function(creep) {
             }
         }
         if(!target) {
-            let targets = global_find.find_by_filter(FIND_STRUCTURES, {
+            let targets = global_find.find(FIND_STRUCTURES, {
                 filter: (structure) =>
                     structure.hits < structure.hitsMax * 0.95
                     && structure.structureType !== STRUCTURE_WALL});
@@ -241,12 +254,12 @@ let role_harvester = function(creep) {
         }
     }
     else if(creep.memory.status === "upgrade"){
-        let upgrade_status = creep.upgradeController(creep.room.controller);
+        let upgrade_status = creep.upgradeController(Game.rooms[creep.memory.main_room].controller);
         switch(upgrade_status) {
             case OK:
                 break;
             case ERR_NOT_IN_RANGE:
-                path_handler.find(creep, creep.room.controller, 1, 3);
+                path_handler.find(creep, Game.rooms[creep.memory.main_room].controller, 1, 3);
                 break;
             case ERR_NOT_ENOUGH_RESOURCES:
                 creep.memory.status = "harvest";

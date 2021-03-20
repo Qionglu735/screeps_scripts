@@ -1,38 +1,47 @@
 
-let mine_port_check = require("tool.mine_port_check");
+require("constant");
 
-let global_manage = function(spawn_name) {
-    let spawn = Game.spawns[spawn_name];
-    let spawn_room = Game.spawns[spawn_name].room;
+let room_check = require("tool.room_check");
+let mine_port_check = require("tool.mine_port_check");
+let global_find = require("tool.global_find");
+let path_handler = require("tool.path_handler");
+
+let global_manage = function(main_room_name) {
+    let main_room = Game.rooms[main_room_name];
+    let main_room_memory = Memory.room_dict[main_room_name];
+    let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
+    ////////////////////////////////////////////////////////////////////////////////
+    ////    Check Room
+    room_check(main_room_name);
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Container
-    for(let i in Memory.my_spawn[spawn_name].container_list) {
-        if(Memory.my_spawn[spawn_name].container_list.hasOwnProperty(i)) {
-            if(Game.getObjectById(Memory.my_spawn[spawn_name].container_list[i]) == null) {
-                Memory.my_spawn[spawn_name].container_list.splice(i, 1);
+    for(let i in main_room_memory.container_list) {
+        if(main_room_memory.container_list.hasOwnProperty(i)) {
+            if(Game.getObjectById(main_room_memory.container_list[i]) == null) {
+                main_room_memory.container_list.splice(i, 1);
             }
         }
     }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Mine
-    for(let room_name in Memory.my_room) {
-        mine_port_check.run(spawn_name, room_name);
+    for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
+        mine_port_check(main_room_name, room_name);
     }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Extension
-    for(let i in Memory.my_spawn[spawn_name].extension_list) {  // check memory status
-        if(Memory.my_spawn[spawn_name].extension_list.hasOwnProperty(i)) {
-            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].extension_list[i]);
+    for(let i in main_room_memory.extension_list) {  // check memory status
+        if(main_room_memory.extension_list.hasOwnProperty(i)) {
+            let obj = Game.getObjectById(main_room_memory.extension_list[i]);
             if (!(obj && obj.structureType && obj.structureType === STRUCTURE_EXTENSION)) {
-                Memory.my_spawn[spawn_name].extension_list.splice(i, 1);
+                main_room_memory.extension_list.splice(i, 1);
             }
         }
     }
-    let extension_num = Memory.my_spawn[spawn_name].extension_list.length;
+    let extension_num = main_room_memory.extension_list.length;
     let extension_site_num = 0;
     let extension_max = 0;
     let extension_capacity = 50;
-    switch(spawn_room.controller.level) {
+    switch(main_room.controller.level) {
         case 2:
             extension_max = 5;
             break;
@@ -58,37 +67,29 @@ let global_manage = function(spawn_name) {
             break;
     }
     if (extension_num < extension_max) {
-        extension_site_num = spawn_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
+        extension_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
             filter: (target) => target.structureType === STRUCTURE_EXTENSION
         }).length;
         if(extension_site_num === 0) {  // not constructing
             if(extension_num < extension_max) {  // num < max
-                let extension_list = spawn_room.find(FIND_MY_STRUCTURES, {  // check game status
+                let extension_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
                     filter: (target) => target.structureType === STRUCTURE_EXTENSION
                 });
                 for (let i in extension_list) {  // update to memory
                     if(extension_list.hasOwnProperty(i)) {
-                        if (!Memory.my_spawn[spawn_name].extension_list.includes(extension_list[i].id)) {
-                            Memory.my_spawn[spawn_name].extension_list.push(extension_list[i].id);
+                        if (!main_room_memory.extension_list.includes(extension_list[i].id)) {
+                            main_room_memory.extension_list.push(extension_list[i].id);
                         }
                     }
                 }
-                extension_num = Memory.my_spawn[spawn_name].extension_list.length;
+                extension_num = main_room_memory.extension_list.length;
                 if(extension_num < extension_max) {
-                    let extension_table = {
-                        "1": [-1, 1], "2": [1, 1],
-                        "3": [-2, 2], "4": [0, 2], "5": [2, 2],
-                        "6": [-3, 3], "7": [-1, 3], "8": [1, 3], "9": [3, 3],
-                        "10": [-4, 4], "11": [-2, 4], "12": [0, 4], "13": [2, 4], "14": [4, 4],
-                        "15": [-3, 5], "16": [-1, 5], "17": [1, 5], "18": [3, 5],
-                        "19": [-4, 6], "20": [-2, 6], "21": [0, 6], "22": [2, 6], "23": [4, 6],
-                        "24": [-3, 7], "25": [-1, 7], "26": [1, 7], "27": [3, 7],
-                        "28": [-4, 8], "29": [-2, 8], "30": [0, 8], "31": [2, 8], "32": [4, 8],
-                    };
-                    let new_pos = new RoomPosition(spawn.pos.x + extension_table[extension_num + 1][0],
-                        spawn.pos.y + extension_table[extension_num + 1][1],
-                        spawn_room.name);
-                    let create_status = spawn_room.createConstructionSite(new_pos, STRUCTURE_EXTENSION);
+                    let extension_table = main_room_memory.extension_table;
+                    let new_pos = new RoomPosition(
+                        main_spawn.pos.x + extension_table[extension_num + 1][0],
+                        main_spawn.pos.y + extension_table[extension_num + 1][1],
+                        main_room.name);
+                    let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_EXTENSION);
                     switch(create_status) {
                         case OK:
                             extension_site_num += 1;
@@ -102,52 +103,50 @@ let global_manage = function(spawn_name) {
     }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Storage
-    for(let i in Memory.my_spawn[spawn_name].storage_list) {  // check memory status
-        if(Memory.my_spawn[spawn_name].storage_list.hasOwnProperty(i)) {
-            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].storage_list[i]);
+    for(let i in main_room_memory.storage_list) {  // check memory status
+        if(main_room_memory.storage_list.hasOwnProperty(i)) {
+            let obj = Game.getObjectById(main_room_memory.storage_list[i]);
             if (!(obj && obj.structureType && obj.structureType === STRUCTURE_STORAGE)) {
-                Memory.my_spawn[spawn_name].storage_list.splice(i, 1);
+                main_room_memory.storage_list.splice(i, 1);
             }
         }
     }
-    let storage_num = Memory.my_spawn[spawn_name].storage_list.length;
+    let storage_num = main_room_memory.storage_list.length;
     let storage_site_num = 0;
     let storage_max = 0;
-    if(spawn_room.controller.level >= 4) {
+    if(main_room.controller.level >= 4) {
         storage_max = 1;
     }
     if (storage_num < storage_max) {
-        storage_site_num = spawn_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
+        storage_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
             filter: (target) => target.structureType === STRUCTURE_STORAGE
         }).length;
         if(storage_site_num === 0) {  // not constructing
             if(storage_num < storage_max) {  // num < max
-                let storage_list = spawn_room.find(FIND_MY_STRUCTURES, {  // check game status
+                let storage_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
                     filter: (target) => target.structureType === STRUCTURE_STORAGE
                 });
                 for(let i in storage_list) {  // update to memory
                     if(storage_list.hasOwnProperty(i)) {
-                        if (!Memory.my_spawn[spawn_name].storage_list.includes(storage_list[i].id)) {
-                            Memory.my_spawn[spawn_name].storage_list.push(storage_list[i].id);
+                        if (!main_room_memory.storage_list.includes(storage_list[i].id)) {
+                            main_room_memory.storage_list.push(storage_list[i].id);
                         }
                     }
                 }
-                storage_num = Memory.my_spawn[spawn_name].storage_list.length;
+                storage_num = main_room_memory.storage_list.length;
                 if (storage_num < storage_max && extension_site_num === 0) {
-
-                    let storage_pos = [0, -2];
-                    if (storage_site_num === 0) {
-                        let new_pos = new RoomPosition(spawn.pos.x + storage_pos[0],
-                            spawn.pos.y + storage_pos[1],
-                            spawn_room.name);
-                        let create_status = spawn_room.createConstructionSite(new_pos, STRUCTURE_STORAGE);
-                        switch (create_status) {
-                            case OK:
-                                storage_site_num += 1;
-                                break;
-                            default:
-                                console.log("create storage failed:", create_status)
-                        }
+                    let storage_pos = main_room_memory.storage_table["1"];
+                    let new_pos = new RoomPosition(
+                        main_spawn.pos.x + storage_pos[0],
+                        main_spawn.pos.y + storage_pos[1],
+                        main_room.name);
+                    let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_STORAGE);
+                    switch (create_status) {
+                        case OK:
+                            storage_site_num += 1;
+                            break;
+                        default:
+                            console.log("create storage failed:", create_status)
                     }
                 }
             }
@@ -155,18 +154,18 @@ let global_manage = function(spawn_name) {
     }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Tower
-    for(let i in Memory.my_spawn[spawn_name].tower_list) {  // check memory status
-        if(Memory.my_spawn[spawn_name].tower_list.hasOwnProperty(i)) {
-            let obj = Game.getObjectById(Memory.my_spawn[spawn_name].tower_list[i]);
+    for(let i in main_room_memory.tower_list) {  // check memory status
+        if(main_room_memory.tower_list.hasOwnProperty(i)) {
+            let obj = Game.getObjectById(main_room_memory.tower_list[i]);
             if (!(obj && obj.structureType && obj.structureType === STRUCTURE_TOWER)) {
-                Memory.my_spawn[spawn_name].tower_list.splice(i, 1);
+                main_room_memory.tower_list.splice(i, 1);
             }
         }
     }
-    let tower_num = Memory.my_spawn[spawn_name].tower_list.length;
+    let tower_num = main_room_memory.tower_list.length;
     let tower_site_num = 0;
     let tower_max = 0;
-    switch (spawn_room.controller.level) {
+    switch (main_room.controller.level) {
         case 3:
         case 4:
             tower_max = 1;
@@ -183,38 +182,145 @@ let global_manage = function(spawn_name) {
             break;
     }
     if (tower_num < tower_max) {
-        tower_site_num = spawn_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
+        tower_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
             filter: (target) => target.structureType === STRUCTURE_TOWER
         }).length;
         if(tower_site_num === 0) {  // not constructing
             if(tower_num < tower_max) {  // num < max
-                let tower_list = spawn_room.find(FIND_MY_STRUCTURES, {  // check game status
+                let tower_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
                     filter: (target) => target.structureType === STRUCTURE_TOWER
                 });
                 for(let i in tower_list) {  // update to memory
                     if(tower_list.hasOwnProperty(i)) {
-                        if (!Memory.my_spawn[spawn_name].tower_list.includes(tower_list[i].id)) {
-                            Memory.my_spawn[spawn_name].tower_list.push(tower_list[i].id);
+                        if (!main_room_memory.tower_list.includes(tower_list[i].id)) {
+                            main_room_memory.tower_list.push(tower_list[i].id);
                         }
                     }
                 }
-                tower_num = Memory.my_spawn[spawn_name].tower_list.length;
+                tower_num = main_room_memory.tower_list.length;
                 if (tower_num < tower_max && extension_site_num + storage_site_num === 0) {
-                    if (tower_site_num === 0) {
-                        let tower_table = {
-                            "1": [-2, 0],
-                            "2": [2, 0],
-                        };
-                        let new_pos = new RoomPosition(spawn.pos.x + tower_table[tower_num + 1][0],
-                            spawn.pos.y + tower_table[tower_num + 1][1],
-                            spawn_room.name);
-                        let create_status = spawn_room.createConstructionSite(new_pos, STRUCTURE_TOWER);
-                        switch (create_status) {
-                            case OK:
-                                tower_site_num += 1;
-                                break;
-                            default:
-                                console.log("create tower failed:", create_status)
+                    let tower_table = main_room_memory.tower_table;
+                    let new_pos = new RoomPosition(
+                        main_spawn.pos.x + tower_table[tower_num + 1][0],
+                        main_spawn.pos.y + tower_table[tower_num + 1][1],
+                        main_room.name);
+                    let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_TOWER);
+                    switch (create_status) {
+                        case OK:
+                            tower_site_num += 1;
+                            break;
+                        default:
+                            console.log("create tower failed:", create_status)
+                    }
+                }
+            }
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+    ////    Check / Build Road
+    let road_site_num = 0;
+    if (extension_site_num + storage_site_num + tower_site_num === 0) {
+        road_site_num = global_find.find(FIND_MY_CONSTRUCTION_SITES, {
+            filter: (target) => target.structureType === STRUCTURE_ROAD}).length;
+        if (road_site_num <= 2) {
+            let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
+            for (let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
+                let room_memory = Memory.room_dict[room_name]
+                for (let source_id in room_memory.source) {
+                    if (room_memory.source.hasOwnProperty(source_id)) {
+                        if (room_memory.source[source_id].container != null) {
+                            let source_memory = room_memory.source[source_id];
+                            if (source_memory.road_to_build == null || source_memory.road_built == null
+                                || source_memory.road_to_build.length + source_memory.road_built.length === 0) {  // init
+                                let res = PathFinder.search(
+                                    main_spawn.pos,
+                                    {
+                                        pos: Game.getObjectById(source_memory.container).pos,
+                                        range: 1
+                                    }, {
+                                        roomCallback: function (room_name) {
+                                            return path_handler.get_cost_matrix(room_name);
+                                        }
+                                    });
+                                if (res.incomplete === false) {
+                                    source_memory.road_to_build = res.path;
+                                    for (let i in source_memory.road_to_build) {
+                                        if(source_memory.road_to_build.hasOwnProperty(i)) {
+                                            if(source_memory.road_to_build[i].x === 0
+                                                || source_memory.road_to_build[i].x === 49
+                                                || source_memory.road_to_build[i].y === 0
+                                                || source_memory.road_to_build[i].y === 49) {
+                                                source_memory.road_to_build.splice(i, 1)
+                                            }
+                                        }
+                                    }
+                                    source_memory.road_built = [];
+                                    break;
+                                }
+                            }
+                            for (let i in source_memory.road_built) {  // check road
+                                if (source_memory.road_built.hasOwnProperty(i)) {
+                                    let obj = Game.getObjectById(source_memory.road_built[i]);
+                                    if (!(obj && obj.structureType && obj.structureType === STRUCTURE_ROAD)) {
+                                        source_memory.road_built.splice(i, 1);
+                                    }
+                                }
+                            }
+                            // for (let i in source_memory.road_to_build) {
+                            //     if(source_memory.road_to_build.hasOwnProperty(i)) {
+                            //         if(source_memory.road_to_build[i].x === 0
+                            //             || source_memory.road_to_build[i].x === 49
+                            //             || source_memory.road_to_build[i].y === 0
+                            //             || source_memory.road_to_build[i].y === 49) {
+                            //             source_memory.road_to_build.splice(i, 1)
+                            //         }
+                            //     }
+                            // }
+                            if (source_memory.road_to_build.length > source_memory.road_built.length) {  // build road
+                                for(let i of source_memory.road_to_build) {
+                                    let room = Game.rooms[i.roomName];
+                                    if (room == null) {
+                                        continue;
+                                    }
+                                    room.visual.circle(i.x, i.y, {fill: "#80ff82", radius: 0.1, opacity: 1});
+                                }
+                                for(let i of source_memory.road_to_build) {
+                                    let road_pos = new RoomPosition(i.x, i.y, i.roomName);
+                                    let room = Game.rooms[road_pos.roomName];
+                                    if (room == null) {
+                                        continue;
+                                    }
+                                    let road_list = road_pos.lookFor(LOOK_STRUCTURES);
+                                    if (road_list.length === 0) {  // road not found
+                                        room.createConstructionSite(road_pos, STRUCTURE_ROAD);
+                                        road_site_num += 1;
+                                        if(road_site_num > 2) {
+                                            break;
+                                        }
+                                    } else {
+                                        if (!source_memory.road_built.includes(road_list[0].id)) {
+                                            source_memory.road_built.push(road_list[0].id);
+                                        }
+                                    }
+                                }
+                                if(road_site_num > 2) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if(road_site_num > 2) {
+                    break;
+                }
+                if(main_room.controller.level >= 6) {  // room level >= 6, need to check mineral
+                    for(let mineral_id in main_room_memory.mineral) {
+                        if(main_room_memory.mineral.hasOwnProperty(mineral_id)) {
+                            // if (room_memory.mineral[mineral_id].container == null) {
+                            //     console.log(room_name, "no container info in mineral");
+                            //     need_check_flag = true;
+                            //     break;
+                            // }
                         }
                     }
                 }
@@ -222,50 +328,51 @@ let global_manage = function(spawn_name) {
         }
     }
     ////////////////////////////////////////////////////////////////////////////////
-    ////    Check Room
-    for(let room_name in Memory.my_room) {
-        if(spawn_room.controller.level >= 4 && Memory.my_room[room_name].room_distance === 1) {
-            if(Memory.my_room[room_name].claim_status === "neutral") {
-                Memory.my_room[room_name].claim_status = "to_reverse";
-            }
+    ////    Update Cost Matrix per 10 min
+    if (extension_site_num + storage_site_num + tower_site_num + road_site_num === 0 && Game.time % 600 === 0) {
+        for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
+            console.log(room_name, "update cost matrix")
+            path_handler.get_cost_matrix(room_name, 1);
         }
     }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Adjust Worker Number
-    Memory.my_spawn[spawn_name].creep.miner.max_num = 0;
+    main_room_memory.creep.miner.max_num = 0;
     ////    adjust miner number
-    for(let room_name in Memory.my_room) {
-        if(["claimed", "reversing", "to_reverse"].includes(Memory.my_room[room_name].claim_status)) {
-            Memory.my_spawn[spawn_name].creep.miner.max_num += Object.keys(Memory.my_room[room_name].source).length;
-            if(spawn_room.controller.level >= 6) {
-                Memory.my_spawn[spawn_name].creep.miner.max_num += Object.keys(Memory.my_room[room_name].mineral).length;
+    for(let room_name of Memory.room_list) {
+        if(["claimed", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
+            main_room_memory.creep.miner.max_num += Object.keys(Memory.room_dict[room_name].source).length;
+            if(main_room.controller.level >= 6) {
+                main_room_memory.creep.miner.max_num += Object.keys(Memory.room_dict[room_name].mineral).length;
             }
         }
     }
     ////    miner / mine port assignment
-    for(let room_name in Memory.my_room) {
-        for (let source_id in Memory.my_room[room_name].source) {
-            if (Memory.my_room[room_name].source.hasOwnProperty(source_id)) {
-                let source_info = Memory.my_room[room_name].source[source_id];
+    for(let room_name of Memory.room_list) {
+        if(!["claimed", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
+            continue;
+        }
+        for (let source_id in Memory.room_dict[room_name].source) {
+            if (Memory.room_dict[room_name].source.hasOwnProperty(source_id)) {
+                let source_info = Memory.room_dict[room_name].source[source_id];
                 if (source_info.assigned_miner == null || Game.creeps[source_info.assigned_miner] == null) {  // if no assigned miner, or miner doesn't exist
-                    Memory.my_room[room_name].source[source_id].assigned_miner = null;
-                    for (let i in Memory.my_spawn[spawn_name].creep.miner.name_list) {
-                        if (Memory.my_spawn[spawn_name].creep.miner.name_list.hasOwnProperty(i)) {
-                            let miner_name = Memory.my_spawn[spawn_name].creep.miner.name_list[i];
-                            if (Memory.creeps[miner_name].target_id == null) {  // idle miner
-                                Memory.creeps[miner_name].target_id = source_id;
-                                Memory.creeps[miner_name].container_id = source_info.container;
-                                Memory.my_room[room_name].source[source_id].assigned_miner = miner_name;
-                                break;
-                            } else if (Memory.creeps[miner_name].target_id === source_id) {  // miner already assigned
-                                Memory.my_room[room_name].source[source_id].assigned_miner = miner_name;
-                                break;
-                            }
+                    Memory.room_dict[room_name].source[source_id].assigned_miner = null;
+                    for (let miner_name of main_room_memory.creep.miner.name_list) {
+                        if (Memory.creeps[miner_name].target_id == null) {  // idle miner
+                            Memory.creeps[miner_name].target_id = source_id;
+                            Memory.creeps[miner_name].container_id = source_info.container;
+                            Memory.room_dict[room_name].source[source_id].assigned_miner = miner_name;
+                            break;
+                        } else if (Memory.creeps[miner_name].target_id === source_id) {  // miner already assigned
+                            Memory.room_dict[room_name].source[source_id].assigned_miner = miner_name;
+                            break;
                         }
                     }
-                } else {  // check miner memory
+                }
+                else {  // check miner memory
                     let miner_name = source_info.assigned_miner;
-                    if (Memory.creeps[miner_name].target_id == null) {
+                    if (Memory.creeps[miner_name].target_id == null
+                        || Memory.creeps[miner_name].target_id !== source_id) {
                         Memory.creeps[miner_name].target_id = source_id;
                     }
                     if (Memory.creeps[miner_name].container_id == null) {
@@ -276,86 +383,107 @@ let global_manage = function(spawn_name) {
         }
     }
     ////    adjust carrier number
-    Memory.my_spawn[spawn_name].creep.carrier.max_num = Memory.my_spawn[spawn_name].container_list.length;
+    main_room_memory.creep.carrier.max_num = main_room_memory.container_list.length;
     ////    adjust refueler number
-    Memory.my_spawn[spawn_name].creep.refueler.max_num = 0;
-    if(Memory.my_spawn[spawn_name].storage_list.length > 0) {
-        Memory.my_spawn[spawn_name].creep.refueler.max_num =
-            Memory.my_spawn[spawn_name].storage_list.length + Memory.my_spawn[spawn_name].tower_list.length;
+    main_room_memory.creep.refueler.max_num = 0;
+    if(main_room_memory.storage_list.length > 0) {
+        main_room_memory.creep.refueler.max_num =
+            // main_room_memory.storage_list.length + main_room_memory.tower_list.length;
+            main_room_memory.tower_list.length;
     }
     ////    adjust harvester number
-    Memory.my_spawn[spawn_name].creep.harvester.max_num = 2;
-    // if(Memory.my_spawn[spawn_name].creep.carrier.name_list.length === 0) {
-    //     Memory.my_spawn[spawn_name].creep.harvester.max_num = Object.keys(Memory.my_room[room_name].source).length;
+    main_room_memory.creep.harvester.max_num = 2;
+    // if(main_room_memory.creep.carrier.name_list.length === 0) {
+    //     main_room_memory.creep.harvester.max_num = Object.keys(Memory.room_dict[room_name].source).length;
     // }
     // else {
-    //     Memory.my_spawn[spawn_name].creep.harvester.max_num = 1;
+    //     main_room_memory.creep.harvester.max_num = 1;
     // }
     ////    TODO: adjust builder number
-    // Memory.my_spawn[spawn_name].creep.builder.max_num = 1;
+    // main_room_memory.creep.builder.max_num = 1;
     ////    adjust claimer number
-    Memory.my_spawn[spawn_name].creep.claimer.max_num = 0;
-    for(let room_name in Memory.my_room) {
-        if(["to_reverse", "reversing"].includes(Memory.my_room[room_name].claim_status)) {
-            Memory.my_spawn[spawn_name].creep.claimer.max_num += 1;
+    main_room_memory.creep.claimer.max_num = 0;
+    for(let room_name in Memory.room_dict) {
+        if(["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
+            main_room_memory.creep.claimer.max_num += 1;
         }
+    }
+    ////    adjust scout number
+    if(main_room.controller.level >= 4) {
+        main_room_memory.creep.scout.max_num = 1;
     }
     ////    adjust upgrader number
-    if(spawn_room.controller.level >= 4) {
-        Memory.my_spawn[spawn_name].creep.scout.max_num = 1;
+    if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
+        && main_room_memory.spawn_idle_time >= 120) {
+        main_room_memory.creep.upgrader.max_num += 1;
     }
-    if(Memory.my_spawn[spawn_name].creep.upgrader.name_list.length < Memory.my_spawn[spawn_name].creep.upgrader.max_num
-        && Memory.my_spawn[spawn_name].energy_stat["3600_tick_sum_trend"] < 50) {
-        // energy decreasing in 1 hour: half upgrader number
-        Memory.my_spawn[spawn_name].creep.upgrader.max_num = Math.floor(parseInt(Memory.my_spawn[spawn_name].creep.upgrader.max_num) / 2);
-        if(Memory.my_spawn[spawn_name].creep.upgrader.max_num === 0) {
-            Memory.my_spawn[spawn_name].creep.upgrader.max_num = 1;
-        }
+    else if(main_room_memory.creep.upgrader.name_list.length <= main_room_memory.creep.upgrader.max_num
+        && main_room_memory.creep.upgrader.max_num > 0
+        && main_room_memory.spawn_busy_time >= 300) {
+        main_room_memory.creep.upgrader.max_num -= 1;
     }
-    else if(Memory.my_spawn[spawn_name].creep.upgrader.name_list.length === Memory.my_spawn[spawn_name].creep.upgrader.max_num
-        && Memory.my_spawn[spawn_name].spawn_cool_down === 0) {
-        // upgrader num already at maximum number, spawn is idle
-        if(spawn_room.energyAvailable === 300 + extension_num * extension_capacity
-            && Memory.my_spawn[spawn_name].creep.upgrader.max_num <= spawn_room.controller.level * 3
-            && Memory.cpu_stat["600_tick_avg"] < 5
-            && Memory.my_spawn[spawn_name].energy_stat["600_tick_sum_trend"] > 50) {
-            // spawn energy at maximum, cpu < 5 in 10 min, energy increasing in 10 min
-            Memory.my_spawn[spawn_name].creep.upgrader.max_num += 1;
-        }
-        else if(spawn_room.energyAvailable === 300 + extension_num * extension_capacity
-            && Memory.my_spawn[spawn_name].creep.upgrader.max_num <= spawn_room.controller.level
-            && Memory.cpu_stat["3600_tick_avg"] < 15
-            && (Memory.my_spawn[spawn_name].energy_stat["3600_tick_sum_trend"] > 50
-                || spawn_room.energyAvailable > 800000)) {
-            // spawn energy at maximum, cpu < 15 in 1 hour, energy increasing in 1 hour
-            Memory.my_spawn[spawn_name].creep.upgrader.max_num += 1;
-        }
-        else if(Memory.cpu_stat["3600_tick_avg"] > 15
-            && Memory.my_spawn[spawn_name].creep.upgrader.max_num > 1) {
-            // cpu > 15 in 1 hour
-            Memory.my_spawn[spawn_name].creep.upgrader.max_num -= 1;
-        }
-        else if(Memory.cpu_stat["3600_tick_sum_trend"] < 50
-            && Memory.my_spawn[spawn_name].creep.upgrader.max_num > 1) {
-            // energy decreasing in 1 hour
-            Memory.my_spawn[spawn_name].creep.upgrader.max_num -= 1;
-        }
-    }
+    // if(storage_num === 0) {
+    //
+    // }
+    // else if(main_room_memory.creep.upgrader.name_list.length < main_room_memory.creep.upgrader.max_num
+    //     && main_room_memory.energy_stat["3600_tick_sum_trend"] < 50) {
+    //     // energy decreasing in 1 hour: half upgrader number
+    //     main_room_memory.creep.upgrader.max_num = Math.floor(parseInt(main_room_memory.creep.upgrader.max_num) / 2);
+    //     if(main_room_memory.creep.upgrader.max_num === 0) {
+    //         main_room_memory.creep.upgrader.max_num = 1;
+    //     }
+    // }
+    // else if(main_room_memory.creep.upgrader.name_list.length === main_room_memory.creep.upgrader.max_num
+    //     && main_room_memory.spawn_cool_down === 0) {
+    //     // upgrader num already at maximum number, spawn is idle
+    //     if(main_room.energyAvailable === 300 + extension_num * extension_capacity
+    //         && main_room_memory.creep.upgrader.max_num <= main_room.controller.level * 3
+    //         && Memory.cpu_stat["600_tick_avg"] < 5
+    //         && main_room_memory.energy_stat["600_tick_sum_trend"] > 50) {
+    //         // spawn energy at maximum, cpu < 5 in 10 min, energy increasing in 10 min
+    //         main_room_memory.creep.upgrader.max_num += 1;
+    //     }
+    //     else if(main_room.energyAvailable === 300 + extension_num * extension_capacity
+    //         && main_room_memory.creep.upgrader.max_num <= main_room.controller.level
+    //         && Memory.cpu_stat["3600_tick_avg"] < 15
+    //         && (main_room_memory.energy_stat["3600_tick_sum_trend"] > 50
+    //             || main_room.energyAvailable > 800000)) {
+    //         // spawn energy at maximum, cpu < 15 in 1 hour, energy increasing in 1 hour
+    //         main_room_memory.creep.upgrader.max_num += 1;
+    //     }
+    //     else if(Memory.cpu_stat["3600_tick_avg"] > 15
+    //         && main_room_memory.creep.upgrader.max_num > 1) {
+    //         // cpu > 15 in 1 hour
+    //         main_room_memory.creep.upgrader.max_num -= 1;
+    //     }
+    //     else if(Memory.cpu_stat["3600_tick_sum_trend"] < 50
+    //         && main_room_memory.creep.upgrader.max_num > 1) {
+    //         // energy decreasing in 1 hour
+    //         main_room_memory.creep.upgrader.max_num -= 1;
+    //     }
+    // }
     console.log(
-        "M:" + Memory.my_spawn[spawn_name].creep.miner.name_list.length + "/"
-        + Memory.my_spawn[spawn_name].creep.miner.max_num,
-        "H:" + Memory.my_spawn[spawn_name].creep.harvester.name_list.length + "/"
-        + Memory.my_spawn[spawn_name].creep.harvester.max_num,
-        "U:" + Memory.my_spawn[spawn_name].creep.upgrader.name_list.length + "/"
-        + Memory.my_spawn[spawn_name].creep.upgrader.max_num,
-        "C:" + Memory.my_spawn[spawn_name].creep.carrier.name_list.length + "/"
-        + Memory.my_spawn[spawn_name].creep.carrier.max_num,
-        "R:" + Memory.my_spawn[spawn_name].creep.refueler.name_list.length + "/"
-        + Memory.my_spawn[spawn_name].creep.refueler.max_num,
-        "S:" + Memory.my_spawn[spawn_name].creep.scout.name_list.length + "/"
-        + Memory.my_spawn[spawn_name].creep.scout.max_num,
-        "CL:" + Memory.my_spawn[spawn_name].creep.claimer.name_list.length + "/"
-        + Memory.my_spawn[spawn_name].creep.claimer.max_num,
+        "H:" + main_room_memory.creep.harvester.name_list.length + "/"
+        + main_room_memory.creep.harvester.max_num
+        + "(" + main_room_memory.creep.harvester.avg_level + ")",
+        "M:" + main_room_memory.creep.miner.name_list.length + "/"
+        + main_room_memory.creep.miner.max_num
+        + "(" + main_room_memory.creep.miner.avg_level + ")",
+        "U:" + main_room_memory.creep.upgrader.name_list.length + "/"
+        + main_room_memory.creep.upgrader.max_num
+        + "(" + main_room_memory.creep.upgrader.avg_level + ")",
+        "C:" + main_room_memory.creep.carrier.name_list.length + "/"
+        + main_room_memory.creep.carrier.max_num
+        + "(" + main_room_memory.creep.carrier.avg_level + ")",
+        "R:" + main_room_memory.creep.refueler.name_list.length + "/"
+        + main_room_memory.creep.refueler.max_num
+        + "(" + main_room_memory.creep.refueler.avg_level + ")",
+        "S:" + main_room_memory.creep.scout.name_list.length + "/"
+        + main_room_memory.creep.scout.max_num
+        + "(" + main_room_memory.creep.scout.avg_level + ")",
+        "CL:" + main_room_memory.creep.claimer.name_list.length + "/"
+        + main_room_memory.creep.claimer.max_num
+        + "(" + main_room_memory.creep.claimer.avg_level + ")",
     );
 
     // if(Game.cpu.bucket >= 5000){

@@ -1,6 +1,8 @@
 
 // https://docs.screeps.com/api/#Game
 
+require("constant")
+
 let structure_spawn = require("structure.spawn");
 let structure_tower = require("structure.tower");
 
@@ -19,8 +21,8 @@ module.exports.loop = function () {
     // return;  // All Stop
     console.log("################################################################################")
     let cpu = Game.cpu.getUsed();
-    Memory.creeps;
-    console.log("parse memroy", (Game.cpu.getUsed() - cpu).toFixed(3))
+    Memory.mark = 1;
+    console.log("parse memory", (Game.cpu.getUsed() - cpu).toFixed(3))
 
     ////    Loop Control
     ////    Memory.LoopControl: -1 == normal, 0 == pause, N(N>0) == N step
@@ -42,102 +44,58 @@ module.exports.loop = function () {
     if(Memory.MemoryControl == null) {
         Memory.MemoryControl = 1;
     }
-    if(Memory.MemoryControl === 1 && Game.spawns["Spawn1"]) {
+    if(Memory.MemoryControl === 1 && Game.spawns[FIRST_SPAWN_NAME]) {
         Memory.MemoryControl = 0;
         //// init memory
         console.log("init memory");
-        Memory.my_spawn = {
-            "Spawn1": {
-                "creep_spawn_list": [],
-                "spawn_cool_down": 0,
-                "extension_list": [],
-                "container_list": [],
-                "storage_list": [],
-                "tower_list": [],
-                "energy_stat": {
-                    "energy_track": [],
-                    "10_tick_sum_a": 0, "10_tick_sum_b": 0, "10_tick_sum_trend": 0,  // 10 second
-                    "60_tick_sum_a": 0, "60_tick_sum_b": 0, "60_tick_sum_trend": 0,  // 1 minute
-                    "600_tick_sum_a": 0, "600_tick_sum_b": 0, "600_tick_sum_trend": 0,  // 10 minute
-                    "3600_tick_sum_a": 0, "3600_tick_sum_b": 0, "3600_tick_sum_trend": 0,  // 1 hour
-                    "36000_tick_sum_a": 0, "36000_tick_sum_b": 0, "36000_tick_sum_trend": 0,  // 10 hour
-                },
-                "creep": {
-                    "miner": {
-                        "name_list": [],
-                        "max_num": 1
-                    },
-                    "harvester": {
-                        "name_list": [],
-                        "max_num": 0
-                    },
-                    "upgrader": {
-                        "name_list": [],
-                        "max_num": 0
-                    },
-                    "carrier": {
-                        "name_list": [],
-                        "max_num": 0
-                    },
-                    "scout": {
-                        "name_list": [],
-                        "max_num": 0
-                    },
-                    "claimer": {
-                        "name_list": [],
-                        "max_num": 0
-                    },
-                    "refueler": {
-                        "name_list": [],
-                        "max_num": 0
-                    },
-                    "builder": {
-                        "name_list": [],
-                        "max_num": 0
-                    },
-                }
-            }
-        };
-        Memory.my_room = {};
-        let room_list = [Game.spawns["Spawn1"].room.name];
+
+        let first_room_name = Game.spawns[FIRST_SPAWN_NAME].room.name
+        Memory.room_list = [first_room_name];
+        Memory.room_dict = {};
         let distance_list = [0];
         let i = 0;
-        while(i < room_list.length && distance_list[i] < 4) {
-            Memory.my_room[room_list[i]] = {
-                "source": {},
-                "mineral": {},
-                "claim_status": "neutral",
-                "room_distance": distance_list[i],
-            }
-            let exit_info = Game.map.describeExits(room_list[i]);
-            for(let j of ["1", "3", "5", "7"]){
-                if(exit_info[j] != null) {
-                    if(! room_list.includes(exit_info[j])) {
-                        console.log(exit_info[j], distance_list[i] + 1);
-                        room_list.push(exit_info[j]);
-                        distance_list.push(distance_list[i] + 1);
+        while(i < Memory.room_list.length) {
+            Memory.room_dict[Memory.room_list[i]] = ROOM_TEMPLATE;
+            Memory.room_dict[Memory.room_list[i]].main_room = first_room_name;
+            Memory.room_dict[Memory.room_list[i]].room_distance[first_room_name] = distance_list[i];
+            if(distance_list[i] + 1 < 10) {
+                let exit_info = Game.map.describeExits(Memory.room_list[i]);
+                for(let j of ["1", "3", "5", "7"]){
+                    if(exit_info[j] != null) {
+                        if(! Memory.room_list.includes(exit_info[j])) {
+                            Memory.room_list.push(exit_info[j]);
+                            distance_list.push(distance_list[i] + 1);
+                        }
                     }
                 }
             }
             i += 1;
         }
-        Memory.my_room[Game.spawns["Spawn1"].room.name]["spawn_name"] = "Spawn1";
-        Memory.my_room[Game.spawns["Spawn1"].room.name]["claim_status"] = "claimed";
-        Memory.cpu_stat = {
-            "cpu_track": [],
-            "60_tick_sum": 0, "60_tick_avg": 0,  // 1 minute
-            "600_tick_sum": 0, "600_tick_avg": 0,  // 10 minute
-            "3600_tick_sum": 0, "3600_tick_avg": 0,  // 1 hour
-        };
+        Memory.room_dict[Memory.room_list[0]].claim_status = "claimed";
+        // TODO: detect room claim status
+        Memory.main_room_list = [];
+        for(let room_name of Memory.room_list) {
+            if(Memory.room_dict[room_name].claim_status === "claimed") {
+                Memory.main_room_list.push(room_name);
+                Memory.room_dict[room_name] = {
+                    ...Memory.room_dict[room_name],
+                    ...MAIN_ROOM_TEMPLATE,
+                }
+            }
+        }
+        Memory.room_dict[Memory.room_list[0]].spawn_list.push(FIRST_SPAWN_NAME);
+        Memory.cpu_stat = CPU_STAT_TEMPLATE;
     }
     ////    Memory Hotfix
     ////    Use console to set value: Memory.MemoryControl = 2
     if(Memory.MemoryControl === 2) {
         Memory.MemoryControl = 0;
         ////
-        Memory.my_spawn["Spawn1"]["extension_list"] = []
+        for(let i in Memory.room_dict["W8N3"].source) {
+            Memory.room_dict["W8N3"].source[i].road_to_build = null;
+            Memory.room_dict["W8N3"].source[i].road_built = null;
+        }
         ////
-        Memory.LoopControl = 0;
     }
 
     ////    Check Creeps
@@ -150,60 +108,79 @@ module.exports.loop = function () {
                 switch (role) {
                     case "miner":
                         let source_id = Memory.creeps[creep_name].target_id;
-                        room_name = Game.getObjectById(source_id).room.name;
-                        if (Memory.my_room[room_name].source[source_id].assigned_miner === creep_name) {
-                            Memory.my_room[room_name].source[source_id].assigned_miner = null;
+                        let source = Game.getObjectById(source_id);
+                        if(source != null) {
+                            room_name = Game.getObjectById(source_id).room.name;
+                            if (Memory.room_dict[room_name].source[source_id].assigned_miner === creep_name) {
+                                Memory.room_dict[room_name].source[source_id].assigned_miner = null;
+                            }
                         }
                         break;
                     case "claimer":
                         room_name = Memory.creeps[creep_name].target_room;
-                        if (Memory.my_room[room_name].claim_status === "reversing") {  // reversing
-                            Memory.my_room[room_name].claim_status = "to_reverse";  // to reverse
+                        if (room_name != null && Memory.room_dict[room_name].assigned_claimer === creep_name) {
+                            Memory.room_dict[room_name].assigned_claimer = null;
                         }
                         break;
+                    default:
+                        break;
                 }
-                let _index = Memory.my_spawn["Spawn1"].creep[role].name_list.indexOf(creep_name);
-                if (_index !== -1) Memory.my_spawn["Spawn1"].creep[role].name_list.splice(_index, 1);
+                let main_room_name = Memory.creeps[creep_name].main_room;
+                let _index = Memory.room_dict[main_room_name].creep[role].name_list.indexOf(creep_name);
+                if (_index !== -1) Memory.room_dict[main_room_name].creep[role].name_list.splice(_index, 1);
                 delete Memory.creeps[creep_name];
                 console.log(creep_name + " passed away.");
             }
+            else if (Game.creeps[creep_name].spawning) {
+
+            }
+            else {
+                let main_room_name = Memory.creeps[creep_name].main_room;
+                let creep_role = Memory.creeps[creep_name].role;
+                if (!Memory.room_dict[main_room_name].creep[creep_role].name_list.includes(creep_name)) {
+                    Memory.room_dict[main_room_name].creep[creep_role].name_list.push(creep_name);
+                }
+            }
         }
     }
-    for (let creep_name in Memory.creeps) {
-        if(Memory.creeps.hasOwnProperty(creep_name)) {
-            if (Game.creeps[creep_name].spawning) {
-                continue;
-            }
-            let room_name = Game.creeps[creep_name].room.name;
-            let creep_role = Memory.creeps[creep_name].role;
-            if (room_name in Memory.my_room
-                && !Memory.my_spawn["Spawn1"].creep[creep_role].name_list.includes(creep_name)) {
-                Memory.my_spawn["Spawn1"].creep[creep_role].name_list.push(creep_name);
+    for(let room_name of Memory.main_room_list) {
+        let reducer = (accumulator, currentValue) => accumulator + currentValue;
+        for(let role in Memory.room_dict[room_name].creep) {
+            if(Memory.room_dict[room_name].creep.hasOwnProperty(role)) {
+                let creep_level_list = [];
+                for(let creep_name of Memory.room_dict[room_name].creep[role].name_list) {
+                    creep_level_list.push(Game.creeps[creep_name].memory.level);
+                }
+                if(creep_level_list.length > 0) {
+                    Memory.room_dict[room_name].creep[role].avg_level =
+                        (creep_level_list.reduce(reducer) / creep_level_list.length).toFixed(1);
+                }
             }
         }
     }
     // console.log("check creep", (Game.cpu.getUsed() - cpu).toFixed(3));
 
     // check building, adjust worker number
-    // cpu = Game.cpu.getUsed();
-    for(let spawn_name in Memory.my_spawn) {
-        global_manage(spawn_name);
+    cpu = Game.cpu.getUsed();
+    for(let room_name of Memory.main_room_list) {
+        global_manage(room_name);
     }
-    // console.log("global manage", (Game.cpu.getUsed() - cpu).toFixed(3));
+    console.log("global manage", (Game.cpu.getUsed() - cpu).toFixed(3));
 
     // run spawn
     // cpu = Game.cpu.getUsed();
-    for(let spawn_name in Memory.my_spawn) {
-        structure_spawn(Game.spawns[spawn_name]);
+    for(let room_name of Memory.main_room_list) {
+        for(let spawn_name of Memory.room_dict[room_name].spawn_list) {
+            structure_spawn(Game.spawns[spawn_name]);
+        }
     }
     // console.log("run spawn", (Game.cpu.getUsed() - cpu).toFixed(3));
 
     // run tower
     // cpu = Game.cpu.getUsed();
-    for(let spawn_name in Memory.my_spawn) {
-        for(let tower_id of Memory.my_spawn[spawn_name].tower_list) {
-            let tower = Game.getObjectById(tower_id);
-            structure_tower(tower);
+    for(let room_name of Memory.main_room_list) {
+        for(let tower_id of Memory.room_dict[room_name].tower_list) {
+            structure_tower(Game.getObjectById(tower_id));
         }
     }
     // console.log("run tower", (Game.cpu.getUsed() - cpu).toFixed(3));
@@ -216,11 +193,11 @@ module.exports.loop = function () {
                 continue;
             }
             switch (Memory.creeps[creep_name].role) {
-                case "miner":
-                    role_miner(Game.creeps[creep_name]);
-                    break;
                 case "harvester":
                     role_harvester(Game.creeps[creep_name]);
+                    break;
+                case "miner":
+                    role_miner(Game.creeps[creep_name]);
                     break;
                 case "carrier":
                     role_carrier(Game.creeps[creep_name]);

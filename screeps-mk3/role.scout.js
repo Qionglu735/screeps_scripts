@@ -4,10 +4,10 @@ let path_handler = require("tool.path_handler");
 let role_scout = function(creep) {
     let control_level = Game.spawns["Spawn1"].room.controller.level;
     if(creep.memory.target_room == null) {
-        for(let room_name in Memory.my_room) {
+        for(let room_name of Memory.room_list) {
             if(Game.rooms[room_name] == null) {
-                if(control_level < 4 && Memory.my_room[room_name].room_distance <= 1
-                    || control_level < 6 && Memory.my_room[room_name].room_distance <= 2) {
+                if(control_level < 4 && Memory.room_dict[room_name].room_distance <= 1
+                    || control_level < 6 && Memory.room_dict[room_name].room_distance <= 2) {
                     creep.memory.target_room = room_name;
                     break;
                 }

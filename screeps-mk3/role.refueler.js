@@ -22,7 +22,7 @@ let role_refueler = function(creep) {
     else if(creep.memory.status === "withdraw") {
         if(!target) {
             let targets = [];
-            for(let _s_id of Memory.my_spawn["Spawn1"].storage_list) {
+            for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
                 let _s = Game.getObjectById(_s_id);
                 if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity(RESOURCE_ENERGY)) {
                     targets.push(_s);
@@ -59,7 +59,7 @@ let role_refueler = function(creep) {
             target = null;
         }
         if(!target) {
-            let _spawn = Game.spawns["Spawn1"];
+            let _spawn = Game.spawns[Memory.room_dict[creep.memory.main_room].spawn_list[0]];
             if(_spawn.store[RESOURCE_ENERGY] < _spawn.store.getCapacity(RESOURCE_ENERGY)) {
                 target = _spawn;
                 creep.memory.target_id = target.id;
@@ -67,7 +67,7 @@ let role_refueler = function(creep) {
         }
         if(!target) {
             let targets = [];
-            for(let _e_id of Memory.my_spawn["Spawn1"].extension_list) {
+            for(let _e_id of Memory.room_dict[creep.memory.main_room].extension_list) {
                 let _e = Game.getObjectById(_e_id);
                 if(_e.store[RESOURCE_ENERGY] < _e.store.getCapacity(RESOURCE_ENERGY)) {
                     targets.push(_e);
@@ -80,7 +80,7 @@ let role_refueler = function(creep) {
         }
         if(!target) {
             let targets = [];
-            for(let _t_id of Memory.my_spawn["Spawn1"].tower_list) {
+            for(let _t_id of Memory.room_dict[creep.memory.main_room].tower_list) {
                 let _t = Game.getObjectById(_t_id);
                 if(_t.store[RESOURCE_ENERGY] < _t.store.getCapacity(RESOURCE_ENERGY)) {
                     targets.push(_t);

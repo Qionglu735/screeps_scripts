@@ -27,14 +27,17 @@ let role_carrier = function(creep) {
         creep.say('Transfer');
     }
     let target = Game.getObjectById(creep.memory.target_id);
+    if(target != null && target.store && target.store["RESOURCE_ENERGY"] < creep.carryCapacity - creep.carry.energy) {
+        target = null;
+    }
     if(target != null && creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);
     }
     else if(creep.memory.status === "withdraw") {
         if(!target) {
-            let targets = global_find.find_by_filter(FIND_TOMBSTONES, {
+            let targets = global_find.find(FIND_TOMBSTONES, {
                     filter: (target) =>
-                        target.creep.carry["RESOURCE_ENERGY"] > 0
+                        target.creep.store["RESOURCE_ENERGY"] > 0
                         && 5 <= target.pos.x && target.pos.x <= 45
                         && 5 <= target.pos.y && target.pos.y <= 45
                 }
@@ -45,7 +48,7 @@ let role_carrier = function(creep) {
             }
         }
         if(!target) {
-            let targets = global_find.find_by_filter(FIND_DROPPED_RESOURCES, {
+            let targets = global_find.find(FIND_DROPPED_RESOURCES, {
                     filter: (target) =>
                         target.resourceType === RESOURCE_ENERGY
                         && 5 <= target.pos.x && target.pos.x <= 45
@@ -84,15 +87,15 @@ let role_carrier = function(creep) {
         //     }
         // }
         if(!target) {
-            target = global_find.find_container_with_energy("spawn", "",
+            target = global_find.find_container_with_energy(creep.memory.main_room,
                 creep.carryCapacity - creep.carry.energy);
             if(target) {
                 creep.memory.target_id = target.id;
             }
         }
         if(!target) {
-            if(Memory.my_spawn["Spawn1"].storage_list.length > 0) {
-                let _t = Game.getObjectById(_t_id);
+            if(Memory.room_dict[creep.memory.main_room].storage_list.length > 0) {
+                let _t = Game.getObjectById(Memory.room_dict[creep.memory.main_room].storage_list[0]);
                 if(_t != null) {
                     target = _t;
                     creep.memory.target_id = target.id;
@@ -137,16 +140,16 @@ let role_carrier = function(creep) {
             creep.memory.target_id = null;
             target = null;
         }
-        if(!target && Memory.my_spawn["Spawn1"].creep.refueler.name_list.length === 0) {
+        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
             let _spawn = Game.spawns["Spawn1"];
             if(_spawn.store[RESOURCE_ENERGY] < _spawn.store.getCapacity(RESOURCE_ENERGY)) {
                 target = _spawn;
                 creep.memory.target_id = target.id;
             }
         }
-        if(!target && Memory.my_spawn["Spawn1"].creep.refueler.name_list.length === 0) {
+        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
             let targets = [];
-            for(let _e_id of Memory.my_spawn["Spawn1"].extension_list) {
+            for(let _e_id of Memory.room_dict[creep.memory.main_room].extension_list) {
                 let _e = Game.getObjectById(_e_id);
                 if(_e.store[RESOURCE_ENERGY] < _e.store.getCapacity(RESOURCE_ENERGY)) {
                     targets.push(_e);
@@ -157,9 +160,9 @@ let role_carrier = function(creep) {
                 creep.memory.target_id = target.id;
             }
         }
-        if(!target && Memory.my_spawn["Spawn1"].creep.refueler.name_list.length === 0) {
+        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
             let targets = [];
-            for(let _t_id of Memory.my_spawn["Spawn1"].tower_list) {
+            for(let _t_id of Memory.room_dict[creep.memory.main_room].tower_list) {
                 let _t = Game.getObjectById(_t_id);
                 if(_t.store[RESOURCE_ENERGY] < _t.store.getCapacity(RESOURCE_ENERGY)) {
                     targets.push(_t);
@@ -172,7 +175,7 @@ let role_carrier = function(creep) {
         }
         if(!target) {
             let targets = [];
-            for(let _s_id of Memory.my_spawn["Spawn1"].storage_list) {
+            for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
                 let _s = Game.getObjectById(_s_id);
                 if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity(RESOURCE_ENERGY)) {
                     targets.push(_s);

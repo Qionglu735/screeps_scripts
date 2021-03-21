@@ -30,7 +30,12 @@ let global_find = {
     },
 
     find_container_with_energy: function(main_room, min_energy=0) {
+        let cpu = Game.cpu.getUsed();
         let container_list = Memory.room_dict[main_room].container_list;
+        if(Memory.container_assigned_record == null) {
+            Memory.container_assigned_record = {};
+        }
+        let container_assigned_record = Memory.container_assigned_record;
         let res = null;
         let max_list = [];  // container have a lot of energy
         let normal_list = [];  // container have enough energy
@@ -50,9 +55,17 @@ let global_find = {
                 continue;
             }
             if(_c.store[RESOURCE_ENERGY] === _c.store.getCapacity(RESOURCE_ENERGY)) {
+                if(_c_id in container_assigned_record
+                    && Game.time - container_assigned_record[_c_id] <= 30) {
+                    continue;
+                }
                 max_list.push(_c);
             }
             else if(_c.store[RESOURCE_ENERGY] >= min_energy) {
+                if(_c_id in container_assigned_record
+                    && Game.time - container_assigned_record[_c_id] <= 60) {
+                    continue;
+                }
                 normal_list.push(_c);
             }
             else if(_c.store[RESOURCE_ENERGY] > 0) {
@@ -60,7 +73,7 @@ let global_find = {
             }
         }
         if(max_list.length > 0) {
-            res = max_list[Math.floor(Math.random() * 1000) % max_list.length];
+            res = max_list[Game.time % max_list.length];
         }
         else if(normal_list.length > 0) {
             res = normal_list[0];
@@ -68,8 +81,15 @@ let global_find = {
         else if(less_list.length > 0) {
             res = less_list[0];
         }
+        if(res != null) {
+            container_assigned_record[res.id] = Game.time;
+            Memory.container_assigned_record = container_assigned_record;
+        }
+        console.log("find_container_with_energy", (Game.cpu.getUsed() - cpu).toFixed(3) + "s")
         return res;
     },
+
+    // TODO: find_structure_need_energy
 };
 
 module.exports = global_find;

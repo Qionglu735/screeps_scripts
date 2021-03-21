@@ -75,10 +75,7 @@ module.exports.loop = function () {
     if(Memory.MemoryControl === 2) {
         Memory.MemoryControl = 0;
         ////
-        for(let i in Memory.room_dict["W8N3"].source) {
-            Memory.room_dict["W8N3"].source[i].road_to_build = null;
-            Memory.room_dict["W8N3"].source[i].road_built = null;
-        }
+        Memory.room_dict["W8N3"].energy_stat.energy_track = [];
         ////
     }
 

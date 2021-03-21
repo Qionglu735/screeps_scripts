@@ -18,6 +18,13 @@ let stat = function() {
                 energy += obj.store[RESOURCE_ENERGY];
             }
         }
+        // ////  reset
+        // for(let i in energy_stat) {
+        //     if(energy_stat.hasOwnProperty(i)) {
+        //         delete energy_stat[i];
+        //     }
+        // }
+        if(energy_stat.energy_track == null) energy_stat.energy_track = [];
         energy_stat.energy_track.unshift(energy);
         if(energy_stat.energy_track.length > 0) {
             if(energy_stat["10_tick_sum_a"] == null) energy_stat["10_tick_sum_a"] = 0;

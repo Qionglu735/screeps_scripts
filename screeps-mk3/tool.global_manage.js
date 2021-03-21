@@ -214,44 +214,49 @@ let global_manage = function(main_room_name) {
     ////    Check / Build Road
     let road_site_num = 0;
     if (main_room.controller.level >= 4 && extension_site_num + storage_site_num + tower_site_num === 0) {
-        road_site_num = global_find.find(FIND_MY_CONSTRUCTION_SITES, {
-            filter: (target) => target.structureType === STRUCTURE_ROAD}).length;
-        if (road_site_num <= 2) {
-            let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
-            for (let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
-                let room_memory = Memory.room_dict[room_name]
-                for (let source_id in room_memory.source) {
-                    if (room_memory.source.hasOwnProperty(source_id)) {
-                        if (room_memory.source[source_id].container != null) {
-                            let source_memory = room_memory.source[source_id];
-                            if (source_memory.road_to_build == null || source_memory.road_built == null
-                                || source_memory.road_to_build.length + source_memory.road_built.length === 0) {  // init
-                                let res = PathFinder.search(
-                                    main_spawn.pos,
-                                    {
-                                        pos: Game.getObjectById(source_memory.container).pos,
-                                        range: 1
-                                    }, {
-                                        roomCallback: function (room_name) {
-                                            return path_handler.get_cost_matrix(room_name);
-                                        }
-                                    });
-                                if (res.incomplete === false) {
-                                    source_memory.road_to_build = res.path;
-                                    for (let i in source_memory.road_to_build) {
-                                        if(source_memory.road_to_build.hasOwnProperty(i)) {
-                                            if(source_memory.road_to_build[i].x === 0
-                                                || source_memory.road_to_build[i].x === 49
-                                                || source_memory.road_to_build[i].y === 0
-                                                || source_memory.road_to_build[i].y === 49) {
-                                                source_memory.road_to_build.splice(i, 1)
-                                            }
+        let road_to_build = [];
+        let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
+        for (let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
+            let room_memory = Memory.room_dict[room_name]
+            for (let source_id in room_memory.source) {
+                if (room_memory.source.hasOwnProperty(source_id)) {
+                    if (room_memory.source[source_id].container != null) {
+                        let source_memory = room_memory.source[source_id];
+                        if(source_memory.road_to_build == null) {
+                            source_memory.road_to_build = [];
+                        }
+                        if(source_memory.road_built == null) {
+                            source_memory.road_built = [];
+                        }
+                        if (Game.getObjectById(source_memory.container) != null
+                            && source_memory.road_to_build.length + source_memory.road_built.length === 0) {  // init
+                            let res = PathFinder.search(
+                                main_spawn.pos,
+                                {
+                                    pos: Game.getObjectById(source_memory.container).pos,
+                                    range: 1
+                                }, {
+                                    roomCallback: function (room_name) {
+                                        return path_handler.get_cost_matrix(room_name);
+                                    }
+                                });
+                            if (res.incomplete === false) {
+                                source_memory.road_to_build = res.path;
+                                for (let i in source_memory.road_to_build) {
+                                    if(source_memory.road_to_build.hasOwnProperty(i)) {
+                                        if(source_memory.road_to_build[i].x === 0
+                                            || source_memory.road_to_build[i].x === 49
+                                            || source_memory.road_to_build[i].y === 0
+                                            || source_memory.road_to_build[i].y === 49) {
+                                            source_memory.road_to_build.splice(i, 1)
                                         }
                                     }
-                                    source_memory.road_built = [];
-                                    break;
                                 }
+                                source_memory.road_built = [];
+                                break;
                             }
+                        }
+                        if(Game.time % 300 === 0) {
                             for (let i in source_memory.road_built) {  // check road
                                 if (source_memory.road_built.hasOwnProperty(i)) {
                                     let obj = Game.getObjectById(source_memory.road_built[i]);
@@ -260,64 +265,74 @@ let global_manage = function(main_room_name) {
                                     }
                                 }
                             }
-                            // for (let i in source_memory.road_to_build) {
-                            //     if(source_memory.road_to_build.hasOwnProperty(i)) {
-                            //         if(source_memory.road_to_build[i].x === 0
-                            //             || source_memory.road_to_build[i].x === 49
-                            //             || source_memory.road_to_build[i].y === 0
-                            //             || source_memory.road_to_build[i].y === 49) {
-                            //             source_memory.road_to_build.splice(i, 1)
-                            //         }
-                            //     }
-                            // }
-                            if (source_memory.road_to_build.length > source_memory.road_built.length) {  // build road
-                                for(let i of source_memory.road_to_build) {
-                                    let room = Game.rooms[i.roomName];
-                                    if (room == null) {
-                                        continue;
-                                    }
-                                    room.visual.circle(i.x, i.y, {fill: "#80ff82", radius: 0.1, opacity: 1});
+                        }
+                        // for (let i in source_memory.road_to_build) {
+                        //     if(source_memory.road_to_build.hasOwnProperty(i)) {
+                        //         if(source_memory.road_to_build[i].x === 0
+                        //             || source_memory.road_to_build[i].x === 49
+                        //             || source_memory.road_to_build[i].y === 0
+                        //             || source_memory.road_to_build[i].y === 49) {
+                        //             source_memory.road_to_build.splice(i, 1)
+                        //         }
+                        //     }
+                        // }
+                        if (source_memory.road_to_build.length > source_memory.road_built.length) {  // build road
+                            for(let i of source_memory.road_to_build) {
+                                let room = Game.rooms[i.roomName];
+                                if (room == null) {
+                                    continue;
                                 }
-                                for(let i of source_memory.road_to_build) {
-                                    let road_pos = new RoomPosition(i.x, i.y, i.roomName);
-                                    let room = Game.rooms[road_pos.roomName];
-                                    if (room == null) {
-                                        continue;
+                                room.visual.circle(i.x, i.y, {fill: "#80ff82", radius: 0.1, opacity: 1});
+                            }
+                            for(let i of source_memory.road_to_build) {
+                                let road_pos = new RoomPosition(i.x, i.y, i.roomName);
+                                let room = Game.rooms[road_pos.roomName];
+                                if (room == null) {
+                                    continue;
+                                }
+                                let road_list = road_pos.lookFor(LOOK_STRUCTURES);
+                                if (road_list.length === 0) {  // road not found
+                                    road_to_build.push(road_pos);
+                                    if(road_to_build.length > 2) {
+                                        break;
                                     }
-                                    let road_list = road_pos.lookFor(LOOK_STRUCTURES);
-                                    if (road_list.length === 0) {  // road not found
-                                        room.createConstructionSite(road_pos, STRUCTURE_ROAD);
-                                        road_site_num += 1;
-                                        if(road_site_num > 2) {
-                                            break;
-                                        }
-                                    } else {
-                                        if (!source_memory.road_built.includes(road_list[0].id)) {
-                                            source_memory.road_built.push(road_list[0].id);
-                                        }
+                                } else {
+                                    if (!source_memory.road_built.includes(road_list[0].id)) {
+                                        source_memory.road_built.push(road_list[0].id);
                                     }
                                 }
-                                if(road_site_num > 2) {
-                                    break;
-                                }
+                            }
+                            if(road_to_build > 2) {
+                                break;
                             }
                         }
                     }
                 }
-                if(road_site_num > 2) {
-                    break;
-                }
-                if(main_room.controller.level >= 6) {  // room level >= 6, need to check mineral
-                    for(let mineral_id in main_room_memory.mineral) {
-                        if(main_room_memory.mineral.hasOwnProperty(mineral_id)) {
-                            // if (room_memory.mineral[mineral_id].container == null) {
-                            //     console.log(room_name, "no container info in mineral");
-                            //     need_check_flag = true;
-                            //     break;
-                            // }
-                        }
+            }
+            if(road_site_num > 2) {
+                break;
+            }
+            if(main_room.controller.level >= 6) {  // room level >= 6, need to check mineral
+                for(let mineral_id in main_room_memory.mineral) {
+                    if(main_room_memory.mineral.hasOwnProperty(mineral_id)) {
+
                     }
                 }
+            }
+        }
+        if(road_to_build.length > 0) {
+            road_site_num = global_find.find(FIND_MY_CONSTRUCTION_SITES, {
+                filter: (target) => target.structureType === STRUCTURE_ROAD}).length;
+            let i = 0;
+            while (road_site_num < 2 && i < road_to_build.length) {
+                let road_pos = road_to_build[i];
+                let room = Game.rooms[road_pos.roomName];
+                if (room == null) {
+                    continue;
+                }
+                room.createConstructionSite(road_pos, STRUCTURE_ROAD);
+                road_site_num += 1;
+                i += 1;
             }
         }
     }
@@ -331,8 +346,10 @@ let global_manage = function(main_room_name) {
     }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Adjust Worker Number
-    main_room_memory.creep.miner.max_num = 0;
+    ////    adjust harvester number
+    main_room_memory.creep.harvester.max_num = 2;
     ////    adjust miner number
+    main_room_memory.creep.miner.max_num = 0;
     for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
         if(["claimed", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
             main_room_memory.creep.miner.max_num += Object.keys(Memory.room_dict[room_name].source).length;
@@ -391,13 +408,11 @@ let global_manage = function(main_room_name) {
     }
     ////    adjust refueler number
     main_room_memory.creep.refueler.max_num = 0;
-    if(main_room_memory.storage_list.length > 0) {
+    if(main_room.controller.level >= 4 && main_room_memory.storage_list.length > 0) {
         main_room_memory.creep.refueler.max_num =
             // main_room_memory.storage_list.length + main_room_memory.tower_list.length;
             main_room_memory.tower_list.length;
     }
-    ////    adjust harvester number
-    main_room_memory.creep.harvester.max_num = 2;
     // if(main_room_memory.creep.carrier.name_list.length === 0) {
     //     main_room_memory.creep.harvester.max_num = Object.keys(Memory.room_dict[room_name].source).length;
     // }
@@ -406,16 +421,17 @@ let global_manage = function(main_room_name) {
     // }
     ////    TODO: adjust builder number
     // main_room_memory.creep.builder.max_num = 1;
+    ////    adjust scout number
+    main_room_memory.creep.scout.max_num = 0;
+    if(main_room.controller.level >= 4) {
+        main_room_memory.creep.scout.max_num = 1;
+    }
     ////    adjust claimer number
     main_room_memory.creep.claimer.max_num = 0;
     for(let room_name in Memory.room_dict) {
         if(["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
             main_room_memory.creep.claimer.max_num += 1;
         }
-    }
-    ////    adjust scout number
-    if(main_room.controller.level >= 4) {
-        main_room_memory.creep.scout.max_num = 1;
     }
     ////    adjust upgrader number
     if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num

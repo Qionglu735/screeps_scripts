@@ -16,10 +16,11 @@ let role_claimer = function(creep) {
         }
     }
     if(creep.memory.target_room != null
+        && Memory.room_dict[creep.memory.target_room] != null
         && Memory.room_dict[creep.memory.target_room].claim_status === "to_reverse") {
         Memory.room_dict[creep.memory.target_room].claim_status = "reversing";
     }
-    if(creep.memory.target_room == null) {
+    if(creep.memory.target_room == null || Memory.room_dict[creep.memory.target_room] == null) {
         console.log(creep.name, "no target room");
         creep.say("No Room");
     }

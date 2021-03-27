@@ -6,6 +6,12 @@ let room_check = function(main_room_name) {
     ////    Check Main Room
     let max_scout_distance = 0;
     let max_reverse_distance = 0;
+    // let max_sub_room_num = 0;
+    let max_reverse_num = 0;
+    let storage = null;
+    if(main_room_memory.storage_list.length > 0) {
+        storage = Game.getObjectById(main_room_memory.storage_list[0]);
+    }
     switch(main_room.controller.level) {
         case 1:
         case 2:
@@ -16,6 +22,12 @@ let room_check = function(main_room_name) {
         case 5:
             max_scout_distance = 2;
             max_reverse_distance = 1;
+            // max_sub_room_num = 1;
+            // max_reverse_num = 1;
+            if(storage != null && storage.progress == null
+                && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity(RESOURCE_ENERGY) * 0.5) {
+                // max_reverse_num += 1;
+            }
             break;
     }
     let room_list = [main_room_name];
@@ -32,7 +44,10 @@ let room_check = function(main_room_name) {
         }
         else if(distance_list[i] <= max_reverse_distance
             && !main_room_memory.sub_room_list.includes(room_list[i])) {
-            main_room_memory.sub_room_list.push(room_list[i]);
+            main_room_memory.sub_room_list.push(room_list[i])
+            // if(main_room_memory.sub_room_list < max_sub_room_num) {
+            //     main_room_memory.sub_room_list.push(room_list[i]);
+            // }
         }
         else {
             // if(main_room_memory.sub_room_list.includes(room_list[i])) {
@@ -64,6 +79,7 @@ let room_check = function(main_room_name) {
     // for(let room_name in Memory.room_dict) {
     //     Memory.room_dict[room_name].claim_status = "neutral";
     // }
+    let reverse_num = 0;
     for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
         //// check hostile status
         if(Game.rooms[room_name] == null) {
@@ -93,6 +109,7 @@ let room_check = function(main_room_name) {
         else if(Game.rooms[room_name].controller.reservation) {
             if(Game.rooms[room_name].controller.reservation.username === main_room.controller.owner.username) {
                 Memory.room_dict[room_name].claim_status = "reversed";
+                reverse_num += 1;
             }
             else {
                 Memory.room_dict[room_name].claim_status = "reverse_by_hostile";
@@ -105,8 +122,10 @@ let room_check = function(main_room_name) {
         }
         ////    change claim status
         if(Memory.room_dict[room_name].claim_status === "neutral"
-            && Memory.room_dict[room_name].hostile_status === "neutral") {
+            && Memory.room_dict[room_name].hostile_status === "neutral"
+            && reverse_num < max_reverse_num) {
             Memory.room_dict[room_name].claim_status = "to_reverse";
+            reverse_num += 1;
         }
         else if(["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)
             && Memory.room_dict[room_name].hostile_status !== "neutral") {

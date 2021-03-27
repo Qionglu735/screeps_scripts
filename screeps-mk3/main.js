@@ -80,7 +80,7 @@ module.exports.loop = function () {
     }
 
     ////    Check Creeps
-    // cpu = Game.cpu.getUsed()
+    cpu = Game.cpu.getUsed()
     for(let creep_name in Memory.creeps) {
         if (Memory.creeps.hasOwnProperty(creep_name)) {
             if (!Game.creeps[creep_name]) {
@@ -99,7 +99,8 @@ module.exports.loop = function () {
                         break;
                     case "claimer":
                         room_name = Memory.creeps[creep_name].target_room;
-                        if (room_name != null && Memory.room_dict[room_name].assigned_claimer === creep_name) {
+                        if (room_name != null && Memory.room_dict[room_name] != null
+                            && Memory.room_dict[room_name].assigned_claimer === creep_name) {
                             Memory.room_dict[room_name].assigned_claimer = null;
                         }
                         break;
@@ -139,34 +140,34 @@ module.exports.loop = function () {
             }
         }
     }
-    // console.log("check creep", (Game.cpu.getUsed() - cpu).toFixed(3));
+    console.log("check creep", (Game.cpu.getUsed() - cpu).toFixed(3));
 
-    // check building, adjust worker number
+    ////    check building, adjust worker number
     cpu = Game.cpu.getUsed();
     for(let room_name of Memory.main_room_list) {
         global_manage(room_name);
     }
     console.log("global manage", (Game.cpu.getUsed() - cpu).toFixed(3));
 
-    // run spawn
-    // cpu = Game.cpu.getUsed();
+    ////    run spawn
+    cpu = Game.cpu.getUsed();
     for(let room_name of Memory.main_room_list) {
         for(let spawn_name of Memory.room_dict[room_name].spawn_list) {
             structure_spawn(Game.spawns[spawn_name]);
         }
     }
-    // console.log("run spawn", (Game.cpu.getUsed() - cpu).toFixed(3));
+    console.log("run spawn", (Game.cpu.getUsed() - cpu).toFixed(3));
 
-    // run tower
+    ////    run tower
     // cpu = Game.cpu.getUsed();
-    for(let room_name of Memory.main_room_list) {
-        for(let tower_id of Memory.room_dict[room_name].tower_list) {
-            structure_tower(Game.getObjectById(tower_id));
-        }
-    }
+    // for(let room_name of Memory.main_room_list) {
+    //     for(let tower_id of Memory.room_dict[room_name].tower_list) {
+    //         structure_tower(Game.getObjectById(tower_id));
+    //     }
+    // }
     // console.log("run tower", (Game.cpu.getUsed() - cpu).toFixed(3));
 
-    // run creep
+    ////    run creep
     cpu = Game.cpu.getUsed();
     let large_cpu_creep_list = []
     for (let creep_name in Memory.creeps) {
@@ -207,13 +208,13 @@ module.exports.loop = function () {
         }
     }
     console.log("run creep", (Game.cpu.getUsed() - cpu).toFixed(3));
-    // if(large_cpu_creep_list.length > 0) {
-    //     console.log(large_cpu_creep_list.join(","))
-    // }
-    // else {
-    //     console.log();
-    // }
+    if(large_cpu_creep_list.length > 0) {
+        console.log(large_cpu_creep_list.join(","))
+    }
+    else {
+        console.log();
+    }
 
-    // check energy, cpu
+    ////    check energy, cpu
     stat();
 }

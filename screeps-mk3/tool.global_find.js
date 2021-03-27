@@ -1,6 +1,7 @@
 
 let global_find = {
     find: function(type, filter=null, opts={}) {
+        // let cpu = Game.cpu.getUsed()
         let res = [];
         let room_list = Memory.room_list;
         if(opts["main_room_name"] != null) {
@@ -26,11 +27,12 @@ let global_find = {
                 }
             }
         }
+        // console.log("global_find.find", Game.cpu.getUsed() - cpu)
         return res;
     },
 
     find_container_with_energy: function(main_room, min_energy=0) {
-        let cpu = Game.cpu.getUsed();
+        // let cpu = Game.cpu.getUsed();
         let container_list = Memory.room_dict[main_room].container_list;
         if(Memory.container_assigned_record == null) {
             Memory.container_assigned_record = {};
@@ -85,7 +87,7 @@ let global_find = {
             container_assigned_record[res.id] = Game.time;
             Memory.container_assigned_record = container_assigned_record;
         }
-        console.log("find_container_with_energy", (Game.cpu.getUsed() - cpu).toFixed(3) + "s")
+        // console.log("find_container_with_energy", (Game.cpu.getUsed() - cpu).toFixed(3) + "s")
         return res;
     },
 

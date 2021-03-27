@@ -14,6 +14,22 @@ ROOM_TEMPLATE = {
     "room_distance": {},
 };
 
+CPU_STAT_TEMPLATE = {
+    "cpu_track": [],
+    "60_tick_sum": 0, "60_tick_avg": 0,  // 1 minute
+    "600_tick_sum": 0, "600_tick_avg": 0,  // 10 minute
+    "3600_tick_sum": 0, "3600_tick_avg": 0,  // 1 hour
+};
+
+ENERGY_STAT_TEMPLATE = {
+    "energy_track": [],
+    "10_tick_sum_a": 0, "10_tick_sum_b": 0, "10_tick_sum_trend": 0,  // 10 second
+    "60_tick_sum_a": 0, "60_tick_sum_b": 0, "60_tick_sum_trend": 0,  // 1 minute
+    "600_tick_sum_a": 0, "600_tick_sum_b": 0, "600_tick_sum_trend": 0,  // 10 minute
+    "3600_tick_sum_a": 0, "3600_tick_sum_b": 0, "3600_tick_sum_trend": 0,  // 1 hour
+    "36000_tick_sum_a": 0, "36000_tick_sum_b": 0, "36000_tick_sum_trend": 0,  // 10 hour
+};
+
 MAIN_ROOM_TEMPLATE = {
     "spawn_list": [],
     "container_list": [],
@@ -47,12 +63,7 @@ MAIN_ROOM_TEMPLATE = {
         "2": [2, 0],
     },
     "energy_stat": {
-        "energy_track": [],
-        "10_tick_sum_a": 0, "10_tick_sum_b": 0, "10_tick_sum_trend": 0,  // 10 second
-        "60_tick_sum_a": 0, "60_tick_sum_b": 0, "60_tick_sum_trend": 0,  // 1 minute
-        "600_tick_sum_a": 0, "600_tick_sum_b": 0, "600_tick_sum_trend": 0,  // 10 minute
-        "3600_tick_sum_a": 0, "3600_tick_sum_b": 0, "3600_tick_sum_trend": 0,  // 1 hour
-        "36000_tick_sum_a": 0, "36000_tick_sum_b": 0, "36000_tick_sum_trend": 0,  // 10 hour
+        ...ENERGY_STAT_TEMPLATE
     },
     "creep_spawn_list": [],
     "spawn_cool_down": 0,
@@ -110,9 +121,33 @@ MAIN_ROOM_TEMPLATE = {
     "sub_room_list": [],
 };
 
-CPU_STAT_TEMPLATE = {
-    "cpu_track": [],
-    "60_tick_sum": 0, "60_tick_avg": 0,  // 1 minute
-    "600_tick_sum": 0, "600_tick_avg": 0,  // 10 minute
-    "3600_tick_sum": 0, "3600_tick_avg": 0,  // 1 hour
+STAT_TEMPLATE = {
+    "cpu": {
+        "used": 0,
+        "cap": 0,
+        "bucket": 0,
+    },
+    "gcl": {},
+    "energy": {},
+    "rcl": {},
+    "room_info": [],
+    "misc_info": {},
+};
+
+STAT_ENERGY_TEMPLATE = {
+    "spawn": 0,
+    "spawn_cap": 0,
+    "storage": 0,
+};
+
+STAT_RCL_TEMPLATE = {
+    "level": 0,
+    "progress": 0,
+    "progress_total": 0,
+};
+
+STAT_ROOM_TEMPLATE = {
+    "room_name": "",
+    "claim_status": "",
+    "hostile_status": "",
 };

@@ -61,7 +61,9 @@ let structure_spawn = function(spawn) {
             }
         }
         //Miner
-        else if(memory_creep.miner.name_list.length < memory_creep.miner.max_num) {
+        else if(memory_creep.miner.name_list.length < memory_creep.miner.max_num
+            && (memory_creep.miner.name_list.length <= memory_creep.carrier.name_list.length
+            || memory_creep.miner.name_list.length < 2)) {
             body.push(CARRY);
             energy -= 50;
             while(energy >= 250 && creepLevel < 4) {

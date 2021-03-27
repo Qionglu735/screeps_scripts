@@ -48,6 +48,9 @@ let path_handler = {
         }
     },
     move: function(creep) {
+        if(creep.fatigue > 0) {
+            return;
+        }
         let pos = new RoomPosition(creep.memory.path_list[0].x,
             creep.memory.path_list[0].y,
             creep.memory.path_list[0].roomName);
@@ -105,6 +108,7 @@ let path_handler = {
                 break;
             case ERR_NO_PATH:
                 creep.memory.path_list = null;
+                console.log(creep.name, "no path")
                 break;
             default:
                 creep.say(move_status);
@@ -128,11 +132,13 @@ let path_handler = {
             }
         }
         else {
+            let cpu = Game.cpu.getUsed()
             let pathFinder = PathFinder.search(creep.pos, {pos: pos, range: distance}, {
                 roomCallback: function(room_name) {
                     return path_handler.get_cost_matrix(room_name);
                 }
             });
+            console.log("PathFinder.search", Game.cpu.getUsed() - cpu);
             if(pathFinder.incomplete === false || pathFinder.path.length > 0) {
                 for(let i of pathFinder.path) {
                     let room = Game.rooms[i.roomName];
@@ -210,7 +216,23 @@ let path_handler = {
             }
         }
         return cost_matrix;
+    },
+
+    get_direction_pos: function(pos, direction) {
+        let delta_x =[0, 1, 1, 1, 0, -1, -1, -1];
+        let delta_y = [-1, -1, 0, 1, 1, 1, 0, -1];
+        let direction_dict = {
+            "N": 0, "NE": 1, "E": 2, "SE": 3, "S": 4, "SW": 5, "W": 6, "NW": 7
+        }
+        let new_x = pos.x + delta_x[direction_dict[direction]];
+        let new_y = pos.y + delta_y[direction_dict[direction]];
+        if(new_x < 0 || new_x > 49 || new_y < 0 || new_y > 49) {
+            return null;
+        }
+        return new RoomPosition(new_x, new_y, pos.roomName);
     }
 };
 
 module.exports = path_handler;
+
+// TODO: store path in Memory

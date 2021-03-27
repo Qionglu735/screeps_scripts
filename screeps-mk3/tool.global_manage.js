@@ -12,7 +12,10 @@ let global_manage = function(main_room_name) {
     let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Room
-    room_check(main_room_name);
+    // room_check(main_room_name);
+    // for(let room_name of Memory.room_list) {
+    //
+    // }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Container
     for(let i in main_room_memory.container_list) {
@@ -428,7 +431,7 @@ let global_manage = function(main_room_name) {
     }
     ////    adjust claimer number
     main_room_memory.creep.claimer.max_num = 0;
-    for(let room_name in Memory.room_dict) {
+    for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
         if(["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
             main_room_memory.creep.claimer.max_num += 1;
         }

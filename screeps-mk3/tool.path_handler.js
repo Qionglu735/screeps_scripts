@@ -147,19 +147,19 @@ let path_handler = {
                     }
                     room.visual.circle(i.x, i.y, {fill: "#ff00ff", radius: 0.1, opacity: 0.7});
                 }
-                creep.memory.path_list = pathFinder.path;
-                let moveTo_status = creep.moveTo(creep.memory.path_list[0]);
-                switch(moveTo_status) {
-                    case OK:
-                    case ERR_TIRED:
-                        creep.memory.path_list.shift();
-                        break;
-                    case ERR_NO_PATH:
-                        creep.say("Jam");
-                        break;
-                    default:
-                        creep.say(moveTo_status);
-                }
+                creep.memory.path_list = pathFinder.path;  // TODO: compress path list for memory
+                // let moveTo_status = creep.moveTo(creep.memory.path_list[0]);
+                // switch(moveTo_status) {
+                //     case OK:
+                //     case ERR_TIRED:
+                //         creep.memory.path_list.shift();
+                //         break;
+                //     case ERR_NO_PATH:
+                //         creep.say("Jam");
+                //         break;
+                //     default:
+                //         creep.say(moveTo_status);
+                // }
             }
             else {
                 creep.say("No Path");

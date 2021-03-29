@@ -80,7 +80,8 @@ let role_harvester = function(creep) {
                         path_handler.find(creep, target, 1, 3);
                         break;
                     case ERR_NOT_ENOUGH_RESOURCES:
-                        creep.memory.target_id = "";
+                    case ERR_INVALID_TARGET:
+                        creep.memory.target_id = null;
                         break;
                     default:
                         console.log(creep.name, "harvest", harvest_status);

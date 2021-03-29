@@ -140,38 +140,41 @@ let role_carrier = function(creep) {
             creep.memory.target_id = null;
             target = null;
         }
+        // if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
+        //     let _spawn = Game.spawns["Spawn1"];
+        //     if(_spawn.store[RESOURCE_ENERGY] < _spawn.store.getCapacity(RESOURCE_ENERGY)) {
+        //         target = _spawn;
+        //         creep.memory.target_id = target.id;
+        //     }
+        // }
+        // if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
+        //     let targets = [];
+        //     for(let _e_id of Memory.room_dict[creep.memory.main_room].extension_list) {
+        //         let _e = Game.getObjectById(_e_id);
+        //         if(_e.store[RESOURCE_ENERGY] < _e.store.getCapacity(RESOURCE_ENERGY)) {
+        //             targets.push(_e);
+        //         }
+        //     }
+        //     if(targets.length > 0) {
+        //         target = targets[Math.floor(Math.random() * 1000) % targets.length];
+        //         creep.memory.target_id = target.id;
+        //     }
+        // }
+        // if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
+        //     let targets = [];
+        //     for(let _t_id of Memory.room_dict[creep.memory.main_room].tower_list) {
+        //         let _t = Game.getObjectById(_t_id);
+        //         if(_t.store[RESOURCE_ENERGY] < _t.store.getCapacity(RESOURCE_ENERGY)) {
+        //             targets.push(_t);
+        //         }
+        //     }
+        //     if(targets.length > 0) {
+        //         target = targets[Math.floor(Math.random() * 1000) % targets.length];
+        //         creep.memory.target_id = target.id;
+        //     }
+        // }
         if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
-            let _spawn = Game.spawns["Spawn1"];
-            if(_spawn.store[RESOURCE_ENERGY] < _spawn.store.getCapacity(RESOURCE_ENERGY)) {
-                target = _spawn;
-                creep.memory.target_id = target.id;
-            }
-        }
-        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
-            let targets = [];
-            for(let _e_id of Memory.room_dict[creep.memory.main_room].extension_list) {
-                let _e = Game.getObjectById(_e_id);
-                if(_e.store[RESOURCE_ENERGY] < _e.store.getCapacity(RESOURCE_ENERGY)) {
-                    targets.push(_e);
-                }
-            }
-            if(targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
-                creep.memory.target_id = target.id;
-            }
-        }
-        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
-            let targets = [];
-            for(let _t_id of Memory.room_dict[creep.memory.main_room].tower_list) {
-                let _t = Game.getObjectById(_t_id);
-                if(_t.store[RESOURCE_ENERGY] < _t.store.getCapacity(RESOURCE_ENERGY)) {
-                    targets.push(_t);
-                }
-            }
-            if(targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
-                creep.memory.target_id = target.id;
-            }
+            target = global_find.find_structure_need_energy(creep);
         }
         if(!target) {
             let targets = [];
@@ -183,10 +186,10 @@ let role_carrier = function(creep) {
             }
             if(targets.length > 0) {
                 target = targets[Math.floor(Math.random() * 1000) % targets.length];
-                creep.memory.target_id = target.id;
             }
         }
         if(target) {
+            creep.memory.target_id = target.id;
             let transfer_status = creep.transfer(target, RESOURCE_ENERGY);
             switch(transfer_status) {
                 case OK:

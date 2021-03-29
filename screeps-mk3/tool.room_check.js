@@ -1,5 +1,6 @@
 
 let room_check = function(main_room_name) {
+    let cpu = Game.cpu.getUsed();
     let main_room = Game.rooms[main_room_name];
     let main_room_memory = Memory.room_dict[main_room_name];
     ////////////////////////////////////////////////////////////////////////////////
@@ -23,10 +24,11 @@ let room_check = function(main_room_name) {
             max_scout_distance = 2;
             max_reverse_distance = 1;
             // max_sub_room_num = 1;
-            // max_reverse_num = 1;
+            max_reverse_num = 1;
             if(storage != null && storage.progress == null
-                && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity(RESOURCE_ENERGY) * 0.5) {
-                // max_reverse_num += 1;
+                && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity(RESOURCE_ENERGY) * 0.5
+                && Game.cpu.bucket < 10000 * 0.7) {
+                max_reverse_num += 1;
             }
             break;
     }
@@ -74,6 +76,7 @@ let room_check = function(main_room_name) {
         i += 1;
     }
     Memory.room_list = room_list;
+    console.log("check main room", Game.cpu.getUsed() - cpu);
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Sub Room
     // for(let room_name in Memory.room_dict) {
@@ -109,7 +112,6 @@ let room_check = function(main_room_name) {
         else if(Game.rooms[room_name].controller.reservation) {
             if(Game.rooms[room_name].controller.reservation.username === main_room.controller.owner.username) {
                 Memory.room_dict[room_name].claim_status = "reversed";
-                reverse_num += 1;
             }
             else {
                 Memory.room_dict[room_name].claim_status = "reverse_by_hostile";
@@ -119,6 +121,9 @@ let room_check = function(main_room_name) {
             if(["claim_by_hostile", "reverse_by_hostile"].includes(Memory.room_dict[room_name].claim_status)) {
                 Memory.room_dict[room_name].claim_status = "neutral";
             }
+        }
+        if(["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
+            reverse_num += 1
         }
         ////    change claim status
         if(Memory.room_dict[room_name].claim_status === "neutral"
@@ -134,6 +139,7 @@ let room_check = function(main_room_name) {
         // console.log(room_name,
         //     Memory.room_dict[room_name].claim_status, Memory.room_dict[room_name].hostile_status);
     }
+    console.log("check sub room", Game.cpu.getUsed() - cpu);
 };
 
 module.exports = room_check;

@@ -14,21 +14,37 @@ let global_find = {
                 }
             }
             let room = Game.rooms[room_name];
-            if(room != null) {
-                let out = null;
-                if(filter != null) {
-                    out = room.find(type, filter);
-                }
-                else {
-                    out = room.find(type);
-                }
-                if(out != null) {
-                    res = res.concat(out);
-                }
+            if(room == null) {
+                continue;
+            }
+            if(Memory.room_dict[room_name].hostile_status !== "neutral") {
+                continue;
+            }
+            let out = null;
+            if(filter != null) {
+                out = room.find(type, filter);
+            }
+            else {
+                out = room.find(type);
+            }
+            if(out != null) {
+                res = res.concat(out);
             }
         }
         // console.log("global_find.find", Game.cpu.getUsed() - cpu)
         return res;
+    },
+
+    game_time_mark: null,
+    spawn_list: null,
+    extension_list: null,
+    tower_list: null,
+
+    reset_local_value: function() {
+        this.spawn_list = null;
+        this.extension_list = null;
+        this.tower_list = null;
+        this.game_time_mark = Game.time;
     },
 
     find_container_with_energy: function(main_room, min_energy=0) {
@@ -91,7 +107,100 @@ let global_find = {
         return res;
     },
 
-    // TODO: find_structure_need_energy
+    find_structure_need_energy: function(creep) {
+        // let cpu = Game.cpu.getUsed()
+
+        if(this.game_time_mark !== Game.time) {
+            this.reset_local_value();
+        }
+
+        if(Memory.transfer_assigned_record == null) {
+            Memory.transfer_assigned_record = {};
+        }
+
+        if(this.spawn_list == null) {
+            this.spawn_list = [];
+            for(let i of Memory.room_dict[creep.memory.main_room].spawn_list) {
+                if(Game.time - Memory.transfer_assigned_record[i] < 10) {
+                    continue;
+                }
+                let spawn = Game.spawns[i];
+                if(spawn != null && spawn.progress == null
+                    && spawn.store[RESOURCE_ENERGY] < spawn.store.getCapacity(RESOURCE_ENERGY)) {
+                    // && spawn.store[RESOURCE_ENERGY] < spawn.store.getCapacity(RESOURCE_ENERGY)) {
+                    this.spawn_list.push(spawn);
+                }
+            }
+        }
+        if(this.extension_list == null) {
+            this.extension_list = [];
+            for(let i of Memory.room_dict[creep.memory.main_room].extension_list) {
+                if(Game.time - Memory.transfer_assigned_record[i] < 10) {
+                    continue;
+                }
+                let extension = Game.getObjectById(i);
+                if(extension!= null && extension.progress ==null
+                    && extension.energy < extension.energyCapacity) {
+                    // && extension.store[RESOURCE_ENERGY] < extension.store.getCapacity(RESOURCE_ENERGY)) {
+                    this.extension_list.push(extension);
+                }
+            }
+        }
+        if(this.tower_list == null) {
+            this.tower_list = [];
+            for(let i of Memory.room_dict[creep.memory.main_room].tower_list) {
+                if(Game.time - Memory.transfer_assigned_record[i] < 10) {
+                    continue;
+                }
+                let tower = Game.getObjectById(i);
+                // if(tower.store[RESOURCE_ENERGY] < tower.store.getCapacity(RESOURCE_ENERGY)) {
+                if(tower.energy < tower.energyCapacity) {
+                    this.tower_list.push(tower);
+                }
+            }
+        }
+        // console.log("find_structure_need_energy init", Game.cpu.getUsed() - cpu);
+
+        let res = null;
+        if(this.spawn_list.length > 0) {
+            for(let i of this.spawn_list) {  // find closet target
+                if(creep.pos.isNearTo(i.pos)) {
+                    res = i;
+                    break;
+                }
+            }
+            if(res == null) {
+                res = this.spawn_list[Game.time % this.spawn_list.length];  // find random target
+            }
+        }
+        else if(this.extension_list.length > 0) {
+            for(let i of this.extension_list) {  // find closet target
+                if(creep.pos.isNearTo(i.pos)) {
+                    res = i;
+                    break;
+                }
+            }
+            if(res == null) {
+                res = this.extension_list[Game.time % this.extension_list.length];  // find random target
+            }
+        }
+        else if(this.tower_list.length > 0) {
+            for(let i of this.tower_list) {  // find closet target
+                if(creep.pos.isNearTo(i.pos)) {
+                    res = i;
+                    break;
+                }
+            }
+            if(res == null) {
+                res = this.tower_list[Game.time % this.tower_list.length];  // find random target
+            }
+        }
+        // console.log("find_structure_need_energy find_target", Game.cpu.getUsed() - cpu);
+        if(res != null) {
+            Memory.transfer_assigned_record[res.id] = Game.time;
+        }
+        return res;
+    }
 };
 
 module.exports = global_find;

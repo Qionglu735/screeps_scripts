@@ -8,13 +8,13 @@ let stat = function() {
     Memory.stat = {
         ...STAT_TEMPLATE
     };
-    ///////////////////////////////////////////////////////////////////////
-    ////    Energy Stat
     for(let room_name of Memory.main_room_list) {
+        ///////////////////////////////////////////////////////////////////////
+        ////    Energy Stat
         Memory.stat.energy[room_name] = {
             ...STAT_ENERGY_TEMPLATE
         };
-        let energy_stat = Memory.room_dict[room_name].energy_stat;
+        // let energy_stat = Memory.room_dict[room_name].energy_stat;
         // let energy = Memory.room_dict[room_name].energyAvailable;
         // if(!energy) energy = 0;
         // for(let i of Memory.room_dict[room_name].container_list) {
@@ -31,11 +31,11 @@ let stat = function() {
             }
         }
         ////  reset
-        for(let i in energy_stat) {
-            if(energy_stat.hasOwnProperty(i)) {
-                delete energy_stat[i];
-            }
-        }
+        // for(let i in energy_stat) {
+        //     if(energy_stat.hasOwnProperty(i)) {
+        //         delete energy_stat[i];
+        //     }
+        // }
         // if(energy_stat.energy_track == null) energy_stat.energy_track = [];
         // energy_stat.energy_track.unshift(energy);
         // if(energy_stat.energy_track.length > 0) {
@@ -99,12 +99,16 @@ let stat = function() {
         let room = Game.rooms[room_name];
         Memory.stat.energy[room_name]["spawn"] = room.energyAvailable;
         Memory.stat.energy[room_name]["spawn_cap"] = room.energyCapacityAvailable;
+
+        ///////////////////////////////////////////////////////////////////////
+        ////    RCL Stat
         Memory.stat.rcl[room_name] = {
             ...STAT_RCL_TEMPLATE
         }
         Memory.stat.rcl[room_name]["level"] = room.controller.level;
         Memory.stat.rcl[room_name]["progress"] = room.controller.progress
         Memory.stat.rcl[room_name]["progress_total"] = room.controller.progressTotal
+
         console.log("[" + room_name + " Log]" +
             "Lv:" + room.controller.level + "(" +
             (room.controller.progress / room.controller.progressTotal * 100).toFixed(4) + "%)",
@@ -118,6 +122,38 @@ let stat = function() {
             // "10h:" + energy_stat["36000_tick_sum_trend"]
         );
         Memory.room_dict[room_name].controller_progress = room.controller.progress;
+
+        ///////////////////////////////////////////////////////////////////////
+        ////    Creep Stat
+        let main_room_memory = Memory.room_dict[room_name];
+        Memory.stat.misc_info[room_name + "|harvester"] =
+            main_room_memory.creep.harvester.name_list.length + "/"
+            + main_room_memory.creep.harvester.max_num
+            + "(" + main_room_memory.creep.harvester.avg_level + ")";
+        Memory.stat.misc_info[room_name + "|miner"] =
+            main_room_memory.creep.miner.name_list.length + "/"
+            + main_room_memory.creep.miner.max_num
+            + "(" + main_room_memory.creep.miner.avg_level + ")";
+        Memory.stat.misc_info[room_name + "|carrier"] =
+            main_room_memory.creep.carrier.name_list.length + "/"
+            + main_room_memory.creep.carrier.max_num
+            + "(" + main_room_memory.creep.carrier.avg_level + ")";
+        Memory.stat.misc_info[room_name + "|refueler"] =
+            main_room_memory.creep.refueler.name_list.length + "/"
+            + main_room_memory.creep.refueler.max_num
+            + "(" + main_room_memory.creep.refueler.avg_level + ")";
+        Memory.stat.misc_info[room_name + "|upgrader"] =
+            main_room_memory.creep.upgrader.name_list.length + "/"
+            + main_room_memory.creep.upgrader.max_num
+            + "(" + main_room_memory.creep.upgrader.avg_level + ")";
+        Memory.stat.misc_info[room_name + "|scout"] =
+            main_room_memory.creep.scout.name_list.length + "/"
+            + main_room_memory.creep.scout.max_num
+            + "(" + main_room_memory.creep.scout.avg_level + ")";
+        Memory.stat.misc_info[room_name + "|claimer"] =
+            main_room_memory.creep.claimer.name_list.length + "/"
+            + main_room_memory.creep.claimer.max_num
+            + "(" + main_room_memory.creep.claimer.avg_level + ")";
     }
     Memory.stat.room_info = [];
     for(let room_name of Memory.room_list) {
@@ -129,6 +165,7 @@ let stat = function() {
         room_info["hostile_status"] = Memory.room_dict[room_name]["hostile_status"];
         Memory.stat.room_info.push(room_info);
     }
+
     ///////////////////////////////////////////////////////////////////////
     ////    CPU Stat
     // let cpu_stat = Memory.cpu_stat;

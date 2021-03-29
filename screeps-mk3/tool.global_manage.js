@@ -7,15 +7,17 @@ let global_find = require("tool.global_find");
 let path_handler = require("tool.path_handler");
 
 let global_manage = function(main_room_name) {
+    let cpu = Game.cpu.getUsed();
     let main_room = Game.rooms[main_room_name];
     let main_room_memory = Memory.room_dict[main_room_name];
     let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
     ////////////////////////////////////////////////////////////////////////////////
-    ////    Check Room
-    // room_check(main_room_name);
+    //    Check Room
+    room_check(main_room_name);
     // for(let room_name of Memory.room_list) {
     //
     // }
+    // console.log("check room", (Game.cpu.getUsed() - cpu).toFixed(3));
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Container
     for(let i in main_room_memory.container_list) {
@@ -213,14 +215,19 @@ let global_manage = function(main_room_name) {
             }
         }
     }
+    // console.log("check s_e_s_t", (Game.cpu.getUsed() - cpu).toFixed(3));
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check / Build Road
+    cpu = Game.cpu.getUsed();
     let road_site_num = 0;
     if (main_room.controller.level >= 4 && extension_site_num + storage_site_num + tower_site_num === 0) {
         let road_to_build = [];
         let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
         for (let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
-            let room_memory = Memory.room_dict[room_name]
+            let room_memory = Memory.room_dict[room_name];
+            if(room_memory.claim_status === "neutral" || room_memory.hostile_status !== "neutral") {
+                continue;
+            }
             for (let source_id in room_memory.source) {
                 if (room_memory.source.hasOwnProperty(source_id)) {
                     if (room_memory.source[source_id].container != null) {
@@ -269,16 +276,16 @@ let global_manage = function(main_room_name) {
                                 }
                             }
                         }
-                        // for (let i in source_memory.road_to_build) {
-                        //     if(source_memory.road_to_build.hasOwnProperty(i)) {
-                        //         if(source_memory.road_to_build[i].x === 0
-                        //             || source_memory.road_to_build[i].x === 49
-                        //             || source_memory.road_to_build[i].y === 0
-                        //             || source_memory.road_to_build[i].y === 49) {
-                        //             source_memory.road_to_build.splice(i, 1)
-                        //         }
-                        //     }
-                        // }
+                        for (let i in source_memory.road_to_build) {
+                            if(source_memory.road_to_build.hasOwnProperty(i)) {
+                                if(source_memory.road_to_build[i].x === 0
+                                    || source_memory.road_to_build[i].x === 49
+                                    || source_memory.road_to_build[i].y === 0
+                                    || source_memory.road_to_build[i].y === 49) {
+                                    source_memory.road_to_build.splice(i, 1)
+                                }
+                            }
+                        }
                         if (source_memory.road_to_build.length > source_memory.road_built.length) {  // build road
                             for(let i of source_memory.road_to_build) {
                                 let room = Game.rooms[i.roomName];
@@ -339,14 +346,17 @@ let global_manage = function(main_room_name) {
             }
         }
     }
+    console.log("check road", (Game.cpu.getUsed() - cpu).toFixed(3));
     ////////////////////////////////////////////////////////////////////////////////
     ////    Update Cost Matrix per 10 min
+    cpu = Game.cpu.getUsed();
     if (extension_site_num + storage_site_num + tower_site_num + road_site_num === 0 && Game.time % 600 === 0) {
         for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
             console.log(room_name, "update cost matrix")
             path_handler.get_cost_matrix(room_name, 1);
         }
     }
+    console.log("update matrix", (Game.cpu.getUsed() - cpu).toFixed(3));
     ////////////////////////////////////////////////////////////////////////////////
     ////    Adjust Worker Number
     ////    adjust harvester number

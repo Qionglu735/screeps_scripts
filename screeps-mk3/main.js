@@ -92,7 +92,8 @@ module.exports.loop = function () {
                         let source = Game.getObjectById(source_id);
                         if(source != null) {
                             room_name = Game.getObjectById(source_id).room.name;
-                            if (Memory.room_dict[room_name].source[source_id].assigned_miner === creep_name) {
+                            if (Memory.room_dict[room_name] != null
+                                && Memory.room_dict[room_name].source[source_id].assigned_miner === creep_name) {
                                 Memory.room_dict[room_name].source[source_id].assigned_miner = null;
                             }
                         }
@@ -207,14 +208,11 @@ module.exports.loop = function () {
             }
         }
     }
+    console.log("busy creep:", large_cpu_creep_list.join(","))
     console.log("run creep", (Game.cpu.getUsed() - cpu).toFixed(3));
-    if(large_cpu_creep_list.length > 0) {
-        console.log(large_cpu_creep_list.join(","))
-    }
-    else {
-        console.log();
-    }
 
     ////    check energy, cpu
+    cpu = Game.cpu.getUsed();
     stat();
+    console.log("stat", (Game.cpu.getUsed() - cpu).toFixed(3))
 }

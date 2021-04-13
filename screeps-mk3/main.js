@@ -36,6 +36,16 @@ module.exports.loop = function () {
         Memory.LoopControl -= 1;
     }
 
+    if(Memory.CpuExceeded == null) {
+        Memory.CpuExceeded = 0
+    }
+    if(Memory.CpuExceeded > 0) {
+        Memory.CpuExceeded -= 1;
+        console.log("cpu exceeded")
+        return
+    }
+    Memory.CpuExceeded += 1;
+
     console.log("################################################################################");
     console.log("parse memory", (Game.cpu.getUsed() - cpu).toFixed(3))
 
@@ -93,6 +103,7 @@ module.exports.loop = function () {
                         if(source != null) {
                             room_name = Game.getObjectById(source_id).room.name;
                             if (Memory.room_dict[room_name] != null
+                                && Memory.room_dict[room_name].source[source_id] != null
                                 && Memory.room_dict[room_name].source[source_id].assigned_miner === creep_name) {
                                 Memory.room_dict[room_name].source[source_id].assigned_miner = null;
                             }
@@ -215,4 +226,6 @@ module.exports.loop = function () {
     cpu = Game.cpu.getUsed();
     stat();
     console.log("stat", (Game.cpu.getUsed() - cpu).toFixed(3))
+
+    Memory.CpuExceeded -= 1;
 }

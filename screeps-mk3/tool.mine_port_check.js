@@ -15,7 +15,7 @@ let mine_port_check = function(main_room_name, room_name) {
         console.log(room_name, "no source info");
         need_check_flag = true;
     }
-    else if (main_room.controller.level >= 6
+    else if (main_room.controller.level >= 9
         && Object.keys(room_memory.mineral).length === 0) {
         console.log(room_name, "no mineral info");
         need_check_flag = true;
@@ -41,7 +41,7 @@ let mine_port_check = function(main_room_name, room_name) {
                 }
             }
         }
-        if(need_check_flag === false && main_room.controller.level >= 6) {  // room level >= 6, need to check mineral
+        if(need_check_flag === false && main_room.controller.level >= 9) {  // room level >= 6, need to check mineral
             for(let mineral_id in room_memory.mineral) {
                 if(room_memory.mineral.hasOwnProperty(mineral_id)) {
                     if (room_memory.mineral[mineral_id].container == null) {
@@ -169,7 +169,7 @@ let mine_port_check = function(main_room_name, room_name) {
                         "container": null,
                     }
                 }
-                if(main_room.controller.level >= 6) {
+                if(main_room.controller.level >= 9) {
                     let container_list = mine_port.lookFor(LOOK_STRUCTURES);
                     let construction_site_list = mine_port.lookFor(LOOK_CONSTRUCTION_SITES);
                     if (container_list.length === 0 && construction_site_list.length === 0) {  // no contianer or construction site

@@ -20,14 +20,21 @@ let room_check = function(main_room_name) {
             max_scout_distance = 1;
             break;
         case 4:
+            max_scout_distance = 2;
+            max_reverse_distance = 1;
+            max_reverse_num = 1;
+            break;
         case 5:
+        case 6:
+        case 7:
+        case 8:
             max_scout_distance = 2;
             max_reverse_distance = 1;
             // max_sub_room_num = 1;
             max_reverse_num = 1;
             if(storage != null && storage.progress == null
                 && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity(RESOURCE_ENERGY) * 0.5
-                && Game.cpu.bucket < 10000 * 0.7) {
+                && Game.cpu.bucket > 10000 * 0.7) {
                 max_reverse_num += 1;
             }
             break;
@@ -136,8 +143,8 @@ let room_check = function(main_room_name) {
             && Memory.room_dict[room_name].hostile_status !== "neutral") {
             Memory.room_dict[room_name].claim_status = "neutral";
         }
-        // console.log(room_name,
-        //     Memory.room_dict[room_name].claim_status, Memory.room_dict[room_name].hostile_status);
+        console.log(room_name,
+            Memory.room_dict[room_name].claim_status, Memory.room_dict[room_name].hostile_status);
     }
     console.log("check sub room", Game.cpu.getUsed() - cpu);
 };

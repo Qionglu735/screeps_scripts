@@ -6,11 +6,13 @@ let role_scout = function(creep) {
     if(creep.memory.target_room == null) {
         for(let room_name of Memory.room_list) {
             if(Game.rooms[room_name] == null) {
-                if(control_level < 4 && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 1
-                    || control_level < 6 && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 2) {
-                    creep.memory.target_room = room_name;
-                    break;
-                }
+                // if(control_level < 4 && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 1
+                //     || control_level < 6 && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 2) {
+                //     creep.memory.target_room = room_name;
+                //     break;
+                // }
+                creep.memory.target_room = room_name;
+                break;
             }
         }
     }

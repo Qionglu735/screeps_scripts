@@ -1,66 +1,36 @@
 
 let path_handler = {
-    status_find: function(creep, target, action_status, distance, close_range) {
-        switch(action_status) {
-            case OK:
-            case ERR_TIRED:
-                break;
-            case ERR_NOT_IN_RANGE:
-                if(creep.pos.getRangeTo(target.pos) < close_range) {
-                    let moveTo_status = creep.moveTo(target.pos);
-                    switch(moveTo_status) {
-                        case OK:
-                        case ERR_TIRED:
-                            break;
-                        case ERR_NO_PATH:
-                            creep.say("Jam");
-                            break;
-                        default:
-                            creep.say(moveTo_status);
-                    }
-                }
-                else {
-                    let pathFinder = PathFinder.search(creep.pos, {pos: target.pos, range: distance});
-                    if(pathFinder.incomplete === false || pathFinder.path.length > 0) {
-                        creep.memory.path_list = pathFinder.path;
-                        let moveTo_status = creep.moveTo(creep.memory.path_list[0]);
-                        switch(moveTo_status) {
-                            case OK:
-                            case ERR_TIRED:
-                                break;
-                            case ERR_NO_PATH:
-                                creep.say("Jam");
-                                break;
-                            default:
-                                creep.say(moveTo_status);
-                        }
-                    }
-                    else {
-                        creep.say("No Path");
-                    }
-                }
-                break;
-            case ERR_NOT_ENOUGH_RESOURCES:
-                creep.memory.target_id = "";
-                break;
-            default:
-                creep.say(action_status);
-        }
-    },
     move: function(creep) {
         if(creep.fatigue > 0) {
             return;
         }
-        let pos = new RoomPosition(creep.memory.path_list[0].x,
-            creep.memory.path_list[0].y,
-            creep.memory.path_list[0].roomName);
-        while(creep.memory.path_list.length > 1 && (pos.x === 0 || pos.y === 0 || pos.x === 49 || pos.y === 49)) {
-            creep.memory.path_list.shift();
-            pos = new RoomPosition(creep.memory.path_list[0].x,
-                creep.memory.path_list[0].y,
-                creep.memory.path_list[0].roomName);
+        let path_list = null;
+        try {
+            path_list = JSON.parse(creep.memory.path_list);
+        }
+        catch(err) {  // compatible with array version
+            path_list = creep.memory.path_list;
+        }
+        if(path_list.length === 0) {
+            creep.memory.path_list = null;
+            return;
+        }
+        let pos = new RoomPosition(path_list[0].x,
+            path_list[0].y,
+            path_list[0].roomName);
+        while(path_list.length > 1 && (pos.x === 0 || pos.y === 0 || pos.x === 49 || pos.y === 49)) {
+            path_list.shift();
+            if(path_list.length > 0) {
+                creep.memory.path_list = JSON.stringify(path_list)
+            }
+            else {
+                creep.memory.path_list = null;
+            }
+            pos = new RoomPosition(path_list[0].x,
+                path_list[0].y,
+                path_list[0].roomName);
         }  // avoid blinking at room edge
-        if(creep.memory.path_list.length === 1 && (pos.x === 0 || pos.y === 0 || pos.x === 49 || pos.y === 49)) {
+        if(path_list.length === 1 && (pos.x === 0 || pos.y === 0 || pos.x === 49 || pos.y === 49)) {
             if(pos.x === 0 || pos.x === 49) {
                 if (pos.x === 0) {
                     pos.x += 1;
@@ -101,7 +71,13 @@ let path_handler = {
             case OK:
                 if((creep.pos.x - pos.x) ** 2 + (creep.pos.y - pos.y) ** 2 <= 2
                     && creep.pos.roomName === pos.roomName) {
-                    creep.memory.path_list.shift();
+                    path_list.shift();
+                    if(path_list.length > 0) {
+                        creep.memory.path_list = JSON.stringify(path_list)
+                    }
+                    else {
+                        creep.memory.path_list = null;
+                    }
                 }
                 break;
             case ERR_TIRED:
@@ -133,12 +109,18 @@ let path_handler = {
         }
         else {
             let cpu = Game.cpu.getUsed()
-            let pathFinder = PathFinder.search(creep.pos, {pos: pos, range: distance}, {
-                roomCallback: function(room_name) {
-                    return path_handler.get_cost_matrix(room_name);
+            let pathFinder = PathFinder.search(
+                creep.pos,
+                {pos: pos, range: distance},
+                {
+                    plainCost: 2,
+                    swampCost: 5,
+                    roomCallback: function(room_name) {
+                        return path_handler.get_cost_matrix(room_name);
+                    }
                 }
-            });
-            console.log("PathFinder.search", Game.cpu.getUsed() - cpu);
+            );
+            // console.log("PathFinder.search", Game.cpu.getUsed() - cpu);
             if(pathFinder.incomplete === false || pathFinder.path.length > 0) {
                 for(let i of pathFinder.path) {
                     let room = Game.rooms[i.roomName];
@@ -147,19 +129,8 @@ let path_handler = {
                     }
                     room.visual.circle(i.x, i.y, {fill: "#ff00ff", radius: 0.1, opacity: 0.7});
                 }
-                creep.memory.path_list = pathFinder.path;  // TODO: compress path list for memory
-                // let moveTo_status = creep.moveTo(creep.memory.path_list[0]);
-                // switch(moveTo_status) {
-                //     case OK:
-                //     case ERR_TIRED:
-                //         creep.memory.path_list.shift();
-                //         break;
-                //     case ERR_NO_PATH:
-                //         creep.say("Jam");
-                //         break;
-                //     default:
-                //         creep.say(moveTo_status);
-                // }
+                // creep.memory.path_list = pathFinder.path;  // TODO: compress path list for memory
+                creep.memory.path_list = JSON.stringify(pathFinder.path);
             }
             else {
                 creep.say("No Path");

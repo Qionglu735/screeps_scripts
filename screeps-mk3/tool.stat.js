@@ -210,7 +210,7 @@ let stat = function() {
         // "1m:" + cpu_stat["60_tick_avg"],
         // "10m:" + cpu_stat["600_tick_avg"],
         // "1h:" + cpu_stat["3600_tick_avg"],
-        // "Bucket:" + Game.cpu.bucket
+        "Bucket:" + Game.cpu.bucket
     );
 };
 

@@ -83,7 +83,7 @@ let room_check = function(main_room_name) {
         i += 1;
     }
     Memory.room_list = room_list;
-    console.log("check main room", Game.cpu.getUsed() - cpu);
+    console.log("check main room", (Game.cpu.getUsed() - cpu).toFixed(3));
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Sub Room
     // for(let room_name in Memory.room_dict) {
@@ -146,7 +146,7 @@ let room_check = function(main_room_name) {
         console.log(room_name,
             Memory.room_dict[room_name].claim_status, Memory.room_dict[room_name].hostile_status);
     }
-    console.log("check sub room", Game.cpu.getUsed() - cpu);
+    console.log("check sub room", (Game.cpu.getUsed() - cpu).toFixed(3));
 };
 
 module.exports = room_check;

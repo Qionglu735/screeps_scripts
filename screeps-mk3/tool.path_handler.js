@@ -66,6 +66,12 @@ let path_handler = {
                 }
             }
         }  // if target pos is on edge, move in one step
+        if(creep.pos.x === 0 || creep.pos.y === 0 || creep.pos.x === 49 || creep.pos.y === 49) {
+            // creep already on edge
+            if(creep.pos.roomName !== pos.roomName) {
+                return;  // wait one tick to teleport to target room
+            }
+        }
         let move_status = creep.moveTo(pos);
         switch(move_status) {
             case OK:
@@ -84,7 +90,8 @@ let path_handler = {
                 break;
             case ERR_NO_PATH:
                 creep.memory.path_list = null;
-                console.log(creep.name, "no path")
+                console.log(creep.name, "no path from", creep.pos.x, creep.pos.y, creep.pos.roomName,
+                    "to", pos.x, pos.y, pos.roomName)
                 break;
             default:
                 creep.say(move_status);

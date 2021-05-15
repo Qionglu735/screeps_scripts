@@ -125,8 +125,11 @@ let global_find = {
                     continue;
                 }
                 let spawn = Game.spawns[i];
-                if(spawn != null && spawn.progress == null
-                    && spawn.store[RESOURCE_ENERGY] < spawn.store.getCapacity(RESOURCE_ENERGY)) {
+                if(spawn != null && spawn.progress == null && spawn.store.getCapacity(RESOURCE_ENERGY) != null
+                    && (spawn.store[RESOURCE_ENERGY] == null
+                        // || spawn.store[RESOURCE_ENERGY] < 300
+                        || spawn.store[RESOURCE_ENERGY] < spawn.store.getCapacity(RESOURCE_ENERGY)
+                    )) {
                     // && spawn.store[RESOURCE_ENERGY] < spawn.store.getCapacity(RESOURCE_ENERGY)) {
                     this.spawn_list.push(spawn);
                 }

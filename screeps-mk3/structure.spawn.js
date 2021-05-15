@@ -2,24 +2,29 @@
 let structure_spawn = function(spawn) {
     let room = spawn.room;
     let memory_creep = Memory.room_dict[room.name].creep;
+    let energy_capacity = room.energyCapacityAvailable;
+    if(Number.isNaN(energy_capacity)) {
+        // Server Bug: energyCapacityAvailable is NaN
+        energy_capacity = Memory.room_dict[room.name].extension_list.length * 50;
+    }
     if (spawn.spawning != null) {
         Memory.room_dict[room.name].spawn_busy_time += 1;
         console.log(spawn.name, "spawning", spawn.spawning.name,
-            room.energyAvailable + "/" + room.energyCapacityAvailable,
+            room.energyAvailable + "/" + energy_capacity,
             "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
     }
     else if(!room.energyAvailable || room.energyAvailable < 300) {
         Memory.room_dict[room.name].spawn_busy_time += 1;
         console.log(spawn.name, "energy_low",
-            room.energyAvailable + "/" + room.energyCapacityAvailable,
+            room.energyAvailable + "/" + energy_capacity,
             "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
     }
     else if(Memory.room_dict[room.name].spawn_cool_down > 0) {
         Memory.room_dict[room.name].spawn_busy_time += 1;
         console.log(spawn.name, "Cool_Down:", Memory.room_dict[room.name].spawn_cool_down + "s",
-            room.energyAvailable + "/" + room.energyCapacityAvailable,
+            room.energyAvailable + "/" + energy_capacity,
             "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
-        if(room.energyAvailable === room.energyCapacityAvailable) {
+        if(room.energyAvailable >= energy_capacity) {
             Memory.room_dict[room.name].spawn_cool_down = 0;
         }
         else {
@@ -29,6 +34,9 @@ let structure_spawn = function(spawn) {
     else {
         let body = [];
         let energy = room.energyAvailable;
+        if(energy == null) {
+            energy = 200;
+        }
         let creepLevel = 0;
         // Harvester
         if(memory_creep.harvester.name_list.length < memory_creep.harvester.max_num) {
@@ -41,8 +49,9 @@ let structure_spawn = function(spawn) {
             }
             let creep_name = "Harvester" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name,
-                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                room.energyAvailable + "/" + energy_capacity,
                 "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
+            console.log(body)
             let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
                         main_room: room.name,
@@ -75,7 +84,7 @@ let structure_spawn = function(spawn) {
             }
             let creep_name = "Miner" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name,
-                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                room.energyAvailable + "/" + energy_capacity,
                 "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
@@ -106,7 +115,7 @@ let structure_spawn = function(spawn) {
             }
             let creep_name = "Carrier" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn " + creep_name,
-                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                room.energyAvailable + "/" + energy_capacity,
                 "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, "Carrier" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
@@ -137,7 +146,7 @@ let structure_spawn = function(spawn) {
             }
             let creep_name = "Refueler" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name,
-                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                room.energyAvailable + "/" + energy_capacity,
                 "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, "Refueler" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
@@ -165,7 +174,7 @@ let structure_spawn = function(spawn) {
             }
             let creep_name = "Scout" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name,
-                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                room.energyAvailable + "/" + energy_capacity,
                 "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, "Scout" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
@@ -194,7 +203,7 @@ let structure_spawn = function(spawn) {
             }
             let creep_name = "Claimer" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name,
-                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                room.energyAvailable + "/" + energy_capacity,
                 "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, "Claimer" + Game.time % 10000 + "_Lv" + creepLevel, {
                     memory: {
@@ -224,7 +233,7 @@ let structure_spawn = function(spawn) {
             }
             let creep_name = "Upgrader" + Game.time % 10000 + "_Lv" + creepLevel;
             console.log(spawn.name, "spawn", creep_name,
-                room.energyAvailable + "/" + room.energyCapacityAvailable,
+                room.energyAvailable + "/" + energy_capacity,
                 "Busy:", Memory.room_dict[room.name].spawn_busy_time + "s");
             let res = spawn.spawnCreep(body, creep_name, {
                     memory: {
@@ -246,7 +255,7 @@ let structure_spawn = function(spawn) {
         else {
             Memory.room_dict[room.name].spawn_idle_time += 1;
             Memory.room_dict[room.name].spawn_busy_time = 0;
-            console.log(spawn.name, room.energyAvailable + "/" + room.energyCapacityAvailable,
+            console.log(spawn.name, room.energyAvailable + "/" + energy_capacity,
                 "Idle:", Memory.room_dict[room.name].spawn_idle_time + "s");
         }
     }

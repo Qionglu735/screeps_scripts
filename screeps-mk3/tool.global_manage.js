@@ -447,7 +447,9 @@ let global_manage = function(main_room_name) {
         }
     }
     ////    adjust upgrader number
+    // main_room_memory.creep.upgrader.max_num = 0;  // reset
     if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
+        && extension_site_num + storage_site_num + tower_site_num === 0
         && main_room_memory.spawn_idle_time >= 120) {
         main_room_memory.creep.upgrader.max_num += 1;
     }

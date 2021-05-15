@@ -3,7 +3,7 @@ let global_find = require("tool.global_find");
 let path_handler = require("tool.path_handler");
 
 let role_harvester = function(creep) {
-    if(creep.memory.status == null || !["harvest", "transfer", "build", "upgrade"].includes(creep.memory.status)) {
+    if(creep.memory.status == null || !["harvest", "transfer", "build", "repair", "upgrade"].includes(creep.memory.status)) {
         creep.memory.status = "harvest";
     }
     if(creep.memory.status === "harvest" && creep.carry.energy === creep.carryCapacity) {
@@ -15,6 +15,18 @@ let role_harvester = function(creep) {
         creep.memory.status = "harvest";
         creep.memory.target_id = null;
         creep.say("Harvest");
+    }
+    if(creep.memory.target_id) {
+        let obj = Game.getObjectById(creep.memory.target_id);
+        if(obj) {
+            console.log(creep.name, creep.memory.status, obj.structureType)
+        }
+        else {
+            console.log(creep.name, creep.memory.status, creep.memory.target_id)
+        }
+    }
+    else {
+        console.log(creep.name, creep.memory.status)
     }
     if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);
@@ -129,7 +141,10 @@ let role_harvester = function(creep) {
                 creep.memory.target_id = target.id;
             }
         }
-        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
+        // if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
+        //     target = global_find.find_structure_need_energy(creep);
+        // }
+        if(!target && Memory.room_dict[creep.memory.main_room].creep.carrier.name_list.length === 0) {
             let targets = [];
             for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
                 let _s = Game.getObjectById(_s_id);
@@ -202,6 +217,36 @@ let role_harvester = function(creep) {
                 creep.memory.target_id = target.id;
             }
         }
+        if(target) {
+            let build_status = creep.build(target);
+            switch(build_status) {
+                case OK:
+                    break;
+                case ERR_NOT_IN_RANGE:
+                    path_handler.find(creep, target, 1, 3);
+                    break;
+                case ERR_INVALID_TARGET:
+                    creep.memory.status = "harvest";
+                    creep.memory.target_id = null;
+                    break;
+                default:
+                    console.log(creep.name, "build", build_status);
+                    creep.say(build_status);
+            }
+        }
+        else {
+            creep.memory.status = "repair";
+            creep.say("Repair");
+        }
+    }
+    else if(creep.memory.status === "repair") {
+        let target = Game.getObjectById(creep.memory.target_id);
+        if(target && target.hits
+            && (target.hits === target.hitsMax
+                || target.structureType === STRUCTURE_WALL && target.hits < creep.room.controller.progressTotal)) {
+            target = null;
+            creep.memory.target_id = null;
+        }
         if(!target) {
             let targets = global_find.find(FIND_STRUCTURES, {
                 filter: (structure) =>
@@ -230,21 +275,8 @@ let role_harvester = function(creep) {
                     path_handler.find(creep, target, 1, 3);
                     break;
                 case ERR_INVALID_TARGET:
-                    let build_status = creep.build(target);
-                    switch(build_status) {
-                        case OK:
-                            break;
-                        case ERR_NOT_IN_RANGE:
-                            path_handler.find(creep, target, 1, 3);
-                            break;
-                        case ERR_INVALID_TARGET:
-                            creep.memory.status = "harvest"
-                            creep.memory.target_id = null;
-                            break;
-                        default:
-                            console.log(creep.name, "build", build_status);
-                            creep.say(build_status)
-                    }
+                    creep.memory.status = "harvest";
+                    creep.memory.target_id = null;
                     break;
                 default:
                     console.log(creep.name, "repair", repair_status);

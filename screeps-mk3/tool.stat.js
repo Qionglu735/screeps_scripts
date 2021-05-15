@@ -201,7 +201,7 @@ let stat = function() {
     //     cpu_stat["600_tick_avg"] = (parseFloat(cpu_stat["600_tick_sum"]) / cpu_stat.cpu_track.length).toFixed(3);
     // }
     // cpu_stat["3600_tick_avg"] = (parseFloat(cpu_stat["3600_tick_sum"]) / cpu_stat.cpu_track.length).toFixed(3);
-    Memory.stat.cpu["used"] = Game.cpu.getUsed()
+    Memory.stat.cpu["used"] = Game.cpu.getUsed().toFixed(3);
     Memory.stat.cpu["cap"] = Game.cpu.limit;
     Memory.stat.cpu["bucket"] = Game.cpu.bucket;
     console.log("[Cpu Log]Time:" + Game.time % 10000,

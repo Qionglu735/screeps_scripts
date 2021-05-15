@@ -76,18 +76,6 @@ let mine_port_check = function(main_room_name, room_name) {
     if(need_check_flag) {
         console.log("need_check_flag", need_check_flag)
         let source_list = room.find(FIND_SOURCES);
-        // for(let i in room_memory.source) {
-        //     let found_flag = false;
-        //     for(let j of source_list) {
-        //         if(i === j.id) {
-        //             found_flag = true;
-        //             break;
-        //         }
-        //     }
-        //     if(!found_flag) {
-        //         delete room_memory.source[i];
-        //     }
-        // }
         for(let i in source_list) {
             let min_cost = -1;
             let mine_port = null;
@@ -148,6 +136,19 @@ let mine_port_check = function(main_room_name, room_name) {
                     //     }
                     // }
                 }
+            }
+        }
+        // unknown bug: room_memory will contain source not in current room
+        for(let i in room_memory.source) {
+            let found_flag = false;
+            for(let j of source_list) {
+                if(i === j.id) {
+                    found_flag = true;
+                    break;
+                }
+            }
+            if(!found_flag) {
+                delete room_memory.source[i];
             }
         }
         let mineral_list = room.find(FIND_MINERALS);

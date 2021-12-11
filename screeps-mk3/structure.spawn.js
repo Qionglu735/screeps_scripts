@@ -105,7 +105,7 @@ let structure_spawn = function(spawn) {
         }
         // Carrier
         else if(memory_creep.carrier.name_list.length < memory_creep.carrier.max_num) {
-            while(energy > 200) {
+            while(energy > 200 && creepLevel < 10) {
                 body.push(CARRY);
                 body.push(CARRY);
                 body.push(MOVE);

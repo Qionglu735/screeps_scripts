@@ -21,11 +21,29 @@ let global_find = {
                 continue;
             }
             let out = null;
-            if(filter != null) {
-                out = room.find(type, filter);
+            if(opts["pos"] != null && opts.pos.roomName === room_name && opts["findClosestByRange"] === true) {
+                if(filter != null) {
+                    out = opts["pos"].findClosestByRange(type, filter);
+                }
+                else {
+                    out = opts["pos"].findClosestByRange(type);
+                }
+            }
+            else if(opts["pos"] != null && opts.pos.roomName === room_name && opts["findClosestByPath"] === true) {
+                if(filter != null) {
+                    out = opts["pos"].findClosestByPath(type, filter);
+                }
+                else {
+                    out = opts["pos"].findClosestByPath(type);
+                }
             }
             else {
-                out = room.find(type);
+                if(filter != null) {
+                    out = room.find(type, filter);
+                }
+                else {
+                    out = room.find(type);
+                }
             }
             if(out != null) {
                 res = res.concat(out);
@@ -197,6 +215,24 @@ let global_find = {
             if(res == null) {
                 res = this.tower_list[Game.time % this.tower_list.length];  // find random target
             }
+        }
+        if(res == null) {
+            let main_room_memory = Memory.room_dict[creep.memory.main_room]
+            let link_spawn = Game.getObjectById(main_room_memory.link_spawn);
+            if(link_spawn != null) {
+                if(link_spawn.store[RESOURCE_ENERGY] < link_spawn.store.getCapacity(RESOURCE_ENERGY)) {
+                    res = link_spawn;
+                }
+            }
+        }
+        if(res == null) {
+            let terminal = Game.rooms[creep.memory.main_room].terminal;
+            if(terminal != null) {
+                if(terminal.store[RESOURCE_ENERGY] < 10000) {
+                    res = terminal;
+                }
+            }
+
         }
         // console.log("find_structure_need_energy find_target", Game.cpu.getUsed() - cpu);
         if(res != null) {

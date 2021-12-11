@@ -31,11 +31,16 @@ let room_check = function(main_room_name) {
             max_scout_distance = 2;
             max_reverse_distance = 1;
             // max_sub_room_num = 1;
-            max_reverse_num = 1;
-            if(storage != null && storage.progress == null
-                && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity(RESOURCE_ENERGY) * 0.5
-                && Game.cpu.bucket > 10000 * 0.7) {
-                max_reverse_num += 1;
+            max_reverse_num = 0;
+            if(storage != null && storage.progress == null) {
+                if(storage.store[RESOURCE_ENERGY] < storage.store.getCapacity(RESOURCE_ENERGY) * 0.7
+                    && Game.cpu.bucket > 10000 * 0.7) {
+                    max_reverse_num += 1;
+                }
+                if(storage.store[RESOURCE_ENERGY] < storage.store.getCapacity(RESOURCE_ENERGY) * 0.5
+                    && Game.cpu.bucket > 10000 * 0.7) {
+                    max_reverse_num += 1;
+                }
             }
             break;
     }

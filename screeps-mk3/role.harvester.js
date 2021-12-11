@@ -16,17 +16,24 @@ let role_harvester = function(creep) {
         creep.memory.target_id = null;
         creep.say("Harvest");
     }
-    if(creep.memory.target_id) {
+    if(creep.memory.target_id != null) {
         let obj = Game.getObjectById(creep.memory.target_id);
         if(obj) {
-            console.log(creep.name, creep.memory.status, obj.structureType)
+            if(obj.ticksToRegeneration != null) {
+                console.log(creep.name, creep.memory.status, "source",
+                    obj.pos.roomName, obj.pos.x, obj.pos.y);
+            }
+            else {
+                console.log(creep.name, creep.memory.status, obj.structureType,
+                    obj.pos.roomName, obj.pos.x, obj.pos.y);
+            }
         }
         else {
-            console.log(creep.name, creep.memory.status, creep.memory.target_id)
+            console.log(creep.name, creep.memory.status, creep.memory.target_id);
         }
     }
     else {
-        console.log(creep.name, creep.memory.status)
+        console.log(creep.name, creep.memory.status, "null")
     }
     if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);
@@ -41,7 +48,7 @@ let role_harvester = function(creep) {
                 let targets = [];
                 for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
                     let _s = Game.getObjectById(_s_id);
-                    if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity(RESOURCE_ENERGY)) {
+                    if(_s.store[RESOURCE_ENERGY] > 0) {
                         targets.push(_s);
                     }
                 }
@@ -108,42 +115,42 @@ let role_harvester = function(creep) {
             creep.memory.target_id = null;
             target = null;
         }
-        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
-            let _spawn = Game.spawns["Spawn1"];
-            if(_spawn.store[RESOURCE_ENERGY] < _spawn.store.getCapacity(RESOURCE_ENERGY)) {
-                target = _spawn;
-                creep.memory.target_id = target.id;
-            }
-        }
-        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
-            let targets = [];
-            for(let _e_id of Memory.room_dict[creep.memory.main_room].extension_list) {
-                let _e = Game.getObjectById(_e_id);
-                if(_e.store[RESOURCE_ENERGY] < _e.store.getCapacity(RESOURCE_ENERGY)) {
-                    targets.push(_e);
-                }
-            }
-            if(targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
-                creep.memory.target_id = target.id;
-            }
-        }
-        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
-            let targets = [];
-            for(let _t_id of Memory.room_dict[creep.memory.main_room].tower_list) {
-                let _t = Game.getObjectById(_t_id);
-                if(_t.store[RESOURCE_ENERGY] < _t.store.getCapacity(RESOURCE_ENERGY)) {
-                    targets.push(_t);
-                }
-            }
-            if(targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
-                creep.memory.target_id = target.id;
-            }
-        }
         // if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
-        //     target = global_find.find_structure_need_energy(creep);
+        //     let _spawn = Game.spawns["Spawn1"];
+        //     if(_spawn.store[RESOURCE_ENERGY] < _spawn.store.getCapacity(RESOURCE_ENERGY)) {
+        //         target = _spawn;
+        //         creep.memory.target_id = target.id;
+        //     }
         // }
+        // if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
+        //     let targets = [];
+        //     for(let _e_id of Memory.room_dict[creep.memory.main_room].extension_list) {
+        //         let _e = Game.getObjectById(_e_id);
+        //         if(_e.store[RESOURCE_ENERGY] < _e.store.getCapacity(RESOURCE_ENERGY)) {
+        //             targets.push(_e);
+        //         }
+        //     }
+        //     if(targets.length > 0) {
+        //         target = targets[Math.floor(Math.random() * 1000) % targets.length];
+        //         creep.memory.target_id = target.id;
+        //     }
+        // }
+        // if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
+        //     let targets = [];
+        //     for(let _t_id of Memory.room_dict[creep.memory.main_room].tower_list) {
+        //         let _t = Game.getObjectById(_t_id);
+        //         if(_t.store[RESOURCE_ENERGY] < _t.store.getCapacity(RESOURCE_ENERGY)) {
+        //             targets.push(_t);
+        //         }
+        //     }
+        //     if(targets.length > 0) {
+        //         target = targets[Math.floor(Math.random() * 1000) % targets.length];
+        //         creep.memory.target_id = target.id;
+        //     }
+        // }
+        if(!target && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0) {
+            target = global_find.find_structure_need_energy(creep);
+        }
         if(!target && Memory.room_dict[creep.memory.main_room].creep.carrier.name_list.length === 0) {
             let targets = [];
             for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
@@ -154,10 +161,10 @@ let role_harvester = function(creep) {
             }
             if(targets.length > 0) {
                 target = targets[Math.floor(Math.random() * 1000) % targets.length];
-                creep.memory.target_id = target.id;
             }
         }
         if(target) {
+            creep.memory.target_id = target.id;
             let transfer_status = creep.transfer(target, RESOURCE_ENERGY);
             switch(transfer_status) {
                 case OK:
@@ -226,8 +233,8 @@ let role_harvester = function(creep) {
                     path_handler.find(creep, target, 1, 3);
                     break;
                 case ERR_INVALID_TARGET:
-                    creep.memory.status = "harvest";
                     creep.memory.target_id = null;
+                    creep.memory.status = "harvest";
                     break;
                 default:
                     console.log(creep.name, "build", build_status);
@@ -235,8 +242,14 @@ let role_harvester = function(creep) {
             }
         }
         else {
-            creep.memory.status = "repair";
-            creep.say("Repair");
+            if(Memory.room_dict[creep.memory.main_room].creep.upgrader.name_list.length === 0) {
+                creep.memory.status = "upgrade";
+                creep.say("Upgrade");
+            }
+            else {
+                creep.memory.status = "repair";
+                creep.say("Repair");
+            }
         }
     }
     else if(creep.memory.status === "repair") {
@@ -251,9 +264,13 @@ let role_harvester = function(creep) {
             let targets = global_find.find(FIND_STRUCTURES, {
                 filter: (structure) =>
                     structure.hits < structure.hitsMax * 0.95
-                    && structure.structureType !== STRUCTURE_WALL});
+                    && structure.structureType !== STRUCTURE_WALL}, {
+                pos: creep.pos,
+                findClosestByPath: true,
+            });
             if(targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
+                // target = targets[Math.floor(Math.random() * 1000) % targets.length];
+                target = targets[0];
                 creep.memory.target_id = target.id;
             }
         }
@@ -275,8 +292,8 @@ let role_harvester = function(creep) {
                     path_handler.find(creep, target, 1, 3);
                     break;
                 case ERR_INVALID_TARGET:
-                    creep.memory.status = "harvest";
                     creep.memory.target_id = null;
+                    creep.memory.status = "harvest";
                     break;
                 default:
                     console.log(creep.name, "repair", repair_status);
@@ -289,16 +306,18 @@ let role_harvester = function(creep) {
         }
     }
     else if(creep.memory.status === "upgrade"){
-        let upgrade_status = creep.upgradeController(Game.rooms[creep.memory.main_room].controller);
+        let target = Game.rooms[creep.memory.main_room].controller;
+        creep.memory.target_id = target.id;
+        let upgrade_status = creep.upgradeController(target);
         switch(upgrade_status) {
             case OK:
                 break;
             case ERR_NOT_IN_RANGE:
-                path_handler.find(creep, Game.rooms[creep.memory.main_room].controller, 1, 3);
+                path_handler.find(creep, target, 1, 3);
                 break;
             case ERR_NOT_ENOUGH_RESOURCES:
-                creep.memory.status = "harvest";
                 creep.memory.target_id = null;
+                creep.memory.status = "harvest";
                 break;
             default:
                 console.log(creep.name, "upgrade", upgrade_status);

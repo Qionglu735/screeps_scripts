@@ -54,7 +54,7 @@ let role_refueler = function(creep) {
         else {
             creep.say('No Energy');
         }
-        console.log(creep.name, "withdraw", Game.cpu.getUsed() - cpu)
+        // console.log(creep.name, "withdraw", Game.cpu.getUsed() - cpu)
     }
     else if(creep.memory.status === "transfer"){
         // let cpu = Game.cpu.getUsed();

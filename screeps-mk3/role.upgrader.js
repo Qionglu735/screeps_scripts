@@ -22,6 +22,13 @@ let role_upgrader = function(creep) {
         if(creep.memory.status === "withdraw") {
             let target = Game.getObjectById(creep.memory.target_id);
             if(!target) {
+                let main_room_memory = Memory.room_dict[creep.memory.main_room]
+                let link_controller = Game.getObjectById(main_room_memory.link_controller);
+                if(link_controller != null && link_controller.store[RESOURCE_ENERGY] > 0) {
+                    target = link_controller;
+                }
+            }
+            if(!target) {
                 let targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (target) => target.structureType === STRUCTURE_STORAGE
                         && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});

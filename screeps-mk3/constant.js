@@ -62,6 +62,11 @@ MAIN_ROOM_TEMPLATE = {
         "1": [-2, 0],
         "2": [2, 0],
     },
+    "link_spawn": null,
+    "link_controller": null,
+    "link_table": {
+        "1": [-1, -1],
+    },
     "energy_stat": {
         ...ENERGY_STAT_TEMPLATE
     },
@@ -89,6 +94,7 @@ MAIN_ROOM_TEMPLATE = {
         },
         "carrier": {
             "name_list": [],
+            // "type_list": [],
             "max_num": 0,
             "avg_level": 0,
             "max_level": 1,
@@ -120,6 +126,60 @@ MAIN_ROOM_TEMPLATE = {
     },
     "sub_room_list": [],
 };
+
+TASK_TEMPLATE = {
+    "task_id": 0,
+
+    "type": "transfer",
+    "detail": "transfer mineral",
+    "description": "transfer H from container to terminal",
+
+    "resource_type": RESOURCE_HYDROGEN,
+    "resource_amount_total": 50,
+    "resource_amount_current": 0,
+
+    "from_id": null,
+    "from_type": STRUCTURE_CONTAINER,
+    "to_id": null,
+    "to_type": STRUCTURE_TERMINAL,
+
+    "status": "activated",  // scheduled, activated, completed, postponed, canceled
+    "priority": 50,
+
+    "start_time_cal": 0,
+    "start_time_real": 50,
+    "complete_time_cal": 100,
+    "complete_time_real": 150,
+
+    "assigned_creep": [],
+}
+
+TASK_REFUEL_TEMPLATE = {
+    "task_id": 0,
+
+    "type": "refuel",
+    "detail": "refuel",
+    "description": "refuel spawn and extension",
+
+    "resource_type": RESOURCE_ENERGY,
+    "resource_amount_total": 50,
+    "resource_amount_current": 0,
+
+    "from_id": null,
+    "from_type": STRUCTURE_CONTAINER,
+    "to_id": null,
+    "to_type": null,
+
+    "status": "activated",  // scheduled, activated, completed, postponed, canceled
+    "priority": 50,
+
+    "start_time_cal": 0,
+    "start_time_real": 50,
+    "complete_time_cal": 100,
+    "complete_time_real": 150,
+
+    "assigned_creep": [],
+}
 
 STAT_TEMPLATE = {
     "cpu": {

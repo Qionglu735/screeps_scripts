@@ -21,12 +21,39 @@ let role_miner = function (creep) {
                 creep.say("Full");
             }
             else {
-                let source = Game.getObjectById(creep.memory.target_id);
-                if(source) {
-                    creep.harvest(source);
+                let target = Game.getObjectById(creep.memory.target_id);
+                if(target.energy == null) {  // is mineral
+                    let extractor = Game.getObjectById(creep.memory.extractor_id);
+                    if(extractor != null) {
+                        if(extractor.progress != null) {
+                            creep.say("Wait");
+                            console.log(creep.name, "wait for extractor")
+                            return;
+                        }
+                    }
+                    else {
+                        creep.memory.extractor_id = null;
+                        creep.say("No Extractor");
+                        console.log(creep.name, "no extractor")
+                        return;
+                    }
+                }
+                if(target) {
+                    let harvest_status = creep.harvest(target);
+                    switch(harvest_status) {
+                        case OK:
+                            break;
+                        case ERR_NOT_ENOUGH_RESOURCES:
+                            break;
+                        case ERR_TIRED:  // The extractor or the deposit is still cooling down
+                            break;
+                        default:
+                            console.log(creep.name, "harvest", harvest_status);
+                    }
                 }
                 else {
-                    creep.say("No Source");
+                    creep.say("No Target");
+                    console.log(creep.name, "no target")
                 }
             }
         }

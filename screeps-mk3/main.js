@@ -26,7 +26,7 @@ module.exports.loop = function () {
     ////    Memory.LoopControl: -1 == normal, 0 == pause, N(N>0) == N step
     ////    Use console to set value: Memory.LoopControl = -1
     if(Memory.LoopControl == null) {
-        Memory.LoopControl = 0;
+        Memory.LoopControl = -1;
     }
     ////     Memory.LoopControl = 0;  // All Stop
     if(Memory.LoopControl === 0) {
@@ -59,11 +59,14 @@ module.exports.loop = function () {
         //// init memory
         console.log("init memory");
 
+        let loop_control = Memory.LoopControl;
         for(let i in Memory) {
             if(i !== "creeps") {
                 delete Memory[i];
             }
         }
+        Memory.LoopControl = loop_control;
+
         let first_room_name = Game.spawns[FIRST_SPAWN_NAME].room.name
         Memory.room_list = [first_room_name];
         Memory.room_dict = {};
@@ -121,7 +124,12 @@ module.exports.loop = function () {
                 }
                 let main_room_name = Memory.creeps[creep_name].main_room;
                 let _index = Memory.room_dict[main_room_name].creep[role].name_list.indexOf(creep_name);
-                if (_index !== -1) Memory.room_dict[main_room_name].creep[role].name_list.splice(_index, 1);
+                if (_index !== -1) {
+                    Memory.room_dict[main_room_name].creep[role].name_list.splice(_index, 1);
+                    if(role === "carrier") {
+                        Memory.room_dict[main_room_name].creep["carrier"].type_list.splice(_index, 1);
+                    }
+                }
                 delete Memory.creeps[creep_name];
                 console.log(creep_name + " passed away.");
             }
@@ -133,6 +141,9 @@ module.exports.loop = function () {
                 let creep_role = Memory.creeps[creep_name].role;
                 if (!Memory.room_dict[main_room_name].creep[creep_role].name_list.includes(creep_name)) {
                     Memory.room_dict[main_room_name].creep[creep_role].name_list.push(creep_name);
+                    if(creep_role === "carrier") {
+                        Memory.room_dict[main_room_name].creep["carrier"].type_list.push("");
+                    }
                 }
             }
         }
@@ -170,14 +181,14 @@ module.exports.loop = function () {
     }
     console.log("run spawn", (Game.cpu.getUsed() - cpu).toFixed(3));
 
-    ////    run tower
-    // cpu = Game.cpu.getUsed();
-    // for(let room_name of Memory.main_room_list) {
-    //     for(let tower_id of Memory.room_dict[room_name].tower_list) {
-    //         structure_tower(Game.getObjectById(tower_id));
-    //     }
-    // }
-    // console.log("run tower", (Game.cpu.getUsed() - cpu).toFixed(3));
+    //    run tower
+    cpu = Game.cpu.getUsed();
+    for(let room_name of Memory.main_room_list) {
+        for(let tower_id of Memory.room_dict[room_name].tower_list) {
+            structure_tower(Game.getObjectById(tower_id));
+        }
+    }
+    console.log("run tower", (Game.cpu.getUsed() - cpu).toFixed(3));
 
     ////    run creep
     cpu = Game.cpu.getUsed();
@@ -226,6 +237,11 @@ module.exports.loop = function () {
     cpu = Game.cpu.getUsed();
     stat();
     console.log("stat", (Game.cpu.getUsed() - cpu).toFixed(3))
+
+    // for(let i of Game.market.getAllOrders()) {
+    //     console.log(i["type"], i["resourceType"], "" + i["amount"] + "/" + i["remainingAmount"], i["price"],
+    //         Game.market.calcTransactionCost(1000, 'W8N3', i["roomName"]))
+    // }
 
     Memory.CpuExceeded -= 1;
 }

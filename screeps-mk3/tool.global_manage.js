@@ -32,6 +32,7 @@ let global_manage = function(main_room_name) {
     for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
         mine_port_check(main_room_name, room_name);
     }
+    let site_sum = 0
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Extension
     for(let i in main_room_memory.extension_list) {  // check memory status
@@ -104,6 +105,7 @@ let global_manage = function(main_room_name) {
             }
         }
     }
+    site_sum += extension_site_num;
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Storage
     for(let i in main_room_memory.storage_list) {  // check memory status
@@ -117,6 +119,7 @@ let global_manage = function(main_room_name) {
     let storage_num = main_room_memory.storage_list.length;
     let storage_site_num = 0;
     let storage_max = 0;
+    let storage = null;
     if(main_room.controller.level >= 4) {
         storage_max = 1;
     }
@@ -136,7 +139,7 @@ let global_manage = function(main_room_name) {
             filter: (target) => target.structureType === STRUCTURE_STORAGE
         }).length;
         if(storage_site_num === 0) {  // not constructing
-            if (storage_num < storage_max && extension_site_num === 0) {
+            if (storage_num < storage_max && site_sum === 0) {
                 let storage_pos = main_room_memory.storage_table["1"];
                 let new_pos = new RoomPosition(
                     main_spawn.pos.x + storage_pos[0],
@@ -153,6 +156,10 @@ let global_manage = function(main_room_name) {
             }
         }
     }
+    else {
+        storage = Game.getObjectById(main_room_memory.storage_list[0]);
+    }
+    site_sum += storage_site_num;
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Tower
     for(let i in main_room_memory.tower_list) {  // check memory status
@@ -198,7 +205,7 @@ let global_manage = function(main_room_name) {
             filter: (target) => target.structureType === STRUCTURE_TOWER
         }).length;
         if(tower_site_num === 0) {  // not constructing
-            if (tower_num < tower_max && extension_site_num + storage_site_num === 0) {
+            if (tower_num < tower_max && site_sum === 0) {
                 let tower_table = main_room_memory.tower_table;
                 let new_pos = new RoomPosition(
                     main_spawn.pos.x + tower_table[tower_num + 1][0],
@@ -215,12 +222,48 @@ let global_manage = function(main_room_name) {
             }
         }
     }
+    site_sum += tower_site_num;
     // console.log("check s_e_s_t", (Game.cpu.getUsed() - cpu).toFixed(3));
+    // TODO: build terminal, link, lab
+    // check link
+    if(main_room.controller.level >= 5) {
+        if(main_room_memory.link_spawn == null || Game.getObjectById(main_room_memory.link_spawn) == null) {
+            let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
+            let link_spawn = main_spawn.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                filter: target => target.structureType === STRUCTURE_LINK
+            })
+            main_room_memory.link_spawn = link_spawn.id;
+        }
+        if(main_room_memory.link_controller == null || Game.getObjectById(main_room_memory.link_spawn) == null) {
+            let controller = main_room.controller;
+            let link_controller = controller.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                filter: target => target.structureType === STRUCTURE_LINK
+            })
+            main_room_memory.link_controller = link_controller.id;
+        }
+        if(main_room_memory.link_spawn != null && main_room_memory.link_controller != null) {
+            let link_spawn = Game.getObjectById(main_room_memory.link_spawn);
+            let link_controller = Game.getObjectById(main_room_memory.link_controller);
+            if(link_spawn.cooldown === 0
+                && link_controller.store[RESOURCE_ENERGY] <= link_controller.store.getCapacity(RESOURCE_ENERGY) - 50
+                && link_spawn.store[RESOURCE_ENERGY] >= 50 ) {
+                let transfer_status = link_spawn.transferEnergy(link_controller);
+                switch(transfer_status) {
+                    case OK:
+                        break;
+                    default:
+                        console.log("link transfer", transfer_status)
+                }
+            }
+            // console.log(link_spawn, link_spawn.store[RESOURCE_ENERGY], link_spawn.cooldown)
+            // console.log(link_controller, link_controller.store[RESOURCE_ENERGY])
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check / Build Road
     cpu = Game.cpu.getUsed();
     let road_site_num = 0;
-    if (main_room.controller.level >= 4 && extension_site_num + storage_site_num + tower_site_num === 0) {
+    if (main_room.controller.level >= 5 && site_sum === 0) {
         let road_to_build = [];
         let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
         for (let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
@@ -346,11 +389,12 @@ let global_manage = function(main_room_name) {
             }
         }
     }
+    // site_sum += road_site_num;
     console.log("check road", (Game.cpu.getUsed() - cpu).toFixed(3));
     ////////////////////////////////////////////////////////////////////////////////
     ////    Update Cost Matrix per 10 min
     cpu = Game.cpu.getUsed();
-    if (extension_site_num + storage_site_num + tower_site_num + road_site_num === 0 && Game.time % 600 === 0) {
+    if (site_sum === 0 && Game.time % 600 === 0) {
         for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
             console.log(room_name, "update cost matrix")
             path_handler.get_cost_matrix(room_name, 1);
@@ -362,13 +406,15 @@ let global_manage = function(main_room_name) {
     ////    adjust harvester number
     main_room_memory.creep.harvester.max_num = 2;
     ////    adjust miner number
+    let energy_mine_num = 0
     main_room_memory.creep.miner.max_num = 0;
     for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
         if(["claimed", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
             main_room_memory.creep.miner.max_num += Object.keys(Memory.room_dict[room_name].source).length;
-            if(main_room.controller.level >= 6) {
-                main_room_memory.creep.miner.max_num += Object.keys(Memory.room_dict[room_name].mineral).length;
-            }
+            energy_mine_num += Object.keys(Memory.room_dict[room_name].source).length;
+            // if(main_room.controller.level >= 6) {
+            //     main_room_memory.creep.miner.max_num += Object.keys(Memory.room_dict[room_name].mineral).length;
+            // }
         }
     }
     ////    miner / mine port assignment
@@ -405,6 +451,48 @@ let global_manage = function(main_room_name) {
                 }
             }
         }
+        if(room_name === main_room_name && main_room.controller.level >= 6) {
+            for(let mineral_id in Memory.room_dict[room_name].mineral) {
+                if(Memory.room_dict[room_name].mineral.hasOwnProperty(mineral_id)) {
+                    let mineral_info = Memory.room_dict[room_name].mineral[mineral_id];
+                    let extractor = Game.getObjectById(mineral_info.extractor);
+                    let container = Game.getObjectById(mineral_info.container);
+                    if(extractor != null && extractor.progress != null
+                        || container != null && container.progress != null) {
+                        continue;  // extractor and container are not ready
+                    }
+                    main_room_memory.creep.miner.max_num += 1;
+                    if (mineral_info.assigned_miner == null || Game.creeps[mineral_info.assigned_miner] == null) {  // if no assigned miner, or miner doesn't exist
+                        Memory.room_dict[room_name].mineral[mineral_id].assigned_miner = null;
+                        for (let miner_name of main_room_memory.creep.miner.name_list) {
+                            if (Memory.creeps[miner_name].target_id == null) {  // idle miner
+                                Memory.creeps[miner_name].target_id = mineral_id;
+                                Memory.creeps[miner_name].extractor_id = mineral_info.extractor;
+                                Memory.creeps[miner_name].container_id = mineral_info.container;
+                                Memory.room_dict[room_name].mineral[mineral_id].assigned_miner = miner_name;
+                                break;
+                            } else if (Memory.creeps[miner_name].target_id === mineral_id) {  // miner already assigned
+                                Memory.room_dict[room_name].mineral[mineral_id].assigned_miner = miner_name;
+                                break;
+                            }
+                        }
+                    }
+                    else {  // check miner memory
+                        let miner_name = mineral_info.assigned_miner;
+                        if (Memory.creeps[miner_name].target_id == null
+                            || Memory.creeps[miner_name].target_id !== mineral_id) {
+                            Memory.creeps[miner_name].target_id = mineral_id;
+                        }
+                        if (Memory.creeps[miner_name].extractor_id == null) {
+                            Memory.creeps[miner_name].extractor_id = mineral_info.extractor;
+                        }
+                        if (Memory.creeps[miner_name].container_id == null) {
+                            Memory.creeps[miner_name].container_id = mineral_info.container;
+                        }
+                    }
+                }
+            }
+        }
     }
     ////    adjust carrier number
     main_room_memory.creep.carrier.max_num = 0;
@@ -419,6 +507,118 @@ let global_manage = function(main_room_name) {
     if(main_room_memory.extension_list.length < main_room_memory.creep.carrier.max_num) {
         main_room_memory.creep.carrier.max_num = main_room_memory.extension_list.length;
     }
+    // while(main_room_memory.creep.carrier.type_list.length > main_room_memory.creep.carrier.name_list.length) {
+    //     main_room_memory.creep.carrier.type_list.pop();
+    // }
+    // while(main_room_memory.creep.carrier.type_list.length < main_room_memory.creep.carrier.name_list.length) {
+    //     main_room_memory.creep.carrier.type_list.push("");
+    // }
+    // // for(let i in [...Array(main_room_memory.creep.carrier.type_list.length).keys()]) {
+    // //     main_room_memory.creep.carrier.type_list[i] = "energy"
+    // // }
+    // if(main_room_memory.creep.carrier.type_list.includes("")) {
+    //     let energy_carrier_num = main_room_memory.creep.carrier.type_list.filter(x => x === "energy").length;
+    //     if(energy_carrier_num < energy_mine_num) {
+    //         let _i = main_room_memory.creep.carrier.type_list.indexOf("");
+    //         main_room_memory.creep.carrier.type_list[_i] = "energy";
+    //     }
+    //     else {
+    //         if(main_room.controller.level >= 6) {
+    //             for(let mineral_id in main_room_memory.mineral) {
+    //                 if(main_room_memory.mineral.hasOwnProperty(mineral_id)) {
+    //                     let _i = main_room_memory.creep.carrier.type_list.indexOf("");
+    //                     main_room_memory.creep.carrier.type_list[_i] = main_room_memory.mineral[mineral_id].type;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    // console.log(main_room_memory.creep.carrier.type_list)
+
+    ////    task manager test
+    Memory.task = {}
+    Memory.task_id = 1;
+    for(let i of main_room_memory.container_list) {
+        let container = Game.getObjectById(i);
+        console.log("container", container)
+        if(container.progress != null) {
+            continue;
+        }
+        let container_task = Object.keys(Memory.task).reduce(
+            function(acc, cur, idx, src){
+                if(Memory.task[cur].from_id === container.id) {
+                    acc[cur] = Memory.task[cur];
+                }
+            }, {});
+        console.log("====", container_task)
+        if(container_task == null) {
+            console.log("+++++", Object.keys(Memory.task).reduce(
+                function(acc, cur, idx, src){
+                    console.log("$$$$$$$", cur, acc)
+                    acc[cur] = Memory.task[cur];
+                    console.log("%%%%%%%%", cur, acc)
+                }, {}))
+            continue;
+        }
+        // console.log(container.store[RESOURCE_HYDROGEN])
+        // if(Object.keys(container_task).length === 0
+        //     && container.store[RESOURCE_HYDROGEN] >= container.store.getCapacity() * 0.8) {
+        //     // && container.store[RESOURCE_HYDROGEN] >= main_room_memory.creep.carrier.avg_level * 100) {
+        //     let task = {
+        //         ...TASK_TEMPLATE
+        //     };
+        //     task.task_id = Memory.task_id;
+        //     task.from_id = container.id;
+        //
+        //     task.type = "transfer";
+        //     task.detail = "transfer mineral";
+        //     task.description = "transfer H from container to terminal";
+        //
+        //     task.resource_type = RESOURCE_HYDROGEN;
+        //     task.resource_amount_total = container.store[RESOURCE_HYDROGEN];
+        //     task.resource_amount_current = 0;
+        //
+        //     task.from_id = container.id;
+        //     task.from_type = STRUCTURE_CONTAINER;
+        //     task.to_id = main_room.terminal.id;
+        //     task.to_type = STRUCTURE_TERMINAL;
+        //
+        //     // Memory.task[Memory.task_id] = task;
+        //     // Memory.task_id += 1;
+        // }
+        if(Object.keys(container_task).length === 0) {
+            if(container.store[RESOURCE_ENERGY] >= container.store.getCapacity() * 0.8
+                || container.store[RESOURCE_ENERGY] >= main_room_memory.creep.carrier.avg_level * 100) {
+                if(main_room.energyAvailable < main_room.energyCapacityAvailable) {
+                    let task = {
+                        ...TASK_REFUEL_TEMPLATE
+                    };
+                    task.task_id = Memory.task_id;
+
+                    task.type = "refuel";
+                    task.detail = "refuel";
+                    task.description = "refuel spawn and extension";
+
+                    task.resource_type = RESOURCE_ENERGY;
+                    task.resource_amount_total = main_room.energyCapacityAvailable - main_room.energyAvailable;
+                    task.resource_amount_current = 0;
+
+                    task.from_id = container.id;
+                    task.from_type = STRUCTURE_CONTAINER;
+                    task.to_id = null;
+                    task.to_type = null;
+
+                    Memory.task[Memory.task_id] = task;
+                    Memory.task_id += 1;
+                }
+            }
+        }
+    }
+    for(let i in Memory.task) {
+        console.log(i, Memory.task[i])
+    }
+    ////////////
+
     ////    adjust refueler number
     main_room_memory.creep.refueler.max_num = 0;
     if(main_room.controller.level >= 4 && main_room_memory.storage_list.length > 0) {
@@ -449,13 +649,13 @@ let global_manage = function(main_room_name) {
     ////    adjust upgrader number
     // main_room_memory.creep.upgrader.max_num = 0;  // reset
     if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
-        && extension_site_num + storage_site_num + tower_site_num === 0
-        && main_room_memory.spawn_idle_time >= 120) {
+        && site_sum === 0
+        && main_room_memory.spawn_idle_time >= 30 * main_room.controller.level) {
         main_room_memory.creep.upgrader.max_num += 1;
     }
     else if(main_room_memory.creep.upgrader.name_list.length <= main_room_memory.creep.upgrader.max_num
-        && main_room_memory.creep.upgrader.max_num > 0
-        && main_room_memory.spawn_busy_time >= 300) {
+        && main_room_memory.spawn_busy_time >= 60 * main_room.controller.level
+        && main_room_memory.creep.upgrader.max_num > 0) {
         main_room_memory.creep.upgrader.max_num -= 1;
     }
     // if(storage_num === 0) {

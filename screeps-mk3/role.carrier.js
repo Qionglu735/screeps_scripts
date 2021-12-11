@@ -16,28 +16,43 @@ let role_carrier = function(creep) {
     if(creep.memory.status == null || !["withdraw", "transfer"].includes(creep.memory.status)) {
         creep.memory.status = "withdraw";
     }
-    if(creep.memory.status === "transfer" && creep.carry.energy === 0) {
+    if(creep.memory.status === "transfer" && _.sum(creep.store) === 0) {
         creep.memory.status = "withdraw";
         creep.memory.target_id = null;
+        let _i = Memory.room_dict[creep.memory.main_room].creep["carrier"].name_list.indexOf(creep.name);
+        if(_i !== -1) {
+            Memory.room_dict[creep.memory.main_room].creep["carrier"].type_list[_i] = "";
+        }
+        creep.memory.type = "";
         creep.say('Withdraw');
     }
-    else if(creep.memory.status === "withdraw" && creep.carry.energy === creep.carryCapacity) {
+    else if(creep.memory.status === "withdraw" && _.sum(creep.store) === creep.store.getCapacity()) {
         creep.memory.status = "transfer";
         creep.memory.target_id = null;
         creep.say('Transfer');
     }
+    // if(creep.memory.type == null || creep.memory.type === "") {
+    //     let _i = Memory.room_dict[creep.memory.main_room].creep["carrier"].name_list.indexOf(creep.name);
+    //     if(_i !== -1) {
+    //         creep.memory.type = Memory.room_dict[creep.memory.main_room].creep["carrier"].type_list[_i];
+    //     }
+    //     if(creep.memory.type === "") {
+    //         console.log(creep.name, "idle");
+    //     }
+    // }
     let target = Game.getObjectById(creep.memory.target_id);
-    if(target != null && target.store && target.store["RESOURCE_ENERGY"] < creep.carryCapacity - creep.carry.energy) {
+    if(target != null && target.store
+        && target.store[creep.memory.type] < creep.store.getCapacity() - _.sum(creep.store)) {
         target = null;
     }
     if(target != null && creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);
     }
-    else if(creep.memory.status === "withdraw") {
+    else if(creep.memory.status === "withdraw" && creep.memory.type === "energy") {
         if(!target) {
             let targets = global_find.find(FIND_TOMBSTONES, {
                     filter: (target) =>
-                        target.creep.store["RESOURCE_ENERGY"] > 0
+                        target.creep.store[RESOURCE_ENERGY] > 0
                         && 5 <= target.pos.x && target.pos.x <= 45
                         && 5 <= target.pos.y && target.pos.y <= 45
                 }
@@ -135,7 +150,32 @@ let role_carrier = function(creep) {
             }
         }
     }
-    else if(creep.memory.status === "transfer"){
+    else if(creep.memory.status === "withdraw" && ["H", "O", "U", "K", "L", "Z", "X"].includes(creep.memory.type)) {
+        console.log(creep.name, "---------H")
+        let mineral_info = Memory.room_dict[creep.memory.main_room].mineral;
+        for(let i in mineral_info) {
+            if(mineral_info.hasOwnProperty(i)) {
+                let container = Game.getObjectById(mineral_info[i].container);
+                if(container != null) {
+                    creep.memory.target_id = container.id;
+                    let withdraw_status = creep.withdraw(container, creep.memory.type,
+                        creep.store.getCapacity() - creep.store[creep.memory.type]);
+                    switch(withdraw_status) {
+                        case OK:
+                            break;
+                        case ERR_NOT_IN_RANGE:
+                            path_handler.find(creep, container, 1, 3);
+                            break;
+                        default:
+                            console.log(creep.name, "withdraw", withdraw_status);
+                            creep.say(withdraw_status);
+                    }
+                }
+                break;
+            }
+        }
+    }
+    else if(creep.memory.status === "transfer" && creep.memory.type === RESOURCE_ENERGY){
         if(target != null && target.store[RESOURCE_ENERGY] === target.store.getCapacity[RESOURCE_ENERGY]) {
             creep.memory.target_id = null;
             target = null;
@@ -208,6 +248,9 @@ let role_carrier = function(creep) {
         else {
             creep.say("Idle");
         }
+    }
+    else if(creep.memory.status === "transfer" && ["H", "O", "U", "K", "L", "Z", "X"].includes(creep.memory.type)){
+        console.log(creep.name, "_______________", creep.memory.type)
     }
 };
 

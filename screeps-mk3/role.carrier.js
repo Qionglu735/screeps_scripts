@@ -19,11 +19,11 @@ let role_carrier = function(creep) {
     if(creep.memory.status === "transfer" && _.sum(creep.store) === 0) {
         creep.memory.status = "withdraw";
         creep.memory.target_id = null;
-        let _i = Memory.room_dict[creep.memory.main_room].creep["carrier"].name_list.indexOf(creep.name);
-        if(_i !== -1) {
-            Memory.room_dict[creep.memory.main_room].creep["carrier"].type_list[_i] = "";
-        }
-        creep.memory.type = "";
+        // let _i = Memory.room_dict[creep.memory.main_room].creep["carrier"].name_list.indexOf(creep.name);
+        // if(_i !== -1) {
+        //     Memory.room_dict[creep.memory.main_room].creep["carrier"].type_list[_i] = "";
+        // }
+        // creep.memory.type = "";
         creep.say('Withdraw');
     }
     else if(creep.memory.status === "withdraw" && _.sum(creep.store) === creep.store.getCapacity()) {
@@ -31,15 +31,16 @@ let role_carrier = function(creep) {
         creep.memory.target_id = null;
         creep.say('Transfer');
     }
-    // if(creep.memory.type == null || creep.memory.type === "") {
-    //     let _i = Memory.room_dict[creep.memory.main_room].creep["carrier"].name_list.indexOf(creep.name);
-    //     if(_i !== -1) {
-    //         creep.memory.type = Memory.room_dict[creep.memory.main_room].creep["carrier"].type_list[_i];
-    //     }
-    //     if(creep.memory.type === "") {
-    //         console.log(creep.name, "idle");
-    //     }
-    // }
+    if(creep.memory.type == null || creep.memory.type === "") {
+        // let _i = Memory.room_dict[creep.memory.main_room].creep["carrier"].name_list.indexOf(creep.name);
+        // if(_i !== -1) {
+        //     creep.memory.type = Memory.room_dict[creep.memory.main_room].creep["carrier"].type_list[_i];
+        // }
+        // if(creep.memory.type === "") {
+        //     console.log(creep.name, "idle");
+        // }
+        creep.memory.type = "energy";  // TDDO: set energy as default, for now
+    }
     let target = Game.getObjectById(creep.memory.target_id);
     if(target != null && target.store
         && target.store[creep.memory.type] < creep.store.getCapacity() - _.sum(creep.store)) {

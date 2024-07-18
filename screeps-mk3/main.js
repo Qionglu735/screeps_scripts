@@ -47,7 +47,9 @@ module.exports.loop = function () {
     Memory.CpuExceeded += 1;
 
     console.log("################################################################################");
-    console.log("parse memory", (Game.cpu.getUsed() - cpu).toFixed(3))
+    if(LOG_USED_TIME) {
+        console.log("parse memory", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
 
     ////    Memory Control
     ////    Memory.MemoryControl: 0 == normal, 1 == reset
@@ -126,7 +128,8 @@ module.exports.loop = function () {
                 let _index = Memory.room_dict[main_room_name].creep[role].name_list.indexOf(creep_name);
                 if (_index !== -1) {
                     Memory.room_dict[main_room_name].creep[role].name_list.splice(_index, 1);
-                    if(role === "carrier") {
+                    if(role === "carrier" && Memory.room_dict[main_room_name].creep["carrier"].type_list != null) {
+                        // TODO: why Memory.room_dict[main_room_name].creep["carrier"].type_list == null
                         Memory.room_dict[main_room_name].creep["carrier"].type_list.splice(_index, 1);
                     }
                 }
@@ -141,7 +144,8 @@ module.exports.loop = function () {
                 let creep_role = Memory.creeps[creep_name].role;
                 if (!Memory.room_dict[main_room_name].creep[creep_role].name_list.includes(creep_name)) {
                     Memory.room_dict[main_room_name].creep[creep_role].name_list.push(creep_name);
-                    if(creep_role === "carrier") {
+                    if(creep_role === "carrier" && Memory.room_dict[main_room_name].creep["carrier"].type_list != null) {
+                        // TODO: why Memory.room_dict[main_room_name].creep["carrier"].type_list == null
                         Memory.room_dict[main_room_name].creep["carrier"].type_list.push("");
                     }
                 }
@@ -163,14 +167,17 @@ module.exports.loop = function () {
             }
         }
     }
-    console.log("check creep", (Game.cpu.getUsed() - cpu).toFixed(3));
-
+    if(LOG_USED_TIME) {
+        console.log("check creep", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
     ////    check building, adjust worker number
     cpu = Game.cpu.getUsed();
     for(let room_name of Memory.main_room_list) {
         global_manage(room_name);
     }
-    console.log("global manage", (Game.cpu.getUsed() - cpu).toFixed(3));
+    if(LOG_USED_TIME) {
+        console.log("global manage", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
 
     ////    run spawn
     cpu = Game.cpu.getUsed();
@@ -179,7 +186,9 @@ module.exports.loop = function () {
             structure_spawn(Game.spawns[spawn_name]);
         }
     }
-    console.log("run spawn", (Game.cpu.getUsed() - cpu).toFixed(3));
+    if(LOG_USED_TIME) {
+        console.log("run spawn", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
 
     //    run tower
     cpu = Game.cpu.getUsed();
@@ -188,7 +197,9 @@ module.exports.loop = function () {
             structure_tower(Game.getObjectById(tower_id));
         }
     }
-    console.log("run tower", (Game.cpu.getUsed() - cpu).toFixed(3));
+    if(LOG_USED_TIME) {
+        console.log("run tower", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
 
     ////    run creep
     cpu = Game.cpu.getUsed();
@@ -230,13 +241,17 @@ module.exports.loop = function () {
             }
         }
     }
-    console.log("busy creep:", large_cpu_creep_list.join(","))
-    console.log("run creep", (Game.cpu.getUsed() - cpu).toFixed(3));
+    console.log("busy creep:", large_cpu_creep_list.join(","));
+    if(LOG_USED_TIME) {
+        console.log("run creep", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
 
     ////    check energy, cpu
     cpu = Game.cpu.getUsed();
     stat();
-    console.log("stat", (Game.cpu.getUsed() - cpu).toFixed(3))
+    if(LOG_USED_TIME) {
+        console.log("stat", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
 
     // for(let i of Game.market.getAllOrders()) {
     //     console.log(i["type"], i["resourceType"], "" + i["amount"] + "/" + i["remainingAmount"], i["price"],

@@ -163,7 +163,7 @@ let global_manage = function(main_room_name) {
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Tower
     for(let i in main_room_memory.tower_list) {  // check memory status
-        if(main_room_memory.tower_list.hasOwnProperty(i)) {
+        if(main_room_memory.tower_list.hasOwnProperty(i) && main_room_memory.tower_list[i] != null) {
             let obj = Game.getObjectById(main_room_memory.tower_list[i]);
             if (!(obj && obj.structureType && obj.structureType === STRUCTURE_TOWER)) {
                 main_room_memory.tower_list.splice(i, 1);
@@ -232,14 +232,18 @@ let global_manage = function(main_room_name) {
             let link_spawn = main_spawn.pos.findClosestByRange(FIND_MY_STRUCTURES, {
                 filter: target => target.structureType === STRUCTURE_LINK
             })
-            main_room_memory.link_spawn = link_spawn.id;
+            if(link_spawn != null) {
+                main_room_memory.link_spawn = link_spawn.id;
+            }
         }
         if(main_room_memory.link_controller == null || Game.getObjectById(main_room_memory.link_spawn) == null) {
             let controller = main_room.controller;
             let link_controller = controller.pos.findClosestByRange(FIND_MY_STRUCTURES, {
                 filter: target => target.structureType === STRUCTURE_LINK
             })
-            main_room_memory.link_controller = link_controller.id;
+            if(link_controller != null) {
+                main_room_memory.link_controller = link_controller.id;
+            }
         }
         if(main_room_memory.link_spawn != null && main_room_memory.link_controller != null) {
             let link_spawn = Game.getObjectById(main_room_memory.link_spawn);
@@ -390,7 +394,9 @@ let global_manage = function(main_room_name) {
         }
     }
     // site_sum += road_site_num;
-    console.log("check road", (Game.cpu.getUsed() - cpu).toFixed(3));
+    if(LOG_USED_TIME) {
+        console.log("check road", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Update Cost Matrix per 10 min
     cpu = Game.cpu.getUsed();
@@ -400,7 +406,9 @@ let global_manage = function(main_room_name) {
             path_handler.get_cost_matrix(room_name, 1);
         }
     }
-    console.log("update matrix", (Game.cpu.getUsed() - cpu).toFixed(3));
+    if(LOG_USED_TIME) {
+        console.log("update matrix", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
     ////////////////////////////////////////////////////////////////////////////////
     ////    Adjust Worker Number
     ////    adjust harvester number
@@ -540,7 +548,7 @@ let global_manage = function(main_room_name) {
     Memory.task_id = 1;
     for(let i of main_room_memory.container_list) {
         let container = Game.getObjectById(i);
-        console.log("container", container)
+        // console.log("container", container)
         if(container.progress != null) {
             continue;
         }
@@ -550,14 +558,14 @@ let global_manage = function(main_room_name) {
                     acc[cur] = Memory.task[cur];
                 }
             }, {});
-        console.log("====", container_task)
+        // console.log("====", container_task)
         if(container_task == null) {
-            console.log("+++++", Object.keys(Memory.task).reduce(
-                function(acc, cur, idx, src){
-                    console.log("$$$$$$$", cur, acc)
-                    acc[cur] = Memory.task[cur];
-                    console.log("%%%%%%%%", cur, acc)
-                }, {}))
+            // console.log("+++++", Object.keys(Memory.task).reduce(
+            //     function(acc, cur, idx, src){
+            //         console.log("$$$$$$$", cur, acc)
+            //         acc[cur] = Memory.task[cur];
+            //         console.log("%%%%%%%%", cur, acc)
+            //     }, {}))
             continue;
         }
         // console.log(container.store[RESOURCE_HYDROGEN])
@@ -615,7 +623,7 @@ let global_manage = function(main_room_name) {
         }
     }
     for(let i in Memory.task) {
-        console.log(i, Memory.task[i])
+        // console.log(i, Memory.task[i])
     }
     ////////////
 

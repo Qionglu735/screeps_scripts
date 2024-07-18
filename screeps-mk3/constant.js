@@ -1,5 +1,6 @@
 
 FIRST_SPAWN_NAME = "Spawn1";
+LOG_USED_TIME = false;
 
 ////    Memory Template
 ////    deep copy is necessary

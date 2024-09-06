@@ -205,8 +205,8 @@ let global_manage = function(main_room_name) {
             filter: (target) => target.structureType === STRUCTURE_TOWER
         }).length;
         if(tower_site_num === 0) {  // not constructing
-            if (tower_num < tower_max && site_sum === 0) {
-                let tower_table = main_room_memory.tower_table;
+            let tower_table = main_room_memory.tower_table;
+            if (tower_num < tower_max && tower_num < Object.keys(tower_table).length && site_sum === 0) {
                 let new_pos = new RoomPosition(
                     main_spawn.pos.x + tower_table[tower_num + 1][0],
                     main_spawn.pos.y + tower_table[tower_num + 1][1],

@@ -13,6 +13,7 @@ let role_harvester = function(creep) {
     }
     else if(creep.memory.status !== "harvest" && creep.carry.energy === 0) {
         creep.memory.status = "harvest";
+        global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
         creep.memory.target_id = null;
         creep.say("Harvest");
     }
@@ -58,8 +59,7 @@ let role_harvester = function(creep) {
                 }
             }
             if(!target) {
-                target = global_find.find_container_with_energy(creep.memory.main_room,
-                    creep.carryCapacity - creep.carry.energy);
+                target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, creep.carryCapacity - creep.carry.energy);
             }
             if(target) {
                 creep.memory.target_id = target.id;

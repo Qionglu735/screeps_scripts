@@ -65,7 +65,7 @@ let global_find = {
         this.game_time_mark = Game.time;
     },
 
-    find_container_with_energy: function(main_room, min_energy=0) {
+    find_container_with_energy: function(main_room, creep_name, min_energy=0) {
         // let cpu = Game.cpu.getUsed();
         let container_list = Memory.room_dict[main_room].container_list;
         if(Memory.container_assigned_record == null) {
@@ -90,16 +90,22 @@ let global_find = {
             if(_c.progress != null) {
                 continue;
             }
+            if (container_assigned_record[_c.id] == null) {
+                container_assigned_record[_c.id] = [];
+            }
+            for (let i of container_assigned_record[_c.id]) {
+                 if (!Game.creeps[i.creep_name] || Game.time - i.assigned_time > 60) {
+                    container_assigned_record[_c.id].splice(container_assigned_record[_c.id].indexOf(i), 1);
+                 }
+            }
             if(_c.store[RESOURCE_ENERGY] === _c.store.getCapacity(RESOURCE_ENERGY)) {
-                if(_c_id in container_assigned_record
-                    && Game.time - container_assigned_record[_c_id] <= 30) {
+                if (_c.store[RESOURCE_ENERGY] - (container_assigned_record[_c.id].reduce((acc, cur) => acc + cur.assigned_energy, 0)) < _c.store[RESOURCE_ENERGY]) {
                     continue;
                 }
                 max_list.push(_c);
             }
             else if(_c.store[RESOURCE_ENERGY] >= min_energy) {
-                if(_c_id in container_assigned_record
-                    && Game.time - container_assigned_record[_c_id] <= 60) {
+                if (_c.store[RESOURCE_ENERGY] - (container_assigned_record[_c.id].reduce((acc, cur) => acc + cur.assigned_energy, 0)) < min_energy) {
                     continue;
                 }
                 normal_list.push(_c);
@@ -118,11 +124,29 @@ let global_find = {
             res = less_list[0];
         }
         if(res != null) {
-            container_assigned_record[res.id] = Game.time;
+            container_assigned_record[res.id].push({
+                "creep_name": creep_name,
+                "assigned_time": Game.time,
+                "assigned_energy": min_energy,
+            });
             Memory.container_assigned_record = container_assigned_record;
         }
         // console.log("find_container_with_energy", (Game.cpu.getUsed() - cpu).toFixed(3) + "s")
         return res;
+    },
+
+    remove_container_assign_record: function(container_id, creep_name) {
+        if(! Memory.container_assigned_record == null) {
+            let container_assigned_record = Memory.container_assigned_record;
+            if (container_assigned_record[container_id] != null) {
+                for (let i of container_assigned_record[_c.id]) {
+                    if (i.creep_name == creep_name) {
+                        container_assigned_record[_c.id].splice(container_assigned_record[_c.id].indexOf(i), 1);
+                    }
+                }
+            }
+            Memory.container_assigned_record = container_assigned_record;
+        }
     },
 
     find_structure_need_energy: function(creep) {

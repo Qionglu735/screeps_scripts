@@ -1,6 +1,4 @@
 
-require("constant");
-
 let room_check = require("tool.room_check");
 let mine_port_check = require("tool.mine_port_check");
 let global_find = require("tool.global_find");

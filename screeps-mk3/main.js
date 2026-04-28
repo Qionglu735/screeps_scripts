@@ -203,7 +203,7 @@ module.exports.loop = function () {
 
     ////    run creep
     cpu = Game.cpu.getUsed();
-    let large_cpu_creep_list = []
+    let large_cpu_creep_list = [];
     for (let creep_name in Memory.creeps) {
         if(Memory.creeps.hasOwnProperty(creep_name)) {
             if (Game.creeps[creep_name].spawning) {
@@ -241,7 +241,9 @@ module.exports.loop = function () {
             }
         }
     }
-    console.log("busy creep:", large_cpu_creep_list.join(","));
+    if (large_cpu_creep_list.length > 0) {
+        console.log("busy creep:", large_cpu_creep_list.length, large_cpu_creep_list.join(","));
+    }
     if(LOG_USED_TIME) {
         console.log("run creep", (Game.cpu.getUsed() - cpu).toFixed(3));
     }

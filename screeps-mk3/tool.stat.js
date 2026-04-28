@@ -1,6 +1,4 @@
 
-require("constant");
-
 let stat = function() {
     if(Memory.stat != null) {
         delete Memory.stat;

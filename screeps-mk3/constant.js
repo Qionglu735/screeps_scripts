@@ -1,6 +1,8 @@
 
 FIRST_SPAWN_NAME = "Spawn1";
 LOG_USED_TIME = false;
+SIGN_TEXT = "Hello World!";
+SIGN_USER = "Qionglu735";
 
 ////    Memory Template
 ////    deep copy is necessary

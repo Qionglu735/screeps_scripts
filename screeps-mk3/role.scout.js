@@ -25,7 +25,27 @@ let role_scout = function(creep) {
     }
     else {
         if(creep.room.name === creep.memory.target_room) {
-            creep.memory.target_room = null;
+            if (creep.room.controller.my || creep.room.controller.owner == null || creep.room.controller.reservation == null || creep.room.controller.reservation.username === creep.owner.username) {
+                if(creep.room.controller.sign == null || creep.room.controller.sign.text != SIGN_TEXT || creep.room.controller.sign.username != creep.owner.username) {
+                    let res = creep.signController(creep.room.controller, SIGN_TEXT);
+                    switch(res) {
+                        case OK:
+                            break;
+                        case ERR_NOT_IN_RANGE:
+                            path_handler.find_pos(creep, creep.room.controller.pos);
+                            break;
+                        default:
+                            console.log("[!]", creep.name, "signController", res);
+                            creep.say(res);
+                    }
+                }
+                else {
+                    creep.memory.target_room = null;
+                }
+            }
+            else {
+                creep.memory.target_room = null;
+            }
         }
         else {
             path_handler.find_pos(creep, new RoomPosition(25, 25, creep.memory.target_room))

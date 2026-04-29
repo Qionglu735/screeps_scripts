@@ -91,8 +91,8 @@ let role_upgrader = function(creep) {
                     console.log(creep.name, "upgrade", upgrade_status);
                     creep.say(upgrade_status);
             }
-            if(creep.room.controller.sign == null || creep.room.controller.sign.text != SIGN_TEXT || creep.room.controller.sign.username != SIGN_USER) {
-                creep.signController(creep.room.controller, "Hello World!");
+            if(creep.room.controller.sign == null || creep.room.controller.sign.text != SIGN_TEXT || creep.room.controller.sign.username != creep.owner.username) {
+                creep.signController(creep.room.controller, SIGN_TEXT);
             }
         }
     }

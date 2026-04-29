@@ -504,12 +504,18 @@ let global_manage = function(main_room_name) {
     main_room_memory.creep.carrier.max_num = 0;
     for(let i in main_room_memory.container_list) {
         if(main_room_memory.container_list.hasOwnProperty(i)) {
-            if(Game.getObjectById(main_room_memory.container_list[i]) != null
-                && Game.getObjectById(main_room_memory.container_list[i]).progress == null) {
-                main_room_memory.creep.carrier.max_num += 1;
+            let container = Game.getObjectById(main_room_memory.container_list[i]);
+            if(container != null && container.progress == null) {
+                if (container.pos.roomName === main_room_name) {
+                    main_room_memory.creep.carrier.max_num += 1;
+                }
+                else {
+                    main_room_memory.creep.carrier.max_num += 0.5;
+                }
             }
         }
     }
+    main_room_memory.creep.carrier.max_num = Math.floor(main_room_memory.creep.carrier.max_num);
     if(main_room_memory.extension_list.length < main_room_memory.creep.carrier.max_num) {
         main_room_memory.creep.carrier.max_num = main_room_memory.extension_list.length;
     }

@@ -1,8 +1,8 @@
 
 let stat = function() {
-    if(Memory.stat != null) {
-        delete Memory.stat;
-    }
+    // if(Memory.stat != null) {
+    //     delete Memory.stat;
+    // }
     Memory.stat = {
         ...STAT_TEMPLATE
     };

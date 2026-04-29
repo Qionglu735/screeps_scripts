@@ -221,7 +221,7 @@ let role_carrier = function(creep) {
             let targets = [];
             for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
                 let _s = Game.getObjectById(_s_id);
-                if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity(RESOURCE_ENERGY)) {
+                if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity(RESOURCE_ENERGY) * STORAGE_ENERGY_THRESHOLD) {
                     targets.push(_s);
                 }
             }

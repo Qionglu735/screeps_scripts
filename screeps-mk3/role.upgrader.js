@@ -76,20 +76,25 @@ let role_upgrader = function(creep) {
             }
         }
         else {
-            let upgrade_status = creep.upgradeController(creep.room.controller);
-            switch(upgrade_status) {
-                case OK:
-                    break;
-                case ERR_NOT_IN_RANGE:
-                    path_handler.find(creep, creep.room.controller, 1, 3);
-                    break;
-                case ERR_NOT_ENOUGH_RESOURCES:
-                    creep.memory.status = "withdraw";
-                    creep.memory.target_id = null;
-                    break;
-                default:
-                    console.log(creep.name, "upgrade", upgrade_status);
-                    creep.say(upgrade_status);
+            if (creep.room.controller.level < CONTROL_LEVEL_LIMIT || creep.room.controller.porgress * 1.0 / creep.room.controller.progressTotal < 0.5) {
+                let upgrade_status = creep.upgradeController(creep.room.controller);
+                switch(upgrade_status) {
+                    case OK:
+                        break;
+                    case ERR_NOT_IN_RANGE:
+                        path_handler.find(creep, creep.room.controller, 1, 3);
+                        break;
+                    case ERR_NOT_ENOUGH_RESOURCES:
+                        creep.memory.status = "withdraw";
+                        creep.memory.target_id = null;
+                        break;
+                    default:
+                        console.log(creep.name, "upgrade", upgrade_status);
+                        creep.say(upgrade_status);
+                }
+            }
+            else {
+                creep.say("Max Level");
             }
             if(creep.room.controller.sign == null || creep.room.controller.sign.text != SIGN_TEXT || creep.room.controller.sign.username != creep.owner.username) {
                 creep.signController(creep.room.controller, SIGN_TEXT);

@@ -2,6 +2,8 @@
 FIRST_SPAWN_NAME = "Spawn1";
 LOG_USED_TIME = false;
 SIGN_TEXT = "Hello World!";
+STORAGE_ENERGY_THRESHOLD = 0.8;
+CONTROL_LEVEL_LIMIT = 5;  // for testing
 
 ////    Memory Template
 ////    deep copy is necessary

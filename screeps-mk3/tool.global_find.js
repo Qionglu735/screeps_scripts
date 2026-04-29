@@ -115,13 +115,13 @@ let global_find = {
             }
         }
         if(max_list.length > 0) {
-            res = max_list[Game.time % max_list.length];
+            res = max_list[Math.floor(Math.random() * max_list.length)];
         }
         else if(normal_list.length > 0) {
-            res = normal_list[0];
+            res = normal_list[Math.floor(Math.random() * normal_list.length)];
         }
         else if(less_list.length > 0) {
-            res = less_list[0];
+            res = less_list[Math.floor(Math.random() * less_list.length)];
         }
         if(res != null) {
             container_assigned_record[res.id].push({
@@ -215,7 +215,7 @@ let global_find = {
                 }
             }
             if(res == null) {
-                res = this.spawn_list[Game.time % this.spawn_list.length];  // find random target
+                res = this.spawn_list[Math.floor(Math.random() * this.spawn_list.length)];  // find random target
             }
         }
         else if(this.extension_list.length > 0) {
@@ -226,7 +226,7 @@ let global_find = {
                 }
             }
             if(res == null) {
-                res = this.extension_list[Game.time % this.extension_list.length];  // find random target
+                res = this.extension_list[Math.floor(Math.random() * this.extension_list.length)];  // find random target
             }
         }
         else if(this.tower_list.length > 0) {
@@ -237,7 +237,7 @@ let global_find = {
                 }
             }
             if(res == null) {
-                res = this.tower_list[Game.time % this.tower_list.length];  // find random target
+                res = this.tower_list[Math.floor(Math.random() * this.tower_list.length)];  // find random target
             }
         }
         if(res == null) {

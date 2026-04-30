@@ -708,8 +708,7 @@ let global_manage = function(main_room_name) {
     main_room_memory.creep.refueler.max_num = 0;
     if(main_room.controller.level >= 4 && main_room_memory.storage_list.length > 0) {
         main_room_memory.creep.refueler.max_num =
-            // main_room_memory.storage_list.length + main_room_memory.tower_list.length;
-            main_room_memory.tower_list.length;
+            main_room_memory.tower_list.length + main_room_memory.link_list.length;
     }
     // if(main_room_memory.creep.carrier.name_list.length === 0) {
     //     main_room_memory.creep.harvester.max_num = Object.keys(Memory.room_dict[room_name].source).length;
@@ -735,12 +734,14 @@ let global_manage = function(main_room_name) {
     // main_room_memory.creep.upgrader.max_num = 0;  // reset
     if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
         && site_sum === 0
-        && main_room_memory.spawn_idle_time >= 30 * main_room.controller.level) {
+        && main_room_memory.spawn_idle_time >= 10 * main_room.controller.level
+    ) {
         main_room_memory.creep.upgrader.max_num += 1;
     }
     else if(main_room_memory.creep.upgrader.name_list.length <= main_room_memory.creep.upgrader.max_num
         && main_room_memory.spawn_busy_time >= 60 * main_room.controller.level
-        && main_room_memory.creep.upgrader.max_num > 0) {
+        && main_room_memory.creep.upgrader.max_num > 0
+    ) {
         main_room_memory.creep.upgrader.max_num -= 1;
     }
     // if(storage_num === 0) {

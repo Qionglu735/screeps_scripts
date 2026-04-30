@@ -206,8 +206,8 @@ let global_find = {
         }
         if (this.link_list == null) {
             this.link_list = [];
-            if (Memory.link_spawn != null) {
-                let link = Game.getObjectById(Memory.link_spawn);
+            if (Memory.room_dict[creep.memory.main_room].link_spawn != null) {
+                let link = Game.getObjectById(Memory.room_dict[creep.memory.main_room].link_spawn);
                 if (link.store[RESOURCE_ENERGY] < link.store.getCapacity(RESOURCE_ENERGY)) {
                     this.link_list.push(link);
                 }
@@ -227,7 +227,15 @@ let global_find = {
                 res = this.spawn_list[Math.floor(Math.random() * this.spawn_list.length)];  // find random target
             }
         }
-        else if(this.extension_list.length > 0) {
+        if(res == null && this.link_list.length > 0) {
+            let link_spawn = Game.getObjectById(Memory.room_dict[creep.memory.main_room].link_spawn);
+            if(link_spawn != null) {
+                if(link_spawn.store[RESOURCE_ENERGY] < link_spawn.store.getCapacity(RESOURCE_ENERGY)) {
+                    res = link_spawn;
+                }
+            }
+        }
+        if(res == null && this.extension_list.length > 0) {
             for(let i of this.extension_list) {  // find closet target
                 if(creep.pos.isNearTo(i.pos)) {
                     res = i;
@@ -238,7 +246,7 @@ let global_find = {
                 res = this.extension_list[Math.floor(Math.random() * this.extension_list.length)];  // find random target
             }
         }
-        else if(this.tower_list.length > 0) {
+        if(res == null && this.tower_list.length > 0) {
             for(let i of this.tower_list) {  // find closet target
                 if(creep.pos.isNearTo(i.pos)) {
                     res = i;
@@ -250,22 +258,12 @@ let global_find = {
             }
         }
         if(res == null) {
-            let main_room_memory = Memory.room_dict[creep.memory.main_room]
-            let link_spawn = Game.getObjectById(main_room_memory.link_spawn);
-            if(link_spawn != null) {
-                if(link_spawn.store[RESOURCE_ENERGY] < link_spawn.store.getCapacity(RESOURCE_ENERGY)) {
-                    res = link_spawn;
-                }
-            }
-        }
-        if(res == null) {
             let terminal = Game.rooms[creep.memory.main_room].terminal;
             if(terminal != null) {
                 if(terminal.store[RESOURCE_ENERGY] < 10000) {
                     res = terminal;
                 }
             }
-
         }
         // console.log("find_structure_need_energy find_target", Game.cpu.getUsed() - cpu);
         if(res != null) {

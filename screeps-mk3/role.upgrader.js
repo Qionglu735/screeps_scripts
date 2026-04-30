@@ -76,7 +76,7 @@ let role_upgrader = function(creep) {
             }
         }
         else {
-            if (creep.room.controller.level < CONTROL_LEVEL_LIMIT || creep.room.controller.porgress * 1.0 / creep.room.controller.progressTotal < 0.5) {
+            if (creep.room.controller.level < CONTROL_LEVEL_LIMIT || creep.room.controller.progress / creep.room.controller.progressTotal < 0.5) {
                 let upgrade_status = creep.upgradeController(creep.room.controller);
                 switch(upgrade_status) {
                     case OK:

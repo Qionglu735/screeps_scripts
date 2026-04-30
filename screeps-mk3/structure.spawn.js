@@ -46,7 +46,7 @@ let structure_spawn = function(spawn) {
         let creepLevel = 0;
         // Harvester
         if(memory_creep.harvester.name_list.length < memory_creep.harvester.max_num) {
-            while(energy >= 200 && body.length < MAX_CREEP_SIZE - 3) {
+            while(energy >= 200 && creepLevel < room.controller.level) {
                 body.push(WORK);
                 body.push(CARRY);
                 body.push(MOVE);
@@ -55,24 +55,30 @@ let structure_spawn = function(spawn) {
             }
             spawn_creep(spawn, room, "Harvester", "harvester", body, creepLevel);
         }
-        //Miner
+        // Miner
         else if(memory_creep.miner.name_list.length < memory_creep.miner.max_num
             && (memory_creep.miner.name_list.length <= memory_creep.carrier.name_list.length
-            || memory_creep.miner.name_list.length < 2)) {
+            || memory_creep.miner.name_list.length < 2)
+        ) {
             body.push(CARRY);
             energy -= 50;
-            while(energy >= 250 && creepLevel < 4) {
+            while(energy >= 250 && creepLevel < 2) {
                 body.push(WORK);
                 body.push(WORK);
                 body.push(MOVE);
                 energy -= 250;
                 creepLevel += 1;
             }
+            if (energy >= 100 && creepLevel == 2) {
+                body.push(WORK);
+                energy -= 100;
+                creepLevel += 1;
+            }
             spawn_creep(spawn, room, "Miner", "miner", body, creepLevel);
         }
         // Carrier
         else if(memory_creep.carrier.name_list.length < memory_creep.carrier.max_num) {
-            while(energy > 200 && creepLevel < 10) {
+            while(energy > 200 && creepLevel < 6) {
                 body.push(CARRY);
                 body.push(CARRY);
                 body.push(MOVE);
@@ -84,7 +90,7 @@ let structure_spawn = function(spawn) {
         }
         // Refueler
         else if(memory_creep.refueler.name_list.length < memory_creep.refueler.max_num) {
-            while(energy > 200 && creepLevel < 5) {
+            while(energy > 200 && creepLevel < 3) {
                 body.push(CARRY);
                 body.push(CARRY);
                 body.push(MOVE);
@@ -115,7 +121,7 @@ let structure_spawn = function(spawn) {
         }
         // Upgrader
         else if(memory_creep.upgrader.name_list.length < memory_creep.upgrader.max_num) {
-            while(energy >= 200 && body.length < MAX_CREEP_SIZE - 3) {
+            while(energy >= 200 && creepLevel < room.controller.level) {
                 body.push(WORK);
                 body.push(CARRY);
                 body.push(MOVE);

@@ -580,7 +580,7 @@ let global_manage = function(main_room_name) {
             let container = Game.getObjectById(main_room_memory.container_list[i]);
             if(container != null && container.progress == null) {
                 if (container.pos.roomName === main_room_name) {
-                    main_room_memory.creep.carrier.max_num += 0.5;
+                    main_room_memory.creep.carrier.max_num += 1;
                 }
                 else {
                     main_room_memory.creep.carrier.max_num += 1;

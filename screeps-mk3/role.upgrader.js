@@ -24,14 +24,14 @@ let role_upgrader = function(creep) {
             if(!target) {
                 let main_room_memory = Memory.room_dict[creep.memory.main_room]
                 let link_controller = Game.getObjectById(main_room_memory.link_controller);
-                if(link_controller != null && link_controller.store[RESOURCE_ENERGY] > 0) {
+                if(link_controller != null && link_controller.store[RESOURCE_ENERGY] > creep.store.getCapacity(RESOURCE_ENERGY) - creep.store[RESOURCE_ENERGY]) {
                     target = link_controller;
                 }
             }
             if(!target) {
                 let targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (target) => target.structureType === STRUCTURE_STORAGE
-                        && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});
+                        && target.store[RESOURCE_ENERGY] >= creep.store.getCapacity(RESOURCE_ENERGY) - creep.store[RESOURCE_ENERGY]});
                 if(targets.length > 0) {
                     target = targets[0];
                 }
@@ -39,7 +39,7 @@ let role_upgrader = function(creep) {
             if(!target) {
                 let targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (target) => target.structureType === STRUCTURE_CONTAINER
-                        && target.store[RESOURCE_ENERGY] >= creep.carryCapacity - creep.carry.energy});
+                        && target.store[RESOURCE_ENERGY] >= creep.store.getCapacity(RESOURCE_ENERGY) - creep.store[RESOURCE_ENERGY]});
                 if(targets.length > 0) {
                     target = targets[Math.floor(Math.random() * 1000) % targets.length];
                 }
@@ -55,7 +55,7 @@ let role_upgrader = function(creep) {
                     status = creep.harvest(target);
                 }
                 else {
-                    status = creep.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy);
+                    status = creep.withdraw(target, RESOURCE_ENERGY, creep.store.getCapacity(RESOURCE_ENERGY) - creep.store[RESOURCE_ENERGY]);
                 }
                 switch(status) {
                     case OK:

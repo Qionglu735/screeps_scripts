@@ -234,6 +234,7 @@ let role_carrier = function(creep) {
             let transfer_status = creep.transfer(target, RESOURCE_ENERGY);
             switch(transfer_status) {
                 case OK:
+                    global_find.remove_transfer_assigned_record(target.id);
                     break;
                 case ERR_FULL:
                     creep.memory.target_id = null;

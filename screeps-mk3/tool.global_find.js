@@ -164,8 +164,13 @@ let global_find = {
         if(this.spawn_list == null) {
             this.spawn_list = [];
             for(let i of Memory.room_dict[creep.memory.main_room].spawn_list) {
-                if(Game.time - Memory.transfer_assigned_record[i] < 10) {
-                    continue;
+                if (Memory.transfer_assigned_record[i] != null) {
+                    if(Game.time - Memory.transfer_assigned_record[i] < 10) {
+                        continue;
+                    }
+                    else {
+                        delete Memory.transfer_assigned_record[i];
+                    }
                 }
                 let spawn = Game.spawns[i];
                 if(spawn != null && spawn.progress == null && spawn.store.getCapacity(RESOURCE_ENERGY) != null
@@ -181,8 +186,13 @@ let global_find = {
         if(this.extension_list == null) {
             this.extension_list = [];
             for(let i of Memory.room_dict[creep.memory.main_room].extension_list) {
-                if(Game.time - Memory.transfer_assigned_record[i] < 10) {
-                    continue;
+                if (Memory.transfer_assigned_record[i] != null) {
+                    if(Game.time - Memory.transfer_assigned_record[i] < 10) {
+                        continue;
+                    }
+                    else {
+                        delete Memory.transfer_assigned_record[i];
+                    }
                 }
                 let extension = Game.getObjectById(i);
                 if(extension!= null && extension.progress ==null
@@ -195,8 +205,13 @@ let global_find = {
         if(this.tower_list == null) {
             this.tower_list = [];
             for(let i of Memory.room_dict[creep.memory.main_room].tower_list) {
-                if(Game.time - Memory.transfer_assigned_record[i] < 10) {
-                    continue;
+                if (Memory.transfer_assigned_record[i] != null) {
+                    if(Game.time - Memory.transfer_assigned_record[i] < 10) {
+                        continue;
+                    }
+                    else {
+                        delete Memory.transfer_assigned_record[i];
+                    }
                 }
                 let tower = Game.getObjectById(i);
                 if(tower.store[RESOURCE_ENERGY] < tower.store.getCapacity(RESOURCE_ENERGY)) {
@@ -206,7 +221,18 @@ let global_find = {
         }
         if (this.link_list == null) {
             this.link_list = [];
-            if (Memory.room_dict[creep.memory.main_room].link_spawn != null) {
+            for(let i of Memory.room_dict[creep.memory.main_room].link_list) {
+                if (i != Memory.room_dict[creep.memory.main_room].link_spawn) {
+                    continue;
+                }
+                if (Memory.transfer_assigned_record[i] != null) {
+                    if(Game.time - Memory.transfer_assigned_record[i] < 10) {
+                        continue;
+                    }
+                    else {
+                        delete Memory.transfer_assigned_record[i];
+                    }
+                }
                 let link = Game.getObjectById(Memory.room_dict[creep.memory.main_room].link_spawn);
                 if (link.store[RESOURCE_ENERGY] < link.store.getCapacity(RESOURCE_ENERGY)) {
                     this.link_list.push(link);
@@ -270,7 +296,13 @@ let global_find = {
             Memory.transfer_assigned_record[res.id] = Game.time;
         }
         return res;
-    }
+    },
+
+    remove_transfer_assigned_record: function(structure_id) {
+        if(! Memory.transfer_assigned_record == null) {
+            delete Memory.transfer_assigned_record[structure_id];
+        }
+    },
 };
 
 module.exports = global_find;

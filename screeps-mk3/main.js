@@ -5,6 +5,7 @@ require("constant")
 
 let structure_spawn = require("structure.spawn");
 let structure_tower = require("structure.tower");
+let structure_link = require("structure.link");
 
 let role_miner = require("role.miner");
 let role_harvester = require("role.harvester");
@@ -199,6 +200,17 @@ module.exports.loop = function () {
     }
     if(LOG_USED_TIME) {
         console.log("run tower", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
+
+    //    run link
+    cpu = Game.cpu.getUsed();
+    for(let room_name of Memory.main_room_list) {
+        for(let link_id of Memory.room_dict[room_name].link_list) {
+            structure_link(Game.getObjectById(link_id));
+        }
+    }
+    if(LOG_USED_TIME) {
+        console.log("run link", (Game.cpu.getUsed() - cpu).toFixed(3));
     }
 
     ////    run creep

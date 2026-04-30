@@ -224,29 +224,102 @@ let global_manage = function(main_room_name) {
     // console.log("check s_e_s_t", (Game.cpu.getUsed() - cpu).toFixed(3));
     // TODO: build terminal, link, lab
     // check link
-    if(main_room.controller.level >= 5) {
-        if(main_room_memory.link_spawn == null || Game.getObjectById(main_room_memory.link_spawn) == null) {
-            let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
-            let link_spawn = main_spawn.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-                filter: target => target.structureType === STRUCTURE_LINK
-            })
-            if(link_spawn != null) {
+    for(let i of main_room_memory.link_list) {  // check memory status
+        let obj = Game.getObjectById(main_room_memory.link_list[i]);
+        if (!(obj && obj.structureType && obj.structureType === STRUCTURE_LINK)) {
+            main_room_memory.link_list.splice(i, 1);
+        }
+    }
+    let link_num = main_room_memory.link_list.length;
+    let link_site_num = 0;
+    let link_max = 0;
+    let link = null;
+    switch(main_room.controller.level) {
+        case 5:
+            link_max = 2;
+            break;
+        case 6:
+            link_max = 3;
+            break;
+        case 7:
+            link_max = 4;
+            break;
+        case 8:
+            link_max = 6;
+            break;
+    }
+    if (link_num < link_max) {  // num < max
+        let link_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
+            filter: (target) => target.structureType === STRUCTURE_LINK
+        });
+        for(let i of link_list) {  // update to memory
+            if (!main_room_memory.link_list.includes(i.id)) {
+                main_room_memory.link_list.push(i.id);
+            }
+        }
+        link_num = main_room_memory.link_list.length;
+        if(main_room_memory.link_spawn == null || Game.getObjectById(main_room_memory.link_spawn) == null) {  // update spawn link
+            main_room_memory.link_spawn = null;
+            let link_spawn_list = main_spawn.pos.findInRange(FIND_MY_STRUCTURES, 2, {
+                filter: (target) => target.structureType === STRUCTURE_LINK,
+            });
+            if(link_spawn_list.length > 0) {
                 main_room_memory.link_spawn = link_spawn.id;
             }
         }
-        if(main_room_memory.link_controller == null || Game.getObjectById(main_room_memory.link_spawn) == null) {
-            let controller = main_room.controller;
-            let link_controller = controller.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-                filter: target => target.structureType === STRUCTURE_LINK
-            })
-            if(link_controller != null) {
-                main_room_memory.link_controller = link_controller.id;
+        if(main_room_memory.link_controller == null || Game.getObjectById(main_room_memory.link_controller) == null) {  // update controller link
+            main_room_memory.link_controller = null;
+            let link_controller_list = main_room.controller.pos.findInRange(FIND_MY_STRUCTURES, 2, {
+                filter: (target) => target.structureType === STRUCTURE_LINK,
+            });
+            if(link_controller_list.length > 0) {
+                main_room_memory.link_controller = link_controller_list[0].id;
             }
         }
+        link_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
+            filter: (target) => target.structureType === STRUCTURE_LINK
+        }).length;
+        if(link_site_num === 0) {  // not constructing
+            if (link_num < link_max && site_sum === 0) {
+                let new_pos = null;
+                if (main_room_memory.link_spawn == null) {  // build link near spawn
+                    new_pos = new RoomPosition(
+                        main_spawn.pos.x + main_room_memory.link_table["spawn"][0],
+                        main_spawn.pos.y + main_room_memory.link_table["spawn"][1],
+                        main_room.name,
+                    );
+                }
+                else if (main_room_memory.link_controller == null) {  // build link near controller
+                    let min_cost = -1;
+                    for(let i of main_room_memory.spawn_list) {
+                        let res = PathFinder.search(main_room.controller.pos, Game.spawns[i].pos);
+                        if(res.incomplete === false && (min_cost === -1 || min_cost > res.cost)) {
+                            min_cost = res.cost;
+                            new_pos = res.path[0];
+                        }
+                    }
+                }
+                if (new_pos != null) {
+                    let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_LINK);
+                    switch (create_status) {
+                        case OK:
+                            link_site_num += 1;
+                            break;
+                        default:
+                            console.log("[!]", "create link failed:", create_status)
+                    }
+                }
+            }
+        }
+    }
+    site_sum += link_site_num;
+    if(main_room.controller.level >= 5) {
         if(main_room_memory.link_spawn != null && main_room_memory.link_controller != null) {
             let link_spawn = Game.getObjectById(main_room_memory.link_spawn);
             let link_controller = Game.getObjectById(main_room_memory.link_controller);
-            if(link_spawn.cooldown === 0
+            if(link_spawn != null
+                && link_controller != null
+                && link_spawn.cooldown === 0
                 && link_controller.store[RESOURCE_ENERGY] <= link_controller.store.getCapacity(RESOURCE_ENERGY) - 50
                 && link_spawn.store[RESOURCE_ENERGY] >= 50 ) {
                 let transfer_status = link_spawn.transferEnergy(link_controller);

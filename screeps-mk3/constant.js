@@ -3,7 +3,7 @@ FIRST_SPAWN_NAME = "Spawn1";
 LOG_USED_TIME = false;
 SIGN_TEXT = "Hello World!";
 STORAGE_ENERGY_THRESHOLD = 0.8;
-CONTROL_LEVEL_LIMIT = 5;  // for testing
+CONTROL_LEVEL_LIMIT = 6;  // for testing
 
 ////    Memory Template
 ////    deep copy is necessary
@@ -66,10 +66,11 @@ MAIN_ROOM_TEMPLATE = {
         "1": [-2, 0],
         "2": [2, 0],
     },
+    "link_list": [],
     "link_spawn": null,
     "link_controller": null,
     "link_table": {
-        "1": [-1, -1],
+        "spawn": [-1, -1],
     },
     "energy_stat": {
         ...ENERGY_STAT_TEMPLATE

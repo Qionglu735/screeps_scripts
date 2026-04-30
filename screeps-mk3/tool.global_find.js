@@ -57,6 +57,7 @@ let global_find = {
     spawn_list: null,
     extension_list: null,
     tower_list: null,
+    link_list: null,
 
     reset_local_value: function() {
         this.spawn_list = null;
@@ -171,8 +172,8 @@ let global_find = {
                     && (spawn.store[RESOURCE_ENERGY] == null
                         // || spawn.store[RESOURCE_ENERGY] < 300
                         || spawn.store[RESOURCE_ENERGY] < spawn.store.getCapacity(RESOURCE_ENERGY)
-                    )) {
-                    // && spawn.store[RESOURCE_ENERGY] < spawn.store.getCapacity(RESOURCE_ENERGY)) {
+                    )
+                ) {
                     this.spawn_list.push(spawn);
                 }
             }
@@ -185,8 +186,8 @@ let global_find = {
                 }
                 let extension = Game.getObjectById(i);
                 if(extension!= null && extension.progress ==null
-                    && extension.energy < extension.energyCapacity) {
-                    // && extension.store[RESOURCE_ENERGY] < extension.store.getCapacity(RESOURCE_ENERGY)) {
+                    && extension.store[RESOURCE_ENERGY] < extension.store.getCapacity(RESOURCE_ENERGY)
+                ) {
                     this.extension_list.push(extension);
                 }
             }
@@ -198,9 +199,17 @@ let global_find = {
                     continue;
                 }
                 let tower = Game.getObjectById(i);
-                // if(tower.store[RESOURCE_ENERGY] < tower.store.getCapacity(RESOURCE_ENERGY)) {
-                if(tower.energy < tower.energyCapacity) {
+                if(tower.store[RESOURCE_ENERGY] < tower.store.getCapacity(RESOURCE_ENERGY)) {
                     this.tower_list.push(tower);
+                }
+            }
+        }
+        if (this.link_list == null) {
+            this.link_list = [];
+            if (Memory.link_spawn != null) {
+                let link = Game.getObjectById(Memory.link_spawn);
+                if (link.store[RESOURCE_ENERGY] < link.store.getCapacity(RESOURCE_ENERGY)) {
+                    this.link_list.push(link);
                 }
             }
         }

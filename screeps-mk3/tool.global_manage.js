@@ -222,8 +222,8 @@ let global_manage = function(main_room_name) {
     }
     site_sum += tower_site_num;
     // console.log("check s_e_s_t", (Game.cpu.getUsed() - cpu).toFixed(3));
-    // TODO: build terminal, link, lab
-    // check link
+    ////////////////////////////////////////////////////////////////////////////////
+    ////    Check Link
     for(let i of main_room_memory.link_list) {  // check memory status
         let obj = Game.getObjectById(main_room_memory.link_list[i]);
         if (!(obj && obj.structureType && obj.structureType === STRUCTURE_LINK)) {
@@ -313,27 +313,64 @@ let global_manage = function(main_room_name) {
         }
     }
     site_sum += link_site_num;
-    if(main_room.controller.level >= 5) {
-        if(main_room_memory.link_spawn != null && main_room_memory.link_controller != null) {
-            let link_spawn = Game.getObjectById(main_room_memory.link_spawn);
-            let link_controller = Game.getObjectById(main_room_memory.link_controller);
-            if(link_spawn != null
-                && link_controller != null
-                && link_spawn.cooldown === 0
-                && link_controller.store[RESOURCE_ENERGY] <= link_controller.store.getCapacity(RESOURCE_ENERGY) - 50
-                && link_spawn.store[RESOURCE_ENERGY] >= 50 ) {
-                let transfer_status = link_spawn.transferEnergy(link_controller);
-                switch(transfer_status) {
-                    case OK:
-                        break;
-                    default:
-                        console.log("link transfer", transfer_status)
-                }
+    ////////////////////////////////////////////////////////////////////////////////
+    ////    Check Terminal
+    for(let i in main_room_memory.terminal_list) {  // check memory status
+        if(main_room_memory.terminal_list.hasOwnProperty(i)) {
+            let obj = Game.getObjectById(main_room_memory.terminal_list[i]);
+            if (!(obj && obj.structureType && obj.structureType === STRUCTURE_TERMINAL)) {
+                main_room_memory.terminal_list.splice(i, 1);
             }
-            // console.log(link_spawn, link_spawn.store[RESOURCE_ENERGY], link_spawn.cooldown)
-            // console.log(link_controller, link_controller.store[RESOURCE_ENERGY])
         }
     }
+    let terminal_num = main_room_memory.terminal_list.length;
+    let terminal_site_num = 0;
+    let terminal_max = 0;
+    let terminal = null;
+    if(main_room.controller.level >= 4) {
+        terminal_max = 1;
+    }
+    if (terminal_num < terminal_max) {  // num < max
+        let terminal_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
+            filter: (target) => target.structureType === STRUCTURE_TERMINAL
+        });
+        for(let i in terminal_list) {  // update to memory
+            if(terminal_list.hasOwnProperty(i)) {
+                if (!main_room_memory.terminal_list.includes(terminal_list[i].id)) {
+                    main_room_memory.terminal_list.push(terminal_list[i].id);
+                }
+            }
+        }
+        terminal_num = main_room_memory.terminal_list.length;
+        terminal_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
+            filter: (target) => target.structureType === STRUCTURE_TERMINAL
+        }).length;
+        if(terminal_site_num === 0) {  // not constructing
+            if (terminal_num < terminal_max && site_sum === 0) {
+                let terminal_pos = main_room_memory.terminal_table["1"];
+                let new_pos = new RoomPosition(
+                    main_spawn.pos.x + terminal_pos[0],
+                    main_spawn.pos.y + terminal_pos[1],
+                    main_room.name);
+                let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_TERMINAL);
+                switch (create_status) {
+                    case OK:
+                        terminal_site_num += 1;
+                        break;
+                    default:
+                        console.log("create terminal failed:", create_status);
+                        break;
+                }
+            }
+        }
+    }
+    else {
+        terminal = Game.getObjectById(main_room_memory.terminal_list[0]);
+    }
+    site_sum += terminal_site_num;
+
+    // TODO: build factory, lab
+
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check / Build Road
     cpu = Game.cpu.getUsed();

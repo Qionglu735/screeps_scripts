@@ -66,6 +66,9 @@ MAIN_ROOM_TEMPLATE = {
         "1": [-2, 0],
         "2": [2, 0],
     },
+    "terminal_table": {
+        "1": [-2, -2],
+    },
     "link_list": [],
     "link_spawn": null,
     "link_controller": null,

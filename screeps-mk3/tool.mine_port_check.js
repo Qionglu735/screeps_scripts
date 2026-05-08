@@ -205,7 +205,7 @@ let mine_port_check = function(main_room_name, room_name) {
                 let container_list = mine_port.lookFor(LOOK_STRUCTURES);
                 let container_site_list = mine_port.lookFor(LOOK_CONSTRUCTION_SITES);
                 if (container_list.length === 0 && container_site_list.length === 0) {  // no container or construction site
-                    // room.createConstructionSite(mine_port, STRUCTURE_CONTAINER);
+                    room.createConstructionSite(mine_port, STRUCTURE_CONTAINER);
                 }
                 else if(container_site_list.length > 0) {
                     let container = container_site_list[0];

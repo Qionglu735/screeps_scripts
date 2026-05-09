@@ -94,7 +94,10 @@ let role_upgrader = function(creep) {
                 }
             }
             else {
-                creep.say("Max Level");
+                if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
+                    creep.say("Max Level");
+                    creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
+                }
             }
             if(creep.room.controller.sign == null || creep.room.controller.sign.text != SIGN_TEXT || creep.room.controller.sign.username != creep.owner.username) {
                 creep.signController(creep.room.controller, SIGN_TEXT);

@@ -306,23 +306,31 @@ let role_harvester = function(creep) {
             creep.say("Upgrade");
         }
     }
-    else if(creep.memory.status === "upgrade"){
-        let target = Game.rooms[creep.memory.main_room].controller;
-        creep.memory.target_id = target.id;
-        let upgrade_status = creep.upgradeController(target);
-        switch(upgrade_status) {
-            case OK:
-                break;
-            case ERR_NOT_IN_RANGE:
-                path_handler.find(creep, target, 1, 3);
-                break;
-            case ERR_NOT_ENOUGH_RESOURCES:
-                creep.memory.target_id = null;
-                creep.memory.status = "harvest";
-                break;
-            default:
-                console.log(creep.name, "upgrade", upgrade_status);
-                creep.say(upgrade_status);
+    else if(creep.memory.status === "upgrade") {
+        if (creep.room.controller.level < CONTROL_LEVEL_LIMIT || creep.room.controller.progress / creep.room.controller.progressTotal < 0.5) {
+            let target = Game.rooms[creep.memory.main_room].controller;
+            creep.memory.target_id = target.id;
+            let upgrade_status = creep.upgradeController(target);
+            switch(upgrade_status) {
+                case OK:
+                    break;
+                case ERR_NOT_IN_RANGE:
+                    path_handler.find(creep, target, 1, 3);
+                    break;
+                case ERR_NOT_ENOUGH_RESOURCES:
+                    creep.memory.target_id = null;
+                    creep.memory.status = "harvest";
+                    break;
+                default:
+                    console.log(creep.name, "upgrade", upgrade_status);
+                    creep.say(upgrade_status);
+            }
+        }
+        else {
+            if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
+                creep.say("Idle");
+                creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
+            }
         }
     }
 };

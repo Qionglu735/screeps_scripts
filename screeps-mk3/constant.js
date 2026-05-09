@@ -76,14 +76,15 @@ MAIN_ROOM_TEMPLATE = {
         "1": [-2, 0],
         "2": [2, 0],
     },
-    "terminal_table": {
-        "1": [-2, -2],
-    },
     "link_list": [],
     "link_spawn": null,
     "link_controller": null,
     "link_table": {
         "spawn": [-1, -1],
+    },
+    "terminal_list": [],
+    "terminal_table": {
+        "1": [-2, -2],
     },
     "energy_stat": {
         ...ENERGY_STAT_TEMPLATE
@@ -112,7 +113,6 @@ MAIN_ROOM_TEMPLATE = {
         },
         "carrier": {
             "name_list": [],
-            // "type_list": [],
             "max_num": 0,
             "avg_level": 0,
             "max_level": 1,
@@ -136,6 +136,12 @@ MAIN_ROOM_TEMPLATE = {
             "max_level": 1,
         },
         "builder": {
+            "name_list": [],
+            "max_num": 0,
+            "avg_level": 0,
+            "max_level": 1,
+        },
+        "dealer": {
             "name_list": [],
             "max_num": 0,
             "avg_level": 0,

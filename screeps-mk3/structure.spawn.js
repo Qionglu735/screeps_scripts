@@ -119,6 +119,19 @@ let structure_spawn = function(spawn) {
             }
             spawn_creep(spawn, room, "Claimer", "claimer", body, creepLevel);
         }
+        // Dealer
+        else if(memory_creep.dealer.name_list.length < memory_creep.dealer.max_num) {
+            body.push(MOVE);
+            while(energy > 200 && creepLevel < 6) {
+                body.push(CARRY);
+                body.push(CARRY);
+                body.push(CARRY);
+                body.push(CARRY);
+                energy -= 200;
+                creepLevel += 1;
+            }
+            spawn_creep(spawn, room, "Dealer", "dealer", body, creepLevel);
+        }
         // Upgrader
         else if(memory_creep.upgrader.name_list.length < memory_creep.upgrader.max_num) {
             while(energy >= 200 && creepLevel < room.controller.level) {

@@ -14,6 +14,7 @@ let role_carrier = require("role.carrier");
 let role_refueler = require("role.refueler");
 let role_scout = require("role.scout");
 let role_claimer = require("role.claimer");
+let role_dealer = require("role.dealer");
 
 let global_manage = require("tool.global_manage");
 let stat = require("tool.stat");
@@ -243,6 +244,9 @@ module.exports.loop = function () {
                     break;
                 case "claimer":
                     role_claimer(Game.creeps[creep_name]);
+                    break;
+                case "dealer":
+                    role_dealer(Game.creeps[creep_name]);
                     break;
                 case "builder":
                     break;

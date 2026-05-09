@@ -767,6 +767,11 @@ let global_manage = function(main_room_name) {
             main_room_memory.creep.claimer.max_num += 1;
         }
     }
+    ////    adjust dealer number
+    main_room_memory.creep.dealer.max_num = 0;
+    if(main_room.controller.level >= 6 && main_room_memory.terminal_list.length > 0) {
+        main_room_memory.creep.dealer.max_num = 1
+    }
     ////    adjust upgrader number
     // main_room_memory.creep.upgrader.max_num = 0;  // reset
     if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
@@ -823,27 +828,14 @@ let global_manage = function(main_room_name) {
     //     }
     // }
     console.log(
-        "H:" + main_room_memory.creep.harvester.name_list.length + "/"
-        + main_room_memory.creep.harvester.max_num
-        + "(" + main_room_memory.creep.harvester.avg_level + ")",
-        "M:" + main_room_memory.creep.miner.name_list.length + "/"
-        + main_room_memory.creep.miner.max_num
-        + "(" + main_room_memory.creep.miner.avg_level + ")",
-        "U:" + main_room_memory.creep.upgrader.name_list.length + "/"
-        + main_room_memory.creep.upgrader.max_num
-        + "(" + main_room_memory.creep.upgrader.avg_level + ")",
-        "C:" + main_room_memory.creep.carrier.name_list.length + "/"
-        + main_room_memory.creep.carrier.max_num
-        + "(" + main_room_memory.creep.carrier.avg_level + ")",
-        "R:" + main_room_memory.creep.refueler.name_list.length + "/"
-        + main_room_memory.creep.refueler.max_num
-        + "(" + main_room_memory.creep.refueler.avg_level + ")",
-        "S:" + main_room_memory.creep.scout.name_list.length + "/"
-        + main_room_memory.creep.scout.max_num
-        + "(" + main_room_memory.creep.scout.avg_level + ")",
-        "CL:" + main_room_memory.creep.claimer.name_list.length + "/"
-        + main_room_memory.creep.claimer.max_num
-        + "(" + main_room_memory.creep.claimer.avg_level + ")",
+        `H:${main_room_memory.creep.harvester.name_list.length}/${main_room_memory.creep.harvester.max_num}(${main_room_memory.creep.harvester.avg_level})`,
+        `M:${main_room_memory.creep.miner.name_list.length}/${main_room_memory.creep.miner.max_num}(${main_room_memory.creep.miner.avg_level})`,
+        `U:${main_room_memory.creep.upgrader.name_list.length}/${main_room_memory.creep.upgrader.max_num}(${main_room_memory.creep.upgrader.avg_level})`,
+        `C:${main_room_memory.creep.carrier.name_list.length}/${main_room_memory.creep.carrier.max_num}(${main_room_memory.creep.carrier.avg_level})`,
+        `R:${main_room_memory.creep.refueler.name_list.length}/${main_room_memory.creep.refueler.max_num}(${main_room_memory.creep.refueler.avg_level})`,
+        `S:${main_room_memory.creep.scout.name_list.length}/${main_room_memory.creep.scout.max_num}(${main_room_memory.creep.scout.avg_level})`,
+        `CL:${main_room_memory.creep.claimer.name_list.length}/${main_room_memory.creep.claimer.max_num}(${main_room_memory.creep.claimer.avg_level})`,
+        `D:${main_room_memory.creep.dealer.name_list.length}/${main_room_memory.creep.dealer.max_num}(${main_room_memory.creep.dealer.avg_level})`,
     );
 
     // if(Game.cpu.bucket >= 5000){

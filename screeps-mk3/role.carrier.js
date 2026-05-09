@@ -73,6 +73,9 @@ let role_carrier = function(creep) {
                     }
                 }
             }
+            if (creep.memory.type == null) {
+                creep.memory.type = RESOURCE_ENERGY;
+            }
         }
     }
     let target = Game.getObjectById(creep.memory.target_id);
@@ -161,7 +164,6 @@ let role_carrier = function(creep) {
             }
         }
         else {
-            console.log("4444444444444444444444", creep.name, creep.memory.type);
             let mineral_info = Memory.room_dict[creep.memory.main_room].mineral;
             for(let i in mineral_info) {
                 let container = Game.getObjectById(mineral_info[i].container);
@@ -224,7 +226,6 @@ let role_carrier = function(creep) {
             }
         }
         else {
-            console.log(creep.name, "_______________", creep.memory.type)
             if(storage != null && storage.store[creep.memory.type] < storage.store.getCapacity() * STORAGE_THRESHOLD[creep.memory.type]) {
                 target = storage;
             }

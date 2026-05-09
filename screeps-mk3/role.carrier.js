@@ -3,34 +3,20 @@ let global_find = require("tool.global_find");
 let path_handler = require("tool.path_handler");
 
 let role_carrier = function(creep) {
-    // if(creep.memory.status === "withdraw"
-    //     && creep.memory.target_id != null && Game.getObjectById(creep.memory.target_id) != null) {
-    //     let obj = Game.getObjectById(creep.memory.target_id)
-    //     if(obj.store) {
-    //         console.log(creep.name, creep.carry.energy, creep.memory.status, obj.structureType, obj.pos.x, obj.pos.y, obj.room.name, obj.store[RESOURCE_ENERGY])
-    //     }
-    // }
-    // else {
-    //     console.log(creep.name, creep.carry.energy, creep.memory.status)
-    // }
     if(creep.memory.status == null || !["withdraw", "transfer"].includes(creep.memory.status)) {
         creep.memory.status = "withdraw";
     }
     if(creep.memory.status === "transfer" && _.sum(creep.store) === 0) {
         creep.memory.status = "withdraw";
         creep.memory.target_id = null;
-        // let _i = Memory.room_dict[creep.memory.main_room].creep["carrier"].name_list.indexOf(creep.name);
-        // if(_i !== -1) {
-        //     Memory.room_dict[creep.memory.main_room].creep["carrier"].type_list[_i] = "";
-        // }
         creep.memory.type = null;
-        creep.say('Withdraw');
+        creep.say("Withdraw");
     }
     else if(creep.memory.status === "withdraw" && _.sum(creep.store) === creep.store.getCapacity()) {
         creep.memory.status = "transfer";
         global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
         creep.memory.target_id = null;
-        creep.say('Transfer');
+        creep.say("Transfer");
     }
     let storage = null, _storage_list = [];
     for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
@@ -40,7 +26,13 @@ let role_carrier = function(creep) {
     if(_storage_list.length > 0) {
         storage = _storage_list[Math.floor(Math.random() * 1000) % _storage_list.length];
     }
-    if(creep.memory.type == null || creep.memory.type === "") {
+    let target = Game.getObjectById(creep.memory.target_id);
+    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] < creep.store.getCapacity() - _.sum(creep.store)) {
+        // target has no enough resource
+        target = null;
+        creep.memory.type = null;
+    }
+    if(creep.memory.status == "withdraw" && (creep.memory.type == null)) {
         let type_list = [];
         let energy_carrier_count = 0
         for (let carrier_name of Memory.room_dict[creep.memory.main_room].creep["carrier"].name_list) {
@@ -62,7 +54,11 @@ let role_carrier = function(creep) {
                     for (let mineral_id in room_memory.mineral) {
                         if (room_memory.mineral[mineral_id].assigned_miner != null) {
                             let mineral_type = room_memory.mineral[mineral_id].type;
-                            if (!type_list.includes(mineral_type) && storage.store[mineral_type] < storage.store.getCapacity() * STORAGE_THRESHOLD[mineral_type]) {
+                            let container = Game.getObjectById(room_memory.mineral[mineral_id].container);
+                            if (!type_list.includes(mineral_type)
+                                && storage.store[mineral_type] < storage.store.getCapacity() * STORAGE_THRESHOLD[mineral_type]
+                                && container.store[mineral_type] > creep.store.getCapacity() - _.sum(creep.store)
+                            ) {
                                 creep.memory.type = mineral_type;
                                 break;
                             }
@@ -78,10 +74,12 @@ let role_carrier = function(creep) {
             }
         }
     }
-    let target = Game.getObjectById(creep.memory.target_id);
-    if(target != null && target.store && target.store[creep.memory.type] < creep.store.getCapacity() - _.sum(creep.store)) {
+    if(creep.memory.status == "transfer" && target != null && target.store != null && (
+        creep.memory.type == RESOURCE_ENERGY && target.store[creep.memory.type] == target.store.getCapacity(creep.memory.type)
+        || creep.memory.type != RESOURCE_ENERGY && target.store[creep.memory.type] >= target.store.getCapacity(creep.memory.type) * STORAGE_THRESHOLD[creep.memory.type]
+    )) {
+        // target has no enough capacity
         target = null;
-        creep.memory.type = RESOURCE_ENERGY;
     }
     if(target != null && creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);
@@ -174,10 +172,7 @@ let role_carrier = function(creep) {
                         case OK:
                             break;
                         case ERR_NOT_IN_RANGE:
-                            creep.say("RANGE")
-                            console.log(container.pos);
                             path_handler.find(creep, container, 1, 3);
-                            console.log(creep.memory.path_list.length);
                             break;
                         default:
                             console.log(creep.name, "withdraw", withdraw_status);
@@ -191,7 +186,7 @@ let role_carrier = function(creep) {
     }
     else if(creep.memory.status === "transfer" ) {
         if(creep.memory.type === RESOURCE_ENERGY) {
-            if(target != null && target.store[RESOURCE_ENERGY] === target.store.getCapacity()) {
+            if(target != null && target.store[RESOURCE_ENERGY] === target.store.getCapacity(RESOURCE_ENERGY)) {
                 creep.memory.target_id = null;
                 target = null;
             }
@@ -199,7 +194,7 @@ let role_carrier = function(creep) {
                 target = global_find.find_structure_need_energy(creep);
             }
             if(!target && storage != null) {
-                if(storage.store[RESOURCE_ENERGY] < storage.store.getCapacity(RESOURCE_ENERGY) * STORAGE_THRESHOLD[RESOURCE_ENERGY]) {
+                if(storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY]) {
                     target = storage;
                 }
             }

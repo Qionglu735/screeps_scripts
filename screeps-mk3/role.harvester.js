@@ -155,7 +155,7 @@ let role_harvester = function(creep) {
             let targets = [];
             for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
                 let _s = Game.getObjectById(_s_id);
-                if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity(RESOURCE_ENERGY) * STORAGE_THRESHOLD[RESOURCE_ENERGY]) {
+                if(_s.store[RESOURCE_ENERGY] < _s.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY]) {
                     targets.push(_s);
                 }
             }

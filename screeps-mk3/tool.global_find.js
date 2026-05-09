@@ -283,14 +283,14 @@ let global_find = {
                 res = this.tower_list[Math.floor(Math.random() * this.tower_list.length)];  // find random target
             }
         }
-        if(res == null) {
-            let terminal = Game.rooms[creep.memory.main_room].terminal;
-            if(terminal != null) {
-                if(terminal.store[RESOURCE_ENERGY] < 10000) {
-                    res = terminal;
-                }
-            }
-        }
+        // if(res == null) {
+        //     let terminal = Game.rooms[creep.memory.main_room].terminal;
+        //     if(terminal != null) {
+        //         if(terminal.store[RESOURCE_ENERGY] < 10000) {
+        //             res = terminal;
+        //         }
+        //     }
+        // }
         // console.log("find_structure_need_energy find_target", Game.cpu.getUsed() - cpu);
         if(res != null) {
             Memory.transfer_assigned_record[res.id] = Game.time;

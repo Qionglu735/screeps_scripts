@@ -62,54 +62,6 @@ let role_refueler = function(creep) {
             creep.memory.target_id = null;
             target = null;
         }
-        // console.log(creep.name, "transfer a", Game.cpu.getUsed() - cpu)
-        // if(!target) {
-        //     let _spawn = Game.spawns[Memory.room_dict[creep.memory.main_room].spawn_list[0]];
-        //     if(_spawn.store[RESOURCE_ENERGY] < _spawn.store.getCapacity(RESOURCE_ENERGY)) {
-        //         target = _spawn;
-        //         creep.memory.target_id = target.id;
-        //     }
-        // }
-        // console.log(creep.name, "transfer b", Game.cpu.getUsed() - cpu)
-        // if(!target) {  // TODO: cost too much cpu, about 1s
-        //     let targets = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {
-        //         filter: (target) =>
-        //             (target.structureType === STRUCTURE_EXTENSION
-        //             && target.energy < target.energyCapacity)});
-        //     if(targets.length > 0) {
-        //         target = targets[Game.time % targets.length];
-        //         creep.memory.target_id = target.id;
-        //     }
-        // }
-        // console.log(creep.name, "transfer c", Game.cpu.getUsed() - cpu)
-        // if(!target) {  // TODO: cost too much cpu, about 1.5s at rcl=5
-        //     let targets = [];
-        //     for(let _e_id of Memory.room_dict[creep.memory.main_room].extension_list) {
-        //         let _e = Game.getObjectById(_e_id);
-        //         if(_e.store[RESOURCE_ENERGY] < _e.store.getCapacity(RESOURCE_ENERGY)) {
-        //             targets.push(_e);
-        //         }
-        //     }
-        //     if(targets.length > 0) {
-        //         target = targets[Game.time % targets.length];
-        //         creep.memory.target_id = target.id;
-        //     }
-        // }
-        // console.log(creep.name, "transfer d", Game.cpu.getUsed() - cpu)
-        // if(!target) {
-        //     let targets = [];
-        //     for(let _t_id of Memory.room_dict[creep.memory.main_room].tower_list) {
-        //         let _t = Game.getObjectById(_t_id);
-        //         if(_t.store[RESOURCE_ENERGY] < _t.store.getCapacity(RESOURCE_ENERGY)) {
-        //             targets.push(_t);
-        //         }
-        //     }
-        //     if(targets.length > 0) {
-        //         target = targets[Game.time % targets.length];
-        //         creep.memory.target_id = target.id;
-        //     }
-        // }
-        // console.log(creep.name, "transfer e", Game.cpu.getUsed() - cpu)
         if(target == null) {
             target = global_find.find_structure_need_energy(creep);
         }

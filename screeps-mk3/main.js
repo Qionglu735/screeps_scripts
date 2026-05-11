@@ -271,10 +271,5 @@ module.exports.loop = function () {
         console.log("stat", (Game.cpu.getUsed() - cpu).toFixed(3));
     }
 
-    // for(let i of Game.market.getAllOrders()) {
-    //     console.log(i["type"], i["resourceType"], "" + i["amount"] + "/" + i["remainingAmount"], i["price"],
-    //         Game.market.calcTransactionCost(1000, 'W8N3', i["roomName"]))
-    // }
-
     Memory.CpuExceeded -= 1;
 }

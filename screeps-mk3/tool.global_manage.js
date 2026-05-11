@@ -12,9 +12,6 @@ let global_manage = function(main_room_name) {
     ////////////////////////////////////////////////////////////////////////////////
     //    Check Room
     room_check(main_room_name);
-    // for(let room_name of Memory.room_list) {
-    //
-    // }
     // console.log("check room", (Game.cpu.getUsed() - cpu).toFixed(3));
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Container
@@ -629,130 +626,12 @@ let global_manage = function(main_room_name) {
     if(main_room_memory.extension_list.length < main_room_memory.creep.carrier.max_num) {
         main_room_memory.creep.carrier.max_num = main_room_memory.extension_list.length;
     }
-    // while(main_room_memory.creep.carrier.type_list.length > main_room_memory.creep.carrier.name_list.length) {
-    //     main_room_memory.creep.carrier.type_list.pop();
-    // }
-    // while(main_room_memory.creep.carrier.type_list.length < main_room_memory.creep.carrier.name_list.length) {
-    //     main_room_memory.creep.carrier.type_list.push("");
-    // }
-    // // for(let i in [...Array(main_room_memory.creep.carrier.type_list.length).keys()]) {
-    // //     main_room_memory.creep.carrier.type_list[i] = "energy"
-    // // }
-    // if(main_room_memory.creep.carrier.type_list.includes("")) {
-    //     let energy_carrier_num = main_room_memory.creep.carrier.type_list.filter(x => x === "energy").length;
-    //     if(energy_carrier_num < energy_mine_num) {
-    //         let _i = main_room_memory.creep.carrier.type_list.indexOf("");
-    //         main_room_memory.creep.carrier.type_list[_i] = "energy";
-    //     }
-    //     else {
-    //         if(main_room.controller.level >= 6) {
-    //             for(let mineral_id in main_room_memory.mineral) {
-    //                 if(main_room_memory.mineral.hasOwnProperty(mineral_id)) {
-    //                     let _i = main_room_memory.creep.carrier.type_list.indexOf("");
-    //                     main_room_memory.creep.carrier.type_list[_i] = main_room_memory.mineral[mineral_id].type;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    // console.log(main_room_memory.creep.carrier.type_list)
-
-    ////    task manager test
-    Memory.task = {}
-    Memory.task_id = 1;
-    for(let i of main_room_memory.container_list) {
-        let container = Game.getObjectById(i);
-        // console.log("container", container)
-        if(container.progress != null) {
-            continue;
-        }
-        let container_task = Object.keys(Memory.task).reduce(
-            function(acc, cur, idx, src){
-                if(Memory.task[cur].from_id === container.id) {
-                    acc[cur] = Memory.task[cur];
-                }
-            }, {});
-        // console.log("====", container_task)
-        if(container_task == null) {
-            // console.log("+++++", Object.keys(Memory.task).reduce(
-            //     function(acc, cur, idx, src){
-            //         console.log("$$$$$$$", cur, acc)
-            //         acc[cur] = Memory.task[cur];
-            //         console.log("%%%%%%%%", cur, acc)
-            //     }, {}))
-            continue;
-        }
-        // console.log(container.store[RESOURCE_HYDROGEN])
-        // if(Object.keys(container_task).length === 0
-        //     && container.store[RESOURCE_HYDROGEN] >= container.store.getCapacity() * 0.8) {
-        //     // && container.store[RESOURCE_HYDROGEN] >= main_room_memory.creep.carrier.avg_level * 100) {
-        //     let task = {
-        //         ...TASK_TEMPLATE
-        //     };
-        //     task.task_id = Memory.task_id;
-        //     task.from_id = container.id;
-        //
-        //     task.type = "transfer";
-        //     task.detail = "transfer mineral";
-        //     task.description = "transfer H from container to terminal";
-        //
-        //     task.resource_type = RESOURCE_HYDROGEN;
-        //     task.resource_amount_total = container.store[RESOURCE_HYDROGEN];
-        //     task.resource_amount_current = 0;
-        //
-        //     task.from_id = container.id;
-        //     task.from_type = STRUCTURE_CONTAINER;
-        //     task.to_id = main_room.terminal.id;
-        //     task.to_type = STRUCTURE_TERMINAL;
-        //
-        //     // Memory.task[Memory.task_id] = task;
-        //     // Memory.task_id += 1;
-        // }
-        if(Object.keys(container_task).length === 0) {
-            if(container.store[RESOURCE_ENERGY] >= container.store.getCapacity() * 0.8
-                || container.store[RESOURCE_ENERGY] >= main_room_memory.creep.carrier.avg_level * 100) {
-                if(main_room.energyAvailable < main_room.energyCapacityAvailable) {
-                    let task = {
-                        ...TASK_REFUEL_TEMPLATE
-                    };
-                    task.task_id = Memory.task_id;
-
-                    task.type = "refuel";
-                    task.detail = "refuel";
-                    task.description = "refuel spawn and extension";
-
-                    task.resource_type = RESOURCE_ENERGY;
-                    task.resource_amount_total = main_room.energyCapacityAvailable - main_room.energyAvailable;
-                    task.resource_amount_current = 0;
-
-                    task.from_id = container.id;
-                    task.from_type = STRUCTURE_CONTAINER;
-                    task.to_id = null;
-                    task.to_type = null;
-
-                    Memory.task[Memory.task_id] = task;
-                    Memory.task_id += 1;
-                }
-            }
-        }
-    }
-    for(let i in Memory.task) {
-        // console.log(i, Memory.task[i])
-    }
-    ////////////
-
     ////    adjust refueler number
     main_room_memory.creep.refueler.max_num = 0;
     if(main_room.controller.level >= 4 && main_room_memory.storage_list.length > 0) {
         main_room_memory.creep.refueler.max_num =
             main_room_memory.tower_list.length + main_room_memory.link_list.length;
     }
-    // if(main_room_memory.creep.carrier.name_list.length === 0) {
-    //     main_room_memory.creep.harvester.max_num = Object.keys(Memory.room_dict[room_name].source).length;
-    // }
-    // else {
-    //     main_room_memory.creep.harvester.max_num = 1;
-    // }
     ////    TODO: adjust builder number
     // main_room_memory.creep.builder.max_num = 1;
     ////    adjust scout number
@@ -828,6 +707,7 @@ let global_manage = function(main_room_name) {
     //     }
     // }
     console.log(
+        `[Creep]`,
         `H:${main_room_memory.creep.harvester.name_list.length}/${main_room_memory.creep.harvester.max_num}(${main_room_memory.creep.harvester.avg_level})`,
         `M:${main_room_memory.creep.miner.name_list.length}/${main_room_memory.creep.miner.max_num}(${main_room_memory.creep.miner.avg_level})`,
         `U:${main_room_memory.creep.upgrader.name_list.length}/${main_room_memory.creep.upgrader.max_num}(${main_room_memory.creep.upgrader.avg_level})`,

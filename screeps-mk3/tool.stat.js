@@ -104,20 +104,21 @@ let stat = function() {
             ...STAT_RCL_TEMPLATE
         }
         Memory.stat.rcl[room_name]["level"] = room.controller.level;
-        Memory.stat.rcl[room_name]["progress"] = room.controller.progress
-        Memory.stat.rcl[room_name]["progress_total"] = room.controller.progressTotal
+        Memory.stat.rcl[room_name]["progress"] = room.controller.progress;
+        Memory.stat.rcl[room_name]["progress_total"] = room.controller.progressTotal;
 
-        console.log("[" + room_name + " Log]" +
-            "Lv:" + room.controller.level + "(" +
-            (room.controller.progress / room.controller.progressTotal * 100).toFixed(4) + "%)",
-            room.controller.progress - Memory.room_dict[room_name].controller_progress,
-            "Energy:" + Memory.stat.energy[room_name]["storage"],
+        console.log(
+            `[${room_name}]`,
+            `Lv:${room.controller.level} (${(room.controller.progress / room.controller.progressTotal * 100).toFixed(4)}%)`,
+            `+${room.controller.progress - Memory.room_dict[room_name].controller_progress}`,
+            `Energy: ${Memory.stat.energy[room_name]["storage"]}`,
             // "Energy:" + energy,
             // "10s:" + energy_stat["10_tick_sum_trend"],
             // "1m:" + energy_stat["60_tick_sum_trend"],
             // "10m:" + energy_stat["600_tick_sum_trend"],
             // "1h:" + energy_stat["3600_tick_sum_trend"],
             // "10h:" + energy_stat["36000_tick_sum_trend"]
+            `Credits: ${Game.market.credits}`,
         );
         Memory.room_dict[room_name].controller_progress = room.controller.progress;
 
@@ -202,13 +203,14 @@ let stat = function() {
     Memory.stat.cpu["used"] = Game.cpu.getUsed().toFixed(3);
     Memory.stat.cpu["cap"] = Game.cpu.limit;
     Memory.stat.cpu["bucket"] = Game.cpu.bucket;
-    console.log("[Cpu Log]Time:" + Game.time % 10000,
-        "UsedCpu:" + Memory.stat.cpu["used"],
+    console.log(
+        `[Cpu] Time: ${Game.time % 10000}`,
+        `UsedCpu: ${Memory.stat.cpu["used"]}`,
         // "UsedCpu:" + cpu_stat.cpu_track[0],
         // "1m:" + cpu_stat["60_tick_avg"],
         // "10m:" + cpu_stat["600_tick_avg"],
         // "1h:" + cpu_stat["3600_tick_avg"],
-        "Bucket:" + Game.cpu.bucket
+        `Bucket: ${Game.cpu.bucket}`,
     );
 };
 

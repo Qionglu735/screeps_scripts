@@ -27,7 +27,7 @@ let role_carrier = function(creep) {
         storage = _storage_list[Math.floor(Math.random() * 1000) % _storage_list.length];
     }
     let target = Game.getObjectById(creep.memory.target_id);
-    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] < creep.store.getCapacity() - _.sum(creep.store)) {
+    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] < creep.store.getFreeCapacity()) {
         // target has no enough resource
         target = null;
         creep.memory.type = null;
@@ -57,7 +57,7 @@ let role_carrier = function(creep) {
                             let container = Game.getObjectById(room_memory.mineral[mineral_id].container);
                             if (!type_list.includes(mineral_type)
                                 && storage.store[mineral_type] < storage.store.getCapacity() * STORAGE_THRESHOLD[mineral_type]
-                                && container.store[mineral_type] > creep.store.getCapacity() - _.sum(creep.store)
+                                && container.store[mineral_type] > creep.store.getFreeCapacity()
                             ) {
                                 creep.memory.type = mineral_type;
                                 break;
@@ -85,102 +85,88 @@ let role_carrier = function(creep) {
         path_handler.move(creep);
     }
     else if(creep.memory.status === "withdraw") {
-        if(creep.memory.type === RESOURCE_ENERGY) {
-            if(!target) {
-                let targets = global_find.find(FIND_TOMBSTONES, {
-                        filter: (target) =>
-                            target.creep.store[RESOURCE_ENERGY] > 0
-                            && 5 <= target.pos.x && target.pos.x <= 45
-                            && 5 <= target.pos.y && target.pos.y <= 45
-                    }
-                );
-                if(targets.length > 0) {
-                    target = targets[Math.floor(Math.random() * 1000) % targets.length];
-                    creep.memory.target_id = target.id;
+        if (!target) {
+            let targets = global_find.find(FIND_TOMBSTONES, {
+                    filter: (target) =>
+                        target.creep.store[creep.memory.type] > 0
+                        && 5 <= target.pos.x && target.pos.x <= 45
+                        && 5 <= target.pos.y && target.pos.y <= 45
                 }
+            );
+            if (targets.length > 0) {
+                target = targets[Math.floor(Math.random() * 1000) % targets.length];
             }
-            if(!target) {
-                let targets = global_find.find(FIND_DROPPED_RESOURCES, {
-                        filter: (target) =>
-                            target.resourceType === RESOURCE_ENERGY
-                            && 5 <= target.pos.x && target.pos.x <= 45
-                            && 5 <= target.pos.y && target.pos.y <= 45
-                    }
-                );
-                if(targets.length > 0) {
-                    target = targets[Math.floor(Math.random() * 1000) % targets.length];
-                    creep.memory.target_id = target.id;
+        }
+        if (!target) {
+            let targets = global_find.find(FIND_DROPPED_RESOURCES, {
+                    filter: (target) =>
+                        target.resourceType === creep.memory.type
+                        && 5 <= target.pos.x && target.pos.x <= 45
+                        && 5 <= target.pos.y && target.pos.y <= 45
                 }
+            );
+            if (targets.length > 0) {
+                target = targets[Math.floor(Math.random() * 1000) % targets.length];
             }
-            if(!target) {
-                target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, creep.carryCapacity - creep.carry.energy);
-                if(target) {
-                    creep.memory.target_id = target.id;
-                }
+        }
+        if (creep.memory.type === RESOURCE_ENERGY) {
+            if (!target) {
+                target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, creep.store.getFreeCapacity());
             }
-            if(!target) {
-                if(Memory.room_dict[creep.memory.main_room].storage_list.length > 0
+            if (!target) {
+                if (Memory.room_dict[creep.memory.main_room].storage_list.length > 0
                     && Memory.room_dict[creep.memory.main_room].creep.refueler.name_list.length === 0
                 ) {
-                    if(storage != null) {
+                    if (storage != null) {
                         target = storage;
                     }
                 }
             }
-            if(!target) {
-                creep.say('NoEnergy');
-            }
-            else {
-                creep.memory.target_id = target.id;
-                let withdraw_status = creep.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy);
-                switch(withdraw_status) {
-                    case OK:
+        }
+        else {
+            if (!target) {
+                let mineral_info = Memory.room_dict[creep.memory.main_room].mineral;
+                for (let i in mineral_info) {
+                    let container = Game.getObjectById(mineral_info[i].container);
+                    if (container != null) {
+                        target = container;
                         break;
-                    case ERR_NOT_IN_RANGE:
-                        path_handler.find(creep, target, 1, 3);
-                        break;
-                    case ERR_NOT_ENOUGH_RESOURCES:
-                        creep.memory.target_id = null;
-                        break;
-                    case ERR_INVALID_TARGET:
-                        let pickup_status = creep.pickup(target);
-                        switch(pickup_status) {
-                            case OK:
-                                break
-                            case ERR_NOT_IN_RANGE:
-                                path_handler.find(creep, target, 1, 3);
-                                break;
-                            default:
-                                console.log(creep.name, "pickup", pickup_status);
-                                creep.say(pickup_status);
-                        }
-                        break;
-                    default:
-                        console.log(creep.name, "withdraw", withdraw_status);
-                        creep.say(withdraw_status);
+                    }
                 }
             }
         }
+        if (!target) {
+            creep.say("No Target");
+        }
         else {
-            let mineral_info = Memory.room_dict[creep.memory.main_room].mineral;
-            for(let i in mineral_info) {
-                let container = Game.getObjectById(mineral_info[i].container);
-                if(container != null) {
-                    creep.memory.target_id = container.id;
-                    let withdraw_status = creep.withdraw(container, creep.memory.type, creep.store.getCapacity() - creep.store[creep.memory.type]);
-                    switch(withdraw_status) {
+            creep.memory.target_id = target.id;
+            let withdraw_status = creep.withdraw(target, creep.memory.type, creep.store.getFreeCapacity());
+            switch (withdraw_status) {
+                case OK:
+                    break;
+                case ERR_NOT_IN_RANGE:
+                    path_handler.find(creep, target, 1, 3);
+                    break;
+                case ERR_NOT_ENOUGH_RESOURCES:
+                    creep.memory.target_id = null;
+                    creep.memory.type = null;
+                    break;
+                case ERR_INVALID_TARGET:
+                    let pickup_status = creep.pickup(target);
+                    switch(pickup_status) {
                         case OK:
-                            break;
+                            break
                         case ERR_NOT_IN_RANGE:
-                            path_handler.find(creep, container, 1, 3);
+                            path_handler.find(creep, target, 1, 3);
                             break;
                         default:
-                            console.log(creep.name, "withdraw", withdraw_status);
-                            creep.say(withdraw_status);
-                            break;
+                            console.log(creep.name, "pickup", pickup_status);
+                            creep.say(pickup_status);
                     }
                     break;
-                }
+                default:
+                    console.log(creep.name, "withdraw", withdraw_status);
+                    creep.say(withdraw_status);
             }
         }
     }
@@ -231,8 +217,13 @@ let role_carrier = function(creep) {
                     case OK:
                         global_find.remove_transfer_assigned_record(target.id);
                         break;
+                    case ERR_NOT_ENOUGH_RESOURCES:
+                        creep.memory.target_id = null;
+                        creep.memory.type = null;
+                        break;
                     case ERR_FULL:
                         creep.memory.target_id = null;
+                        creep.memory.type = null;
                         break
                     case ERR_NOT_IN_RANGE:
                         path_handler.find(creep, target, 1, 3);

@@ -17,6 +17,7 @@ let role_claimer = require("role.claimer");
 let role_dealer = require("role.dealer");
 
 let global_manage = require("tool.global_manage");
+let trade_manager = require("tool.trade_manager");
 let stat = require("tool.stat");
 
 module.exports.loop = function () {
@@ -176,6 +177,9 @@ module.exports.loop = function () {
     cpu = Game.cpu.getUsed();
     for(let room_name of Memory.main_room_list) {
         global_manage(room_name);
+        if (Game.rooms[room_name].controller.level >= 6) {
+            trade_manager.search_buy_order(room_name);
+        }
     }
     if(LOG_USED_TIME) {
         console.log("global manage", (Game.cpu.getUsed() - cpu).toFixed(3));

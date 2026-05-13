@@ -653,18 +653,26 @@ let global_manage = function(main_room_name) {
     }
     ////    adjust upgrader number
     // main_room_memory.creep.upgrader.max_num = 0;  // reset
-    if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
-        && site_sum === 0
-        && main_room_memory.spawn_idle_time >= 10 * main_room.controller.level
-        && main_room_memory.creep.upgrader.max_num <= 9
+    if (main_room.controller.level < CONTROL_LEVEL_LIMIT 
+        || main_room.controller.progress / main_room.controller.progressTotal < 0.5
+        || main_room.controller.ticksToDowngrade / CONTROLLER_DOWNGRADE[main_room.controller.level] < 0.5
     ) {
-        main_room_memory.creep.upgrader.max_num += 1;
+        if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
+            && site_sum === 0
+            && main_room_memory.spawn_idle_time >= 10 * main_room.controller.level
+            && main_room_memory.creep.upgrader.max_num <= 9
+        ) {
+            main_room_memory.creep.upgrader.max_num += 1;
+        }
+        else if(main_room_memory.creep.upgrader.name_list.length <= main_room_memory.creep.upgrader.max_num
+            && main_room_memory.spawn_busy_time >= 60 * main_room.controller.level
+            && main_room_memory.creep.upgrader.max_num > 0
+        ) {
+            main_room_memory.creep.upgrader.max_num -= 1;
+        }
     }
-    else if(main_room_memory.creep.upgrader.name_list.length <= main_room_memory.creep.upgrader.max_num
-        && main_room_memory.spawn_busy_time >= 60 * main_room.controller.level
-        && main_room_memory.creep.upgrader.max_num > 0
-    ) {
-        main_room_memory.creep.upgrader.max_num -= 1;
+    else {
+        main_room_memory.creep.upgrader.max_num = 0;
     }
     // if(storage_num === 0) {
     //

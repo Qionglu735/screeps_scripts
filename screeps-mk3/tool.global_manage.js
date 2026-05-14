@@ -605,18 +605,8 @@ let global_manage = function(main_room_name) {
     ////    adjust harvester number
     main_room_memory.creep.harvester.max_num = 2;
     ////    adjust miner number
-    let energy_mine_num = 0
+    let energy_mine_num = 0, mineral_mine_num = 0;
     main_room_memory.creep.miner.max_num = 0;
-    for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
-        if(["claimed", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
-            main_room_memory.creep.miner.max_num += Object.keys(Memory.room_dict[room_name].source).length;
-            energy_mine_num += Object.keys(Memory.room_dict[room_name].source).length;
-            // if(main_room.controller.level >= 6) {
-            //     main_room_memory.creep.miner.max_num += Object.keys(Memory.room_dict[room_name].mineral).length;
-            // }
-        }
-    }
-    ////    miner / mine port assignment
     for(let room_name of[main_room_name].concat(main_room_memory.sub_room_list)) {
         if(!["claimed", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
             continue;
@@ -624,6 +614,11 @@ let global_manage = function(main_room_name) {
         for (let source_id in Memory.room_dict[room_name].source) {
             if (Memory.room_dict[room_name].source.hasOwnProperty(source_id)) {
                 let source_info = Memory.room_dict[room_name].source[source_id];
+                if (Game.getObjectById(source_id).energy === 0) {
+                    continue;
+                }
+                energy_mine_num += 1;
+                // miner / mine port assignment
                 if (source_info.assigned_miner == null || Game.creeps[source_info.assigned_miner] == null) {  // if no assigned miner, or miner doesn't exist
                     Memory.room_dict[room_name].source[source_id].assigned_miner = null;
                     for (let miner_name of main_room_memory.creep.miner.name_list) {
@@ -632,7 +627,8 @@ let global_manage = function(main_room_name) {
                             Memory.creeps[miner_name].container_id = source_info.container;
                             Memory.room_dict[room_name].source[source_id].assigned_miner = miner_name;
                             break;
-                        } else if (Memory.creeps[miner_name].target_id === source_id) {  // miner already assigned
+                        } 
+                        else if (Memory.creeps[miner_name].target_id === source_id) {  // miner already assigned
                             Memory.room_dict[room_name].source[source_id].assigned_miner = miner_name;
                             break;
                         }
@@ -650,17 +646,23 @@ let global_manage = function(main_room_name) {
                 }
             }
         }
-        if(room_name === main_room_name && main_room.controller.level >= 6) {
+        if(Game.rooms[room_name].controller.level >= 6) {
             for(let mineral_id in Memory.room_dict[room_name].mineral) {
                 if(Memory.room_dict[room_name].mineral.hasOwnProperty(mineral_id)) {
+                    if (Game.getObjectById(mineral_id).mineralAmount === 0) {
+                        continue;
+                    }
+                    mineral_mine_num += 1;
                     let mineral_info = Memory.room_dict[room_name].mineral[mineral_id];
                     let extractor = Game.getObjectById(mineral_info.extractor);
                     let container = Game.getObjectById(mineral_info.container);
                     if(extractor != null && extractor.progress != null
-                        || container != null && container.progress != null) {
+                        || container != null && container.progress != null
+                    ) {
                         continue;  // extractor and container are not ready
                     }
                     main_room_memory.creep.miner.max_num += 1;
+                    // miner / mine port assignment
                     if (mineral_info.assigned_miner == null || Game.creeps[mineral_info.assigned_miner] == null) {  // if no assigned miner, or miner doesn't exist
                         Memory.room_dict[room_name].mineral[mineral_id].assigned_miner = null;
                         for (let miner_name of main_room_memory.creep.miner.name_list) {
@@ -670,7 +672,8 @@ let global_manage = function(main_room_name) {
                                 Memory.creeps[miner_name].container_id = mineral_info.container;
                                 Memory.room_dict[room_name].mineral[mineral_id].assigned_miner = miner_name;
                                 break;
-                            } else if (Memory.creeps[miner_name].target_id === mineral_id) {  // miner already assigned
+                            }
+                            else if (Memory.creeps[miner_name].target_id === mineral_id) {  // miner already assigned
                                 Memory.room_dict[room_name].mineral[mineral_id].assigned_miner = miner_name;
                                 break;
                             }
@@ -693,6 +696,7 @@ let global_manage = function(main_room_name) {
             }
         }
     }
+    main_room_memory.creep.miner.max_num = energy_mine_num + mineral_mine_num;
     ////    adjust carrier number
     main_room_memory.creep.carrier.max_num = 0;
     for(let i in main_room_memory.container_list) {

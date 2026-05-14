@@ -15,6 +15,9 @@ let mine_port_check = function(main_room_name, room_name) {
         console.log(room_name, "no source info");
         need_check_source = true;
     }
+    else if (Game.time % 600 === 0) {
+        need_check_source = true;
+    }
     else {
         for (let source_id in room_memory.source) {
             if(room_memory.source.hasOwnProperty(source_id)) {
@@ -38,7 +41,7 @@ let mine_port_check = function(main_room_name, room_name) {
         }
     }
     if(need_check_source) {
-        console.log("need_check_source", need_check_source)
+        console.log("need_check_source", room_name);
         let source_list = room.find(FIND_SOURCES);
         for(let i in source_list) {
             let min_cost = -1;
@@ -122,6 +125,9 @@ let mine_port_check = function(main_room_name, room_name) {
             console.log(room_name, "no mineral info");
             need_check_mineral = true;
         }
+        else if (Game.time % 1200 === 0) {
+            need_check_mineral = true;
+        }
         else {
             for(let mineral_id in room_memory.mineral) {
                 if(room_memory.mineral.hasOwnProperty(mineral_id)) {
@@ -166,7 +172,7 @@ let mine_port_check = function(main_room_name, room_name) {
     //     }
     // }
     if(need_check_mineral) {
-        console.log("need_check_mineral", need_check_mineral)
+        console.log("need_check_mineral", room_name);
         let mineral_list = room.find(FIND_MINERALS);
         for(let i in mineral_list) {
             let min_cost = -1;

@@ -22,33 +22,64 @@ let role_miner = function (creep) {
             }
             else {
                 let target = Game.getObjectById(creep.memory.target_id);
-                if(target.energy == null) {  // is mineral
-                    let extractor = Game.getObjectById(creep.memory.extractor_id);
-                    if(extractor != null) {
-                        if(extractor.progress != null) {
-                            creep.say("Wait");
-                            console.log(creep.name, "wait for extractor")
-                            return;
+                if(target.energy != null) {  // is source
+                    if (target.energy > 0) {
+                        let harvest_res = creep.harvest(target);
+                        switch(harvest_res) {
+                            case OK:
+                                break;
+                            case ERR_NOT_ENOUGH_RESOURCES:
+                                break;
+                            case ERR_TIRED:  // The extractor or the deposit is still cooling down
+                                break;
+                            default:
+                                creep.say(harvest_res);
+                                console.log("[!]", creep.name, "harvest", harvest_res);
+                                break;
                         }
                     }
                     else {
-                        creep.memory.extractor_id = null;
-                        creep.say("No Extractor");
-                        console.log(creep.name, "no extractor")
-                        return;
+                        if (creep.store[RESOURCE_ENERGY] > 0) {
+                            creep.drop(RESOURCE_ENERGY);
+                        }
+                        creep.say("Empty");
                     }
                 }
-                if(target) {
-                    let harvest_status = creep.harvest(target);
-                    switch(harvest_status) {
-                        case OK:
-                            break;
-                        case ERR_NOT_ENOUGH_RESOURCES:
-                            break;
-                        case ERR_TIRED:  // The extractor or the deposit is still cooling down
-                            break;
-                        default:
-                            console.log(creep.name, "harvest", harvest_status);
+                else if(target.mineralAmount != null) {  // is mineral
+                    if (target.mineralAmount > 0) {
+                        let extractor = Game.getObjectById(creep.memory.extractor_id);
+                        if(extractor != null) {
+                            if(extractor.progress != null) {
+                                creep.say("Wait");
+                                console.log(creep.name, "wait for extractor")
+                            }
+                            else {
+                                let harvest_res = creep.harvest(target);
+                                switch(harvest_res) {
+                                    case OK:
+                                        break;
+                                    case ERR_NOT_ENOUGH_RESOURCES:
+                                        break;
+                                    case ERR_TIRED:  // The extractor or the deposit is still cooling down
+                                        break;
+                                    default:
+                                        creep.say(harvest_res);
+                                        console.log("[!]", creep.name, "harvest", harvest_res);
+                                        break;
+                                }
+                            }
+                        }
+                        else {
+                            creep.memory.extractor_id = null;
+                            creep.say("No Extractor");
+                            console.log(creep.name, "no extractor")
+                        }
+                    }
+                    else {
+                        if (creep.store[target.mineralType] > 0) {
+                            creep.drop(target.mineralType);
+                        }
+                        creep.say("Empty");
                     }
                 }
                 else {

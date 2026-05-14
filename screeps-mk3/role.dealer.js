@@ -63,9 +63,9 @@ let role_dealer = function(creep) {
             let storage_amount = storage.store[order.resourceType];
             if (storage_amount > 0) {
                 creep.memory.status = "to_terminal";
-                let transfer_amount = Math.min(order._amount_to_deal, storage_amount, creep.store.getFreeCapacity());
-                if (transfer_amount > 0) {
-                    creep.withdraw(storage, order.resourceType, transfer_amount);
+                let withdraw_amount = Math.min(order._amount_to_deal, storage_amount, creep.store.getFreeCapacity());
+                if (withdraw_amount > 0) {
+                    creep.withdraw(storage, order.resourceType, withdraw_amount);
                 }
             }
         }
@@ -73,9 +73,9 @@ let role_dealer = function(creep) {
             let storage_amount = storage.store[RESOURCE_ENERGY];
             if (storage_amount > 0) {
                 creep.memory.status = "to_terminal";
-                let transfer_amount = Math.min(order._energy_cost, storage_amount, creep.store.getFreeCapacity());
-                if (transfer_amount > 0) {
-                    creep.withdraw(storage, RESOURCE_ENERGY, transfer_amount);
+                let withdraw_amount = Math.min(order._energy_cost, storage_amount, creep.store.getFreeCapacity());
+                if (withdraw_amount > 0) {
+                    creep.withdraw(storage, RESOURCE_ENERGY, withdraw_amount);
                 }
             }
         }
@@ -98,17 +98,17 @@ let role_dealer = function(creep) {
             let storage_amount = storage.store[RESOURCE_ENERGY];
             if (storage_amount > 0) {
                 creep.memory.status = "to_terminal";
-                let transfer_amount = Math.min(order._energy_cost, storage_amount, creep.store.getFreeCapacity());
-                if (transfer_amount > 0) {
-                    creep.withdraw(storage, RESOURCE_ENERGY, transfer_amount);
+                let withdraw_amount = Math.min(order._energy_cost, storage_amount, creep.store.getFreeCapacity());
+                if (withdraw_amount > 0) {
+                    creep.withdraw(storage, RESOURCE_ENERGY, withdraw_amount);
                 }
             }
         }
         else if (terminal.store[order.resourceType] > 0) {
             creep.memory.status = "to_storage";
-            let transfer_amount = Math.min(terminal.store[order.resourceType], creep.store.getFreeCapacity());
-            if (transfer_amount > 0) {
-                creep.withdraw(storage, RESOURCE_ENERGY, transfer_amount);
+            let withdraw_amount = Math.min(terminal.store[order.resourceType], creep.store.getFreeCapacity());
+            if (withdraw_amount > 0) {
+                creep.withdraw(storage, order.resourceType, withdraw_amount);
             }
         }
         else {

@@ -475,9 +475,95 @@ let global_manage = function(main_room_name) {
                 break;
             }
             if(main_room.controller.level >= 6) {  // room level >= 6, need to check mineral
-                for(let mineral_id in main_room_memory.mineral) {
-                    if(main_room_memory.mineral.hasOwnProperty(mineral_id)) {
-
+                for(let mineral_id in room_memory.mineral) {
+                    if(room_memory.mineral.hasOwnProperty(mineral_id)) {
+                        if (room_memory.mineral[mineral_id].container != null) {
+                            let mineral_memory = room_memory.mineral[mineral_id];
+                            if(mineral_memory.road_to_build == null) {
+                                mineral_memory.road_to_build = [];
+                            }
+                            if(mineral_memory.road_built == null) {
+                                mineral_memory.road_built = [];
+                            }
+                            if (Game.getObjectById(mineral_memory.container) != null
+                                && mineral_memory.road_to_build.length + mineral_memory.road_built.length === 0) {  // init
+                                let res = PathFinder.search(
+                                    main_spawn.pos,
+                                    {
+                                        pos: Game.getObjectById(mineral_memory.container).pos,
+                                        range: 1
+                                    }, {
+                                        roomCallback: function (room_name) {
+                                            return path_handler.get_cost_matrix(room_name);
+                                        }
+                                    });
+                                if (res.incomplete === false) {
+                                    mineral_memory.road_to_build = res.path;
+                                    for (let i in mineral_memory.road_to_build) {
+                                        if(mineral_memory.road_to_build.hasOwnProperty(i)) {
+                                            if(mineral_memory.road_to_build[i].x === 0
+                                                || mineral_memory.road_to_build[i].x === 49
+                                                || mineral_memory.road_to_build[i].y === 0
+                                                || mineral_memory.road_to_build[i].y === 49) {
+                                                mineral_memory.road_to_build.splice(i, 1)
+                                            }
+                                        }
+                                    }
+                                    mineral_memory.road_built = [];
+                                    break;
+                                }
+                            }
+                            if(Game.time % 300 === 0) {
+                                for (let i in mineral_memory.road_built) {  // check road
+                                    if (mineral_memory.road_built.hasOwnProperty(i)) {
+                                        let obj = Game.getObjectById(mineral_memory.road_built[i]);
+                                        if (!(obj && obj.structureType && obj.structureType === STRUCTURE_ROAD)) {
+                                            mineral_memory.road_built.splice(i, 1);
+                                        }
+                                    }
+                                }
+                            }
+                            for (let i in mineral_memory.road_to_build) {
+                                if(mineral_memory.road_to_build.hasOwnProperty(i)) {
+                                    if(mineral_memory.road_to_build[i].x === 0
+                                        || mineral_memory.road_to_build[i].x === 49
+                                        || mineral_memory.road_to_build[i].y === 0
+                                        || mineral_memory.road_to_build[i].y === 49) {
+                                        mineral_memory.road_to_build.splice(i, 1)
+                                    }
+                                }
+                            }
+                            if (mineral_memory.road_to_build.length > mineral_memory.road_built.length) {  // build road
+                                for(let i of mineral_memory.road_to_build) {
+                                    let room = Game.rooms[i.roomName];
+                                    if (room == null) {
+                                        continue;
+                                    }
+                                    room.visual.circle(i.x, i.y, {fill: "#80ff82", radius: 0.1, opacity: 1});
+                                }
+                                for(let i of mineral_memory.road_to_build) {
+                                    let road_pos = new RoomPosition(i.x, i.y, i.roomName);
+                                    let room = Game.rooms[road_pos.roomName];
+                                    if (room == null) {
+                                        continue;
+                                    }
+                                    let road_list = road_pos.lookFor(LOOK_STRUCTURES);
+                                    if (road_list.length === 0) {  // road not found
+                                        road_to_build.push(road_pos);
+                                        if(road_to_build.length > 2) {
+                                            break;
+                                        }
+                                    } else {
+                                        if (!mineral_memory.road_built.includes(road_list[0].id)) {
+                                            mineral_memory.road_built.push(road_list[0].id);
+                                        }
+                                    }
+                                }
+                                if(road_to_build > 2) {
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }

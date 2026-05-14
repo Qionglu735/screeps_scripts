@@ -17,29 +17,41 @@ let role_dealer = function(creep) {
         creep.moveTo(dealer_pos);
         return;
     }
-    let tranfered_flag = false;
-    for (let resource_type in creep.store) {
-        if (creep.store[resource_type] > 0) {
-            if (creep.memory.status == "to_storage") {
-                creep.transfer(storage, resource_type);
-                tranfered_flag = true;
-            }
-            else if (creep.memory.status == "to_terminal") {
-                creep.transfer(terminal, resource_type);
-                tranfered_flag = true;
+    // clear creep store
+    if (creep.store.getUsedCapacity() > 0) {
+        for (let resource_type in creep.store) {
+            if (creep.store[resource_type] > 0) {
+                if (creep.memory.status == "to_storage") {
+                    creep.transfer(storage, resource_type);
+                }
+                else if (creep.memory.status == "to_terminal") {
+                    creep.transfer(terminal, resource_type);
+                }
             }
         }
-    }
-    if (tranfered_flag) {
         return;
     }
     let order = Memory.active_market_order;
-    if (order._amount_to_deal <= 0) {
+    if (order == null || order._amount_to_deal <= 0) {
+        // clear terminal store
+        if (terminal.store.getUsedCapacity() > 0) {
+            for (let resource_type in terminal.store) {
+                if (terminal.store[resource_type] > 0) {
+                    let withdraw_amount = Math.min(terminal.store[resource_type], creep.store.getFreeCapacity());
+                    if (withdraw_amount > 0) {
+                        creep.withdraw(terminal, resource_type, withdraw_amount);
+                    }
+                    if (creep.store.getFreeCapacity() == 0) {
+                        break;
+                    }
+                }
+            }
+        }
         return;
     }
     if (order.type == ORDER_BUY) {
-        let terminal_amount = terminal.store[order.resourceType] || 0;
-        let _energy_cost = order._energy_cost || 0;
+        let terminal_amount = terminal.store[order.resourceType];
+        let _energy_cost = order._energy_cost;
 
         let amount_to_deal = order._amount_to_deal;
         if (order.resourceType == RESOURCE_ENERGY) {
@@ -48,7 +60,7 @@ let role_dealer = function(creep) {
         ammount_to_deal = Math.min(amount_to_deal, terminal.store.getCapacity());
 
         if (terminal_amount < amount_to_deal) {
-            let storage_amount = storage.store[order.resourceType] || 0;
+            let storage_amount = storage.store[order.resourceType];
             if (storage_amount > 0) {
                 creep.memory.status = "to_terminal";
                 let transfer_amount = Math.min(order._amount_to_deal, storage_amount, creep.store.getFreeCapacity());
@@ -58,7 +70,7 @@ let role_dealer = function(creep) {
             }
         }
         else if (terminal.store[RESOURCE_ENERGY] < _energy_cost) {
-            let storage_amount = storage.store[RESOURCE_ENERGY] || 0;
+            let storage_amount = storage.store[RESOURCE_ENERGY];
             if (storage_amount > 0) {
                 creep.memory.status = "to_terminal";
                 let transfer_amount = Math.min(order._energy_cost, storage_amount, creep.store.getFreeCapacity());
@@ -69,6 +81,38 @@ let role_dealer = function(creep) {
         }
         else {
             amount_to_deal = Math.min(order._amount_to_deal, terminal_amount);
+            let deal_res = Game.market.deal(order.id, amount_to_deal, creep.memory.main_room);
+            switch (deal_res) {
+                case OK:
+                    order._amount_to_deal -= amount_to_deal;
+                    break;
+                default:
+                    console.log("[!] Market deal failed: " + deal_res);
+                    break;
+            }
+        }
+    }
+    else if (order.type == ORDER_SELL) {
+        let _energy_cost = order._energy_cost;
+        if (terminal.store[RESOURCE_ENERGY] < _energy_cost) {
+            let storage_amount = storage.store[RESOURCE_ENERGY];
+            if (storage_amount > 0) {
+                creep.memory.status = "to_terminal";
+                let transfer_amount = Math.min(order._energy_cost, storage_amount, creep.store.getFreeCapacity());
+                if (transfer_amount > 0) {
+                    creep.withdraw(storage, RESOURCE_ENERGY, transfer_amount);
+                }
+            }
+        }
+        else if (terminal.store[order.resourceType] > 0) {
+            creep.memory.status = "to_storage";
+            let transfer_amount = Math.min(terminal.store[order.resourceType], creep.store.getFreeCapacity());
+            if (transfer_amount > 0) {
+                creep.withdraw(storage, RESOURCE_ENERGY, transfer_amount);
+            }
+        }
+        else {
+            amount_to_deal = Math.min(order._amount_to_deal, terminal.store.getFreeCapacity());
             let deal_res = Game.market.deal(order.id, amount_to_deal, creep.memory.main_room);
             switch (deal_res) {
                 case OK:

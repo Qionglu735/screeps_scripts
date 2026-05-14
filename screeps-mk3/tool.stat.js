@@ -118,7 +118,7 @@ let stat = function() {
             // "10m:" + energy_stat["600_tick_sum_trend"],
             // "1h:" + energy_stat["3600_tick_sum_trend"],
             // "10h:" + energy_stat["36000_tick_sum_trend"]
-            `Credits: ${Game.market.credits}`,
+            `Credits: ${Game.market.credits}(${(Game.market.credits - Memory.credits_baseline).toFixed(2)})`,
         );
         Memory.room_dict[room_name].controller_progress = room.controller.progress;
 

@@ -178,7 +178,9 @@ module.exports.loop = function () {
     for(let room_name of Memory.main_room_list) {
         global_manage(room_name);
         if (Game.rooms[room_name].controller.level >= 6) {
+            trade_manager.update_order_info();
             trade_manager.search_buy_order(room_name);
+            trade_manager.search_sell_order(room_name);
         }
     }
     if(LOG_USED_TIME) {

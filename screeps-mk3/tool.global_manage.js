@@ -741,7 +741,7 @@ let global_manage = function(main_room_name) {
     // main_room_memory.creep.upgrader.max_num = 0;  // reset
     if (main_room.controller.level < CONTROL_LEVEL_LIMIT 
         || main_room.controller.progress / main_room.controller.progressTotal < 0.5
-        || main_room.controller.ticksToDowngrade / CONTROLLER_DOWNGRADE[main_room.controller.level] < 0.5
+        || main_room.controller.ticksToDowngrade / CONTROLLER_DOWNGRADE[main_room.controller.level] < 0.4
     ) {
         if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
             && site_sum === 0

@@ -108,7 +108,7 @@ let role_dealer = function(creep) {
             creep.memory.status = "to_storage";
             let withdraw_amount = Math.min(terminal.store[order.resourceType], creep.store.getFreeCapacity());
             if (withdraw_amount > 0) {
-                creep.withdraw(storage, order.resourceType, withdraw_amount);
+                creep.withdraw(terminal, order.resourceType, withdraw_amount);
             }
         }
         else {

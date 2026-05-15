@@ -613,10 +613,11 @@ let global_manage = function(main_room_name) {
         }
         for (let source_id in Memory.room_dict[room_name].source) {
             if (Memory.room_dict[room_name].source.hasOwnProperty(source_id)) {
-                let source_info = Memory.room_dict[room_name].source[source_id];
-                if (Game.getObjectById(source_id).energy === 0) {
+                let source = Game.getObjectById(source_id);
+                if (source != null && source.energy === 0) {
                     continue;
                 }
+                let source_info = Memory.room_dict[room_name].source[source_id];
                 energy_mine_num += 1;
                 // miner / mine port assignment
                 if (source_info.assigned_miner == null || Game.creeps[source_info.assigned_miner] == null) {  // if no assigned miner, or miner doesn't exist
@@ -646,10 +647,11 @@ let global_manage = function(main_room_name) {
                 }
             }
         }
-        if(Game.rooms[room_name].controller.level >= 6) {
+        if(room_name == main_room_name && Game.rooms[room_name].controller.level >= 6) {
             for(let mineral_id in Memory.room_dict[room_name].mineral) {
                 if(Memory.room_dict[room_name].mineral.hasOwnProperty(mineral_id)) {
-                    if (Game.getObjectById(mineral_id).mineralAmount === 0) {
+                    let mineral = Game.getObjectById(mineral_id);
+                    if (mineral != null && mineral.mineralAmount === 0) {
                         continue;
                     }
                     mineral_mine_num += 1;
@@ -712,10 +714,44 @@ let global_manage = function(main_room_name) {
             }
         }
     }
-    main_room_memory.creep.carrier.max_num = Math.floor(main_room_memory.creep.carrier.max_num);
-    if(main_room_memory.extension_list.length < main_room_memory.creep.carrier.max_num) {
-        main_room_memory.creep.carrier.max_num = main_room_memory.extension_list.length;
+    main_room_memory.creep.carrier.type_list = [];
+    for (let carrier_name of main_room_memory.creep.carrier.name_list) {
+        let _type = Memory.creeps[carrier_name].type;
+        if(_type) {
+            main_room_memory.creep.carrier.type_list.push(_type);
+        }
     }
+    main_room_memory.creep.carrier.energy_carrier_max = 0;
+    if (storage == null) {
+        main_room_memory.creep.carrier.energy_carrier_max += Math.min(main_room_memory.extension_list.length, main_room_memory.creep.carrier.max_num);
+    }
+    else {
+        let energy_empty_rate = Math.max(0, 1 - storage.store[RESOURCE_ENERGY] / (storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY]));
+        console.log("energy_empty_rate:", energy_empty_rate.toFixed(2), Math.log2(1 + energy_empty_rate * 100).toFixed(2));
+        main_room_memory.creep.carrier.energy_carrier_max += 1 + Math.ceil(Math.log2(1 +energy_empty_rate * 100));
+    }
+    main_room_memory.creep.carrier.mineral_carrier_max = 0;
+    if (Game.rooms[main_room_name].controller.level >= 6) {
+        for(let mineral_id in main_room_memory.mineral) {
+            if(main_room_memory.mineral.hasOwnProperty(mineral_id)) {
+                let mineral = Game.getObjectById(mineral_id);
+                if (mineral != null && mineral.mineralAmount === 0) {
+                    continue;
+                }
+                mineral_mine_num += 1;
+                let mineral_info = main_room_memory.mineral[mineral_id];
+                let extractor = Game.getObjectById(mineral_info.extractor);
+                let container = Game.getObjectById(mineral_info.container);
+                if (extractor != null && extractor.progress != null
+                    || container != null && container.progress != null
+                ) {
+                    continue;  // extractor and container are not ready
+                }
+                main_room_memory.creep.carrier.mineral_carrier_max += 1;
+            }
+        }
+    }
+    main_room_memory.creep.carrier.max_num = main_room_memory.creep.carrier.energy_carrier_max + main_room_memory.creep.carrier.mineral_carrier_max;
     ////    adjust refueler number
     main_room_memory.creep.refueler.max_num = 0;
     if(main_room.controller.level >= 4 && main_room_memory.storage_list.length > 0) {

@@ -32,47 +32,34 @@ let role_carrier = function(creep) {
         target = null;
         creep.memory.type = null;
     }
-    if(creep.memory.status == "withdraw" && (creep.memory.type == null)) {
-        let type_list = [];
-        let energy_carrier_count = 0
-        for (let carrier_name of Memory.room_dict[creep.memory.main_room].creep["carrier"].name_list) {
-            let _type = Memory.creeps[carrier_name].type;
-            if(_type) {
-                type_list.push(_type);
-            }
-            if(Memory.creeps[carrier_name].type === RESOURCE_ENERGY) {
-                energy_carrier_count += 1;
-            }
-        }
-        if (energy_carrier_count < Memory.room_dict[creep.memory.main_room].container_list.length - 1) {
+    if(creep.memory.status == "withdraw" && creep.memory.type == null) {
+        let main_room_memory = Memory.room_dict[creep.memory.main_room];
+        let type_list = main_room_memory.creep.carrier.type_list;
+        if (type_list.filter(t => t === RESOURCE_ENERGY).length < main_room_memory.creep.carrier.energy_carrier_max) {
             creep.memory.type = RESOURCE_ENERGY;
         }
         else {
-            for (let room_name of Memory.main_room_list) {
-                if (room_name === creep.memory.main_room) {
-                    let room_memory = Memory.room_dict[room_name];
-                    for (let mineral_id in room_memory.mineral) {
-                        if (room_memory.mineral[mineral_id].assigned_miner != null) {
-                            let mineral_type = room_memory.mineral[mineral_id].type;
-                            let container = Game.getObjectById(room_memory.mineral[mineral_id].container);
-                            if (!type_list.includes(mineral_type)
-                                && storage.store[mineral_type] < storage.store.getCapacity() * STORAGE_THRESHOLD[mineral_type]
-                                && container.store[mineral_type] > creep.store.getFreeCapacity()
-                            ) {
-                                creep.memory.type = mineral_type;
-                                break;
-                            }
-                        }
-                    }
-                    if(creep.memory.type) {
+            for (let mineral_id in main_room_memory.mineral) {
+                if (main_room_memory.mineral[mineral_id].container != null) {
+                    let mineral_type = main_room_memory.mineral[mineral_id].type;
+                    let container = Game.getObjectById(main_room_memory.mineral[mineral_id].container);
+                    if (type_list.includes(mineral_type) == false
+                        && storage.store[mineral_type] < storage.store.getCapacity() * STORAGE_THRESHOLD[mineral_type]
+                        && container.store[mineral_type] > creep.store.getFreeCapacity()
+                    ) {
+                        creep.memory.type = mineral_type;
                         break;
                     }
                 }
             }
-            if (creep.memory.type == null) {
-                creep.memory.type = RESOURCE_ENERGY;
-            }
         }
+    }
+    if (creep.memory.type == null) {
+        if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
+            creep.say("Idle");
+            creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
+        }
+        return;
     }
     if(creep.memory.status == "transfer" && target != null && target.store != null && (
         creep.memory.type == RESOURCE_ENERGY && target.store[creep.memory.type] == target.store.getCapacity(creep.memory.type)
@@ -170,7 +157,7 @@ let role_carrier = function(creep) {
             }
         }
     }
-    else if(creep.memory.status === "transfer" ) {
+    else if(creep.memory.status === "transfer") {
         if(creep.memory.type === RESOURCE_ENERGY) {
             if(target != null && target.store[RESOURCE_ENERGY] === target.store.getCapacity(RESOURCE_ENERGY)) {
                 creep.memory.target_id = null;

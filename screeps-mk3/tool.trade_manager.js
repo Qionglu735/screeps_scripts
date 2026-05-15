@@ -37,7 +37,6 @@ let trade_manager = {
         let main_room_memory = Memory.room_dict[main_room_name];
         if (main_room_memory.storage_list.length == 0
             || main_room_memory.terminal_list.length == 0
-            || main_room_memory.creep.dealer.name_list.length == 0
         ) {
             return;
         }

@@ -17,7 +17,7 @@ let role_miner = function (creep) {
             else if(container.hits < container.hitsMax && creep.carry[RESOURCE_ENERGY] > 0) {
                 creep.repair(container);
             }
-            else if(_.sum(container.store) === container.storeCapacity && _.sum(creep.carry) === creep.carryCapacity) {
+            else if(container.store.getFreeCapacity() === 0 && creep.store.getFreeCapacity() === 0) {
                 creep.say("Full");
             }
             else {
@@ -29,8 +29,6 @@ let role_miner = function (creep) {
                             case OK:
                                 break;
                             case ERR_NOT_ENOUGH_RESOURCES:
-                                break;
-                            case ERR_TIRED:  // The extractor or the deposit is still cooling down
                                 break;
                             default:
                                 creep.say(harvest_res);
@@ -53,14 +51,17 @@ let role_miner = function (creep) {
                                 creep.say("Wait");
                                 console.log(creep.name, "wait for extractor")
                             }
+                            else if (extractor.cooldown > 0) {
+                                if (creep.store[target.mineralType] > 0) {
+                                    creep.drop(target.mineralType);
+                                }
+                            }
                             else {
                                 let harvest_res = creep.harvest(target);
                                 switch(harvest_res) {
                                     case OK:
                                         break;
                                     case ERR_NOT_ENOUGH_RESOURCES:
-                                        break;
-                                    case ERR_TIRED:  // The extractor or the deposit is still cooling down
                                         break;
                                     default:
                                         creep.say(harvest_res);

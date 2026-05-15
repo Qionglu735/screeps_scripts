@@ -79,6 +79,9 @@ let role_dealer = function(creep) {
                 }
             }
         }
+        else if (terminal.cooldown > 0) {
+            return;
+        }
         else {
             amount_to_deal = Math.min(order._amount_to_deal, terminal_amount);
             let deal_res = Game.market.deal(order.id, amount_to_deal, creep.memory.main_room);
@@ -110,6 +113,9 @@ let role_dealer = function(creep) {
             if (withdraw_amount > 0) {
                 creep.withdraw(terminal, order.resourceType, withdraw_amount);
             }
+        }
+        else if (terminal.cooldown > 0) {
+            return;
         }
         else {
             amount_to_deal = Math.min(order._amount_to_deal, terminal.store.getFreeCapacity());

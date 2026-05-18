@@ -17,7 +17,7 @@ let role_miner = function (creep) {
             else if(container.hits < container.hitsMax && creep.carry[RESOURCE_ENERGY] > 0) {
                 creep.repair(container);
             }
-            else if(container.store.getFreeCapacity() === 0 && creep.store.getFreeCapacity() === 0) {
+            else if(container.progress == null && container.store.getFreeCapacity() === 0 && creep.store.getFreeCapacity() === 0) {
                 creep.say("Full");
             }
             else {

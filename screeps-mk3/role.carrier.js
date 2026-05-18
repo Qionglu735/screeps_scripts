@@ -45,7 +45,7 @@ let role_carrier = function(creep) {
                     let container = Game.getObjectById(main_room_memory.mineral[mineral_id].container);
                     if (type_list.includes(mineral_type) == false
                         && storage.store[mineral_type] < storage.store.getCapacity() * STORAGE_THRESHOLD[mineral_type]
-                        && container.store[mineral_type] > creep.store.getFreeCapacity()
+                        && container.store[mineral_type] >= creep.store.getFreeCapacity()
                     ) {
                         creep.memory.type = mineral_type;
                         break;

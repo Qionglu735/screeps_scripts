@@ -109,16 +109,19 @@ let stat = function() {
 
         console.log(
             `[${room_name}]`,
-            `Lv:${room.controller.level} (${(room.controller.progress / room.controller.progressTotal * 100).toFixed(4)}%)`,
+            `Lv:${room.controller.level}`,
+            `(${(room.controller.progress / room.controller.progressTotal * 100).toFixed(4)}%)`,
             `+${room.controller.progress - Memory.room_dict[room_name].controller_progress}`,
             `Energy: ${Memory.stat.energy[room_name]["storage"]}`,
+            `(${(Memory.stat.energy[room_name]["storage"] / (1000 * 1000 * STORAGE_THRESHOLD[RESOURCE_ENERGY]) * 100).toFixed(2)}%)`,
             // "Energy:" + energy,
             // "10s:" + energy_stat["10_tick_sum_trend"],
             // "1m:" + energy_stat["60_tick_sum_trend"],
             // "10m:" + energy_stat["600_tick_sum_trend"],
             // "1h:" + energy_stat["3600_tick_sum_trend"],
             // "10h:" + energy_stat["36000_tick_sum_trend"]
-            `Credits: ${Game.market.credits}(${(Game.market.credits - Memory.credits_baseline).toFixed(2)})`,
+            `Credits: ${Game.market.credits}`, 
+            `(${(Game.market.credits - Memory.credits_baseline).toFixed(2)})`,
         );
         Memory.room_dict[room_name].controller_progress = room.controller.progress;
 

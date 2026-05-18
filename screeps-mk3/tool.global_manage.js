@@ -727,9 +727,10 @@ let global_manage = function(main_room_name) {
     }
     else {
         let energy_empty_rate = Math.max(0, 1 - storage.store[RESOURCE_ENERGY] / (storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY]));
-        console.log("energy_empty_rate:", energy_empty_rate.toFixed(2), Math.log2(1 + energy_empty_rate * 100).toFixed(2));
+        // console.log("energy_empty_rate:", energy_empty_rate.toFixed(2), Math.log2(1 + energy_empty_rate * 100).toFixed(2));
         main_room_memory.creep.carrier.energy_carrier_max += 1 + Math.ceil(Math.log2(1 +energy_empty_rate * 100));
     }
+    main_room_memory.creep.carrier.energy_carrier_max = Math.min(main_room_memory.creep.carrier.energy_carrier_max, energy_mine_num);
     main_room_memory.creep.carrier.mineral_carrier_max = 0;
     if (Game.rooms[main_room_name].controller.level >= 6) {
         for(let mineral_id in main_room_memory.mineral) {
@@ -751,6 +752,7 @@ let global_manage = function(main_room_name) {
             }
         }
     }
+    main_room_memory.creep.carrier.mineral_carrier_max = Math.min(main_room_memory.creep.carrier.mineral_carrier_max, mineral_mine_num);
     main_room_memory.creep.carrier.max_num = main_room_memory.creep.carrier.energy_carrier_max + main_room_memory.creep.carrier.mineral_carrier_max;
     ////    adjust refueler number
     main_room_memory.creep.refueler.max_num = 0;

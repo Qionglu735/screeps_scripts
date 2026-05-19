@@ -637,11 +637,10 @@ let global_manage = function(main_room_name) {
                 }
                 else {  // check miner memory
                     let miner_name = source_info.assigned_miner;
-                    if (Memory.creeps[miner_name].target_id == null
-                        || Memory.creeps[miner_name].target_id !== source_id) {
+                    if (Memory.creeps[miner_name].target_id == null || Memory.creeps[miner_name].target_id !== source_id) {
                         Memory.creeps[miner_name].target_id = source_id;
                     }
-                    if (Memory.creeps[miner_name].container_id == null) {
+                    if (Memory.creeps[miner_name].container_id == null || Memory.creeps[miner_name].container_id !== source_info.container) {
                         Memory.creeps[miner_name].container_id = source_info.container;
                     }
                 }

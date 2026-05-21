@@ -607,7 +607,11 @@ let global_manage = function(main_room_name) {
     ////    adjust miner number
     let energy_mine_num = 0, mineral_mine_num = 0;
     main_room_memory.creep.miner.max_num = 0;
-    for(let room_name of[main_room_name].concat(main_room_memory.sub_room_list)) {
+    let room_name_list = [main_room_name];
+    if (storage != null && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY] * 0.9) {
+        room_name_list = room_name_list.concat(main_room_nmemory.sub_room_list);
+    }
+    for(let room_name of room_name_list) {
         if(!["claimed", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
             continue;
         }
@@ -768,9 +772,11 @@ let global_manage = function(main_room_name) {
     }
     ////    adjust claimer number
     main_room_memory.creep.claimer.max_num = 0;
-    for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
-        if(["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
-            main_room_memory.creep.claimer.max_num += 1;
+    if (storage != null && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY] * 0.9) {
+        for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
+            if(["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {
+                main_room_memory.creep.claimer.max_num += 1;
+            }
         }
     }
     ////    adjust dealer number

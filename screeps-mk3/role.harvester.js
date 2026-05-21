@@ -297,8 +297,8 @@ let role_harvester = function(creep) {
             }
         }
         else {
+            creep.say("Idle");
             if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
-                creep.say("Idle");
                 creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
                 creep.memory.target_id = null;
             }

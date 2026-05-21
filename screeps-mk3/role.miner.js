@@ -92,6 +92,9 @@ let role_miner = function (creep) {
         else {
             creep.memory.container_id = null;
             creep.say("No Container");
+            if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
+                creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
+            }
         }
     }
     else{

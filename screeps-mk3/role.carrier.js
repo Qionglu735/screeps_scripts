@@ -26,12 +26,6 @@ let role_carrier = function(creep) {
     if(_storage_list.length > 0) {
         storage = _storage_list[Math.floor(Math.random() * 1000) % _storage_list.length];
     }
-    let target = Game.getObjectById(creep.memory.target_id);
-    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] < creep.store.getFreeCapacity()) {
-        // target has no enough resource
-        target = null;
-        creep.memory.type = null;
-    }
     if(creep.memory.status == "withdraw" && creep.memory.type == null) {
         let main_room_memory = Memory.room_dict[creep.memory.main_room];
         let type_list = main_room_memory.creep.carrier.type_list;
@@ -54,9 +48,15 @@ let role_carrier = function(creep) {
             }
         }
     }
+    let target = Game.getObjectById(creep.memory.target_id);
+    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] < creep.store.getFreeCapacity()) {
+        // target has no enough resource
+        target = null;
+        creep.memory.type = null;
+    }
     if (creep.memory.type == null) {
+        creep.say("Idle Ty");
         if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
-            creep.say("Idle");
             creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
         }
         return;
@@ -75,7 +75,7 @@ let role_carrier = function(creep) {
         if (!target) {
             let targets = global_find.find(FIND_TOMBSTONES, {
                     filter: (target) =>
-                        target.creep.store[creep.memory.type] > 0
+                        target.store[creep.memory.type] > 0
                         && 5 <= target.pos.x && target.pos.x <= 45
                         && 5 <= target.pos.y && target.pos.y <= 45
                 }
@@ -99,6 +99,9 @@ let role_carrier = function(creep) {
         if (creep.memory.type === RESOURCE_ENERGY) {
             if (!target) {
                 target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, creep.store.getFreeCapacity());
+            }
+            if (!target) {
+                target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, 0);
             }
             if (!target) {
                 if (Memory.room_dict[creep.memory.main_room].storage_list.length > 0
@@ -190,7 +193,10 @@ let role_carrier = function(creep) {
                 }
             }
             else {
-                creep.say("Idle");
+                creep.say("Idle TE");
+                if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
+                    creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
+                }
             }
         }
         else {
@@ -221,7 +227,10 @@ let role_carrier = function(creep) {
                 }
             }
             else {
-                creep.say("Idle");
+                creep.say("Idle TM");
+                if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
+                    creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
+                }
             }
         }
     }

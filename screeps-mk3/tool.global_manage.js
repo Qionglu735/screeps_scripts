@@ -40,33 +40,8 @@ let global_manage = function(main_room_name) {
     }
     let extension_num = main_room_memory.extension_list.length;
     let extension_site_num = 0;
-    let extension_max = 0;
-    let extension_capacity = 50;
-    switch(main_room.controller.level) {
-        case 2:
-            extension_max = 5;
-            break;
-        case 3:
-            extension_max = 10;
-            break;
-        case 4:
-            extension_max = 20;
-            break;
-        case 5:
-            extension_max = 30;
-            break;
-        case 6:
-            extension_max = 40;
-            break;
-        case 7:
-            extension_max = 50;
-            extension_capacity = 100;
-            break;
-        case 8:
-            extension_max = 60;
-            extension_capacity = 200;
-            break;
-    }
+    let extension_max = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][main_room.controller.level];
+    let extension_capacity = EXTENSION_ENERGY_CAPACITY[main_room.controller.level];
     if (extension_num < extension_max) {  // num < max
         let extension_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
             filter: (target) => target.structureType === STRUCTURE_EXTENSION
@@ -82,12 +57,14 @@ let global_manage = function(main_room_name) {
         extension_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
             filter: (target) => target.structureType === STRUCTURE_EXTENSION
         }).length;
-        if(extension_site_num === 0) {  // not constructing
-            if(extension_num < extension_max) {
-                let extension_table = main_room_memory.extension_table;
+    }
+    if (AUTO_BUILD[STRUCTURE_EXTENSION] && extension_num < extension_max) {
+        if (site_num + extension_site_num === 0) {  // not constructing
+            let extension_pos = main_room_memory.extension_table[extension_num + 1];
+            if (extension_pos != null) {
                 let new_pos = new RoomPosition(
-                    main_spawn.pos.x + extension_table[extension_num + 1][0],
-                    main_spawn.pos.y + extension_table[extension_num + 1][1],
+                    main_spawn.pos.x + extension_pos[0],
+                    main_spawn.pos.y + extension_pos[1],
                     main_room.name);
                 let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_EXTENSION);
                 switch(create_status) {
@@ -95,7 +72,8 @@ let global_manage = function(main_room_name) {
                         extension_site_num += 1;
                         break;
                     default:
-                        console.log("create extension failed:", extension_num + 1, create_status)
+                        console.log("create extension failed:", extension_num + 1, create_status);
+                        break;
                 }
             }
         }
@@ -113,11 +91,8 @@ let global_manage = function(main_room_name) {
     }
     let storage_num = main_room_memory.storage_list.length;
     let storage_site_num = 0;
-    let storage_max = 0;
+    let storage_max = CONTROLLER_STRUCTURES[STRUCTURE_STORAGE][main_room.controller.level];
     let storage = null;
-    if(main_room.controller.level >= 4) {
-        storage_max = 1;
-    }
     if (storage_num < storage_max) {  // num < max
         let storage_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
             filter: (target) => target.structureType === STRUCTURE_STORAGE
@@ -133,26 +108,30 @@ let global_manage = function(main_room_name) {
         storage_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
             filter: (target) => target.structureType === STRUCTURE_STORAGE
         }).length;
-        if(storage_site_num === 0) {  // not constructing
-            if (storage_num < storage_max && site_sum === 0) {
-                let storage_pos = main_room_memory.storage_table["1"];
+    }
+    else {
+        storage = Game.getObjectById(main_room_memory.storage_list[0]);
+    }
+    if (AUTO_BUILD[STRUCTURE_STORAGE] && storage_num < storage_max) {
+        if(site_sum + storage_site_num === 0) {  // not constructing
+            let storage_pos = main_room_memory.storage_table[storage_num + 1];
+            if (storage_pos != null) {
                 let new_pos = new RoomPosition(
                     main_spawn.pos.x + storage_pos[0],
                     main_spawn.pos.y + storage_pos[1],
-                    main_room.name);
+                    main_room.name,
+                );
                 let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_STORAGE);
                 switch (create_status) {
                     case OK:
                         storage_site_num += 1;
                         break;
                     default:
-                        console.log("create storage failed:", create_status)
+                        console.log("create storage failed:", create_status);
+                        break;
                 }
             }
         }
-    }
-    else {
-        storage = Game.getObjectById(main_room_memory.storage_list[0]);
     }
     site_sum += storage_site_num;
     ////////////////////////////////////////////////////////////////////////////////
@@ -167,23 +146,7 @@ let global_manage = function(main_room_name) {
     }
     let tower_num = main_room_memory.tower_list.length;
     let tower_site_num = 0;
-    let tower_max = 0;
-    switch (main_room.controller.level) {
-        case 3:
-        case 4:
-            tower_max = 1;
-            break;
-        case 5:
-        case 6:
-            tower_max = 2;
-            break;
-        case 7:
-            tower_max = 3;
-            break;
-        case 8:
-            tower_max = 6;
-            break;
-    }
+    let tower_max = CONTROLLER_STRUCTURES[STRUCTURE_TOWER][main_room.controller.level];
     if (tower_num < tower_max) {  // num < max
         let tower_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
             filter: (target) => target.structureType === STRUCTURE_TOWER
@@ -199,20 +162,25 @@ let global_manage = function(main_room_name) {
         tower_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
             filter: (target) => target.structureType === STRUCTURE_TOWER
         }).length;
-        if(tower_site_num === 0) {  // not constructing
+    }
+    if (AUTO_BUILD[STRUCTURE_TOWER] && tower_num < tower_max) {
+        if(site_sum + tower_site_num === 0) {  // not constructing
             let tower_table = main_room_memory.tower_table;
-            if (tower_num < tower_max && tower_num < Object.keys(tower_table).length && site_sum === 0) {
+            let tower_pos = tower_table[tower_num + 1];
+            if (tower_pos != null) {
                 let new_pos = new RoomPosition(
-                    main_spawn.pos.x + tower_table[tower_num + 1][0],
-                    main_spawn.pos.y + tower_table[tower_num + 1][1],
-                    main_room.name);
+                    main_spawn.pos.x + tower_pos[0],
+                    main_spawn.pos.y + tower_pos[1],
+                    main_room.name
+                );
                 let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_TOWER);
                 switch (create_status) {
                     case OK:
                         tower_site_num += 1;
                         break;
                     default:
-                        console.log("create tower failed:", create_status)
+                        console.log("create tower failed:", create_status);
+                        break;
                 }
             }
         }
@@ -229,22 +197,7 @@ let global_manage = function(main_room_name) {
     }
     let link_num = main_room_memory.link_list.length;
     let link_site_num = 0;
-    let link_max = 0;
-    let link = null;
-    switch(main_room.controller.level) {
-        case 5:
-            link_max = 2;
-            break;
-        case 6:
-            link_max = 3;
-            break;
-        case 7:
-            link_max = 4;
-            break;
-        case 8:
-            link_max = 6;
-            break;
-    }
+    let link_max = CONTROLLER_STRUCTURES[STRUCTURE_LINK][main_room.controller.level];
     if (link_num < link_max) {  // num < max
         let link_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
             filter: (target) => target.structureType === STRUCTURE_LINK
@@ -276,35 +229,37 @@ let global_manage = function(main_room_name) {
         link_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
             filter: (target) => target.structureType === STRUCTURE_LINK
         }).length;
-        if(link_site_num === 0) {  // not constructing
-            if (link_num < link_max && site_sum === 0) {
-                let new_pos = null;
-                if (main_room_memory.link_spawn == null) {  // build link near spawn
+    }
+    if (AUTO_BUILD[STRUCTURE_TOWER] && link_num < link_max) {
+        if(site_num + link_site_num === 0) {  // not constructing
+            let new_pos = null;
+            if (main_room_memory.link_spawn == null) {  // build link near spawn
+                if (main_room_memory.link_table["spawn"] != null) {
                     new_pos = new RoomPosition(
                         main_spawn.pos.x + main_room_memory.link_table["spawn"][0],
                         main_spawn.pos.y + main_room_memory.link_table["spawn"][1],
                         main_room.name,
                     );
                 }
-                else if (main_room_memory.link_controller == null) {  // build link near controller
-                    let min_cost = -1;
-                    for(let i of main_room_memory.spawn_list) {
-                        let res = PathFinder.search(main_room.controller.pos, Game.spawns[i].pos);
-                        if(res.incomplete === false && (min_cost === -1 || min_cost > res.cost)) {
-                            min_cost = res.cost;
-                            new_pos = res.path[0];
-                        }
+            }
+            else if (main_room_memory.link_controller == null) {  // build link near controller
+                let min_cost = -1;
+                for(let i of main_room_memory.spawn_list) {
+                    let res = PathFinder.search(main_room.controller.pos, Game.spawns[i].pos);
+                    if(res.incomplete === false && (min_cost === -1 || min_cost > res.cost)) {
+                        min_cost = res.cost;
+                        new_pos = res.path[0];
                     }
                 }
-                if (new_pos != null) {
-                    let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_LINK);
-                    switch (create_status) {
-                        case OK:
-                            link_site_num += 1;
-                            break;
-                        default:
-                            console.log("[!]", "create link failed:", create_status)
-                    }
+            }
+            if (new_pos != null) {
+                let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_LINK);
+                switch (create_status) {
+                    case OK:
+                        link_site_num += 1;
+                        break;
+                    default:
+                        console.log("[!]", "create link failed:", create_status)
                 }
             }
         }
@@ -322,11 +277,8 @@ let global_manage = function(main_room_name) {
     }
     let terminal_num = main_room_memory.terminal_list.length;
     let terminal_site_num = 0;
-    let terminal_max = 0;
+    let terminal_max = CONTROLLER_STRUCTURES[STRUCTURE_TERMINAL][main_room.controller.level];;
     let terminal = null;
-    if(main_room.controller.level >= 4) {
-        terminal_max = 1;
-    }
     if (terminal_num < terminal_max) {  // num < max
         let terminal_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
             filter: (target) => target.structureType === STRUCTURE_TERMINAL
@@ -342,9 +294,14 @@ let global_manage = function(main_room_name) {
         terminal_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
             filter: (target) => target.structureType === STRUCTURE_TERMINAL
         }).length;
-        if(terminal_site_num === 0) {  // not constructing
-            if (terminal_num < terminal_max && site_sum === 0) {
-                let terminal_pos = main_room_memory.terminal_table["1"];
+    }
+    else {
+        terminal = Game.getObjectById(main_room_memory.terminal_list[0]);
+    }
+    if (AUTO_BUILD[STRUCTURE_TERMINAL] && terminal_num < terminal_max) {
+        if(site_sum + terminal_site_num === 0) {  // not constructing
+            let terminal_pos = main_room_memory.terminal_table[terminal_num + 1];
+            if (terminal_pos != null) {
                 let new_pos = new RoomPosition(
                     main_spawn.pos.x + terminal_pos[0],
                     main_spawn.pos.y + terminal_pos[1],
@@ -361,9 +318,6 @@ let global_manage = function(main_room_name) {
             }
         }
     }
-    else {
-        terminal = Game.getObjectById(main_room_memory.terminal_list[0]);
-    }
     site_sum += terminal_site_num;
 
     // TODO: build factory, lab
@@ -372,7 +326,7 @@ let global_manage = function(main_room_name) {
     ////    Check / Build Road
     cpu = Game.cpu.getUsed();
     let road_site_num = 0;
-    if (main_room.controller.level >= 5 && site_sum === 0) {
+    if (AUTO_BUILD[STRUCTURE_ROAD] && main_room.controller.level >= 5 && site_sum === 0) {
         let road_to_build = [];
         let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
         for (let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {

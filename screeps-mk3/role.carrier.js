@@ -47,10 +47,14 @@ let role_carrier = function(creep) {
                 }
             }
         }
+        if (creep.memory.type == null) {
+            creep.memory.type = RESOURCE_ENERGY;
+        }
     }
     let target = Game.getObjectById(creep.memory.target_id);
-    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] < creep.store.getFreeCapacity()) {
+    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] === 0) {
         // target has no enough resource
+        global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
         target = null;
         creep.memory.type = null;
     }
@@ -72,36 +76,36 @@ let role_carrier = function(creep) {
         path_handler.move(creep);
     }
     else if(creep.memory.status === "withdraw") {
-        if (!target) {
-            let targets = global_find.find(FIND_TOMBSTONES, {
-                    filter: (target) =>
-                        target.store[creep.memory.type] > 0
-                        && 5 <= target.pos.x && target.pos.x <= 45
-                        && 5 <= target.pos.y && target.pos.y <= 45
-                }
-            );
-            if (targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
-            }
-        }
-        if (!target) {
-            let targets = global_find.find(FIND_DROPPED_RESOURCES, {
-                    filter: (target) =>
-                        target.resourceType === creep.memory.type
-                        && 5 <= target.pos.x && target.pos.x <= 45
-                        && 5 <= target.pos.y && target.pos.y <= 45
-                }
-            );
-            if (targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
-            }
-        }
+        // if (!target) {
+        //     let targets = global_find.find(FIND_TOMBSTONES, {
+        //             filter: (target) =>
+        //                 target.store[creep.memory.type] > 0
+        //                 && 5 <= target.pos.x && target.pos.x <= 45
+        //                 && 5 <= target.pos.y && target.pos.y <= 45
+        //         }
+        //     );
+        //     if (targets.length > 0) {
+        //         target = targets[Math.floor(Math.random() * 1000) % targets.length];
+        //     }
+        // }
+        // if (!target) {
+        //     let targets = global_find.find(FIND_DROPPED_RESOURCES, {
+        //             filter: (target) =>
+        //                 target.resourceType === creep.memory.type
+        //                 && 5 <= target.pos.x && target.pos.x <= 45
+        //                 && 5 <= target.pos.y && target.pos.y <= 45
+        //         }
+        //     );
+        //     if (targets.length > 0) {
+        //         target = targets[Math.floor(Math.random() * 1000) % targets.length];
+        //     }
+        // }
         if (creep.memory.type === RESOURCE_ENERGY) {
             if (!target) {
                 target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, creep.store.getFreeCapacity());
             }
             if (!target) {
-                target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, 0);
+                target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, 1);
             }
             if (!target) {
                 if (Memory.room_dict[creep.memory.main_room].storage_list.length > 0
@@ -133,13 +137,24 @@ let role_carrier = function(creep) {
             let withdraw_status = creep.withdraw(target, creep.memory.type, creep.store.getFreeCapacity());
             switch (withdraw_status) {
                 case OK:
+                    global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
                     break;
                 case ERR_NOT_IN_RANGE:
                     path_handler.find(creep, target, 1, 3);
                     break;
                 case ERR_NOT_ENOUGH_RESOURCES:
-                    creep.memory.target_id = null;
-                    creep.memory.type = null;
+                    let _withdraw_status = creep.withdraw(target, creep.memory.type, target.store[creep.memory.type]);
+                    switch (_withdraw_status) {
+                        case OK:
+                            global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
+                            break;
+                        case ERR_NOT_IN_RANGE:
+                            path_handler.find(creep, target, 1, 3);
+                            break;
+                        default:
+                            console.log(creep.name, "withdraw", _withdraw_status);
+                            creep.say(_withdraw_status);
+                    }
                     break;
                 case ERR_INVALID_TARGET:
                     let pickup_status = creep.pickup(target);
@@ -152,6 +167,7 @@ let role_carrier = function(creep) {
                         default:
                             console.log(creep.name, "pickup", pickup_status);
                             creep.say(pickup_status);
+                            break;
                     }
                     break;
                 default:

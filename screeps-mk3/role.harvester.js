@@ -59,20 +59,45 @@ let role_harvester = function(creep) {
                 }
             }
             if(!target) {
-                target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, creep.carryCapacity - creep.carry.energy);
+                target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, creep.store.getFreeCapacity());
+            }
+            if(!target) {
+                target = global_find.find_container_with_energy(creep.memory.main_room, creep.name, 1);
             }
             if(target) {
                 creep.memory.target_id = target.id;
-                let withdraw_status = creep.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy);
+                let withdraw_status = creep.withdraw(target, RESOURCE_ENERGY, creep.store.getFreeCapacity());
                 switch(withdraw_status) {
                     case OK:
+                        global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
                         break;
                     case ERR_NOT_IN_RANGE:
                         path_handler.find(creep, target, 1, 3);
                         break;
                     case ERR_NOT_ENOUGH_RESOURCES:
+                        let _withdraw_status = creep.withdraw(target, RESOURCE_ENERGY, target.store[RESOURCE_ENERGY]);
+                        switch(_withdraw_status) {
+                            case OK:
+                                global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
+                                break;
+                            default:
+                                console.log(creep.name, "withdraw", _withdraw_status);
+                                creep.say(_withdraw_status);
+                        }
+                        break;
                     case ERR_INVALID_TARGET:
-                        creep.memory.target_id = null;
+                        let pickup_status = creep.pickup(target);
+                        switch(pickup_status) {
+                            case OK:
+                                break
+                            case ERR_NOT_IN_RANGE:
+                                path_handler.find(creep, target, 1, 3);
+                                break;
+                            default:
+                                console.log(creep.name, "pickup", pickup_status);
+                                creep.say(pickup_status);
+                                break;
+                        }
                         break;
                     default:
                         console.log(creep.name, "withdraw", withdraw_status);

@@ -63,6 +63,7 @@ let global_find = {
         this.spawn_list = null;
         this.extension_list = null;
         this.tower_list = null;
+        this.link_list = null;
         this.game_time_mark = Game.time;
     },
 
@@ -99,7 +100,7 @@ let global_find = {
                     container_assigned_record[_c.id].splice(container_assigned_record[_c.id].indexOf(i), 1);
                  }
             }
-            if(_c.store[RESOURCE_ENERGY] === _c.store.getCapacity(RESOURCE_ENERGY)) {
+            if(_c.store[RESOURCE_ENERGY] >= _c.store.getCapacity(RESOURCE_ENERGY) * 0.9) {
                 if (_c.store[RESOURCE_ENERGY] - (container_assigned_record[_c.id].reduce((acc, cur) => acc + cur.assigned_energy, 0)) < _c.store[RESOURCE_ENERGY]) {
                     continue;
                 }

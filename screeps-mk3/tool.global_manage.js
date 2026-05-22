@@ -747,7 +747,7 @@ let global_manage = function(main_room_name) {
         if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
             && site_sum === 0
             && main_room_memory.spawn_idle_time >= 10 * main_room.controller.level
-            && main_room_memory.creep.upgrader.max_num <= 9
+            && main_room_memory.creep.upgrader.max_num <= 7
         ) {
             main_room_memory.creep.upgrader.max_num += 1;
         }

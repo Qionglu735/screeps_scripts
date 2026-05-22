@@ -685,7 +685,7 @@ let global_manage = function(main_room_name) {
     else {
         let energy_empty_rate = Math.max(0, 1 - storage.store[RESOURCE_ENERGY] / (storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY]));
         // console.log("energy_empty_rate:", energy_empty_rate.toFixed(2), Math.log2(1 + energy_empty_rate * 100).toFixed(2));
-        main_room_memory.creep.carrier.energy_carrier_max += 1 + Math.ceil(Math.log2(1 +energy_empty_rate * 100));
+        main_room_memory.creep.carrier.energy_carrier_max += 1 + Math.ceil(Math.log2(1 + energy_empty_rate * 100));
     }
     main_room_memory.creep.carrier.energy_carrier_max = Math.min(main_room_memory.creep.carrier.energy_carrier_max, energy_mine_num);
     main_room_memory.creep.carrier.mineral_carrier_max = 0;
@@ -743,6 +743,7 @@ let global_manage = function(main_room_name) {
     if (main_room.controller.level < CONTROL_LEVEL_LIMIT 
         || main_room.controller.progress / main_room.controller.progressTotal < 0.5
         || main_room.controller.ticksToDowngrade / CONTROLLER_DOWNGRADE[main_room.controller.level] < 0.4
+        || storage != null && storage.store != null && storage.store[RESOURCE_ENERGY] > storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY] * 0.2
     ) {
         if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
             && site_sum === 0

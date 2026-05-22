@@ -563,7 +563,7 @@ let global_manage = function(main_room_name) {
     main_room_memory.creep.miner.max_num = 0;
     let room_name_list = [main_room_name];
     if (storage != null && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY] * 0.9) {
-        room_name_list = room_name_list.concat(main_room_nmemory.sub_room_list);
+        room_name_list = room_name_list.concat(main_room_memory.sub_room_list);
     }
     for(let room_name of room_name_list) {
         if(!["claimed", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)) {

@@ -300,7 +300,7 @@ let role_harvester = function(creep) {
     }
     else if(creep.memory.status === "upgrade") {
         if (creep.room.controller.level < CONTROL_LEVEL_LIMIT
-            || creep.room.controller.progress / creep.room.controller.progressTotal < 0.5
+            || creep.room.controller.progress / creep.room.controller.progressTotal < 0.9
             || creep.room.controller.ticksToDowngrade / CONTROLLER_DOWNGRADE[creep.room.controller.level] < 0.5
         ) {
             let target = Game.rooms[creep.memory.main_room].controller;

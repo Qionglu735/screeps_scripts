@@ -687,7 +687,7 @@ let global_manage = function(main_room_name) {
         // console.log("energy_empty_rate:", energy_empty_rate.toFixed(2), Math.log2(1 + energy_empty_rate * 100).toFixed(2));
         main_room_memory.creep.carrier.energy_carrier_max += 1 + Math.ceil(Math.log2(1 + energy_empty_rate * 100));
     }
-    main_room_memory.creep.carrier.energy_carrier_max = Math.min(main_room_memory.creep.carrier.energy_carrier_max, energy_mine_num);
+    main_room_memory.creep.carrier.energy_carrier_max = Math.min(main_room_memory.creep.carrier.energy_carrier_max, Math.floor(energy_mine_num * 1.5));
     main_room_memory.creep.carrier.mineral_carrier_max = 0;
     if (Game.rooms[main_room_name].controller.level >= 6) {
         for(let mineral_id in main_room_memory.mineral) {
@@ -713,9 +713,11 @@ let global_manage = function(main_room_name) {
     main_room_memory.creep.carrier.max_num = main_room_memory.creep.carrier.energy_carrier_max + main_room_memory.creep.carrier.mineral_carrier_max;
     ////    adjust refueler number
     main_room_memory.creep.refueler.max_num = 0;
-    if(main_room.controller.level >= 4 && main_room_memory.storage_list.length > 0) {
-        main_room_memory.creep.refueler.max_num =
-            main_room_memory.tower_list.length + main_room_memory.link_list.length;
+    if (main_room_memory.storage_list.length > 0) {
+        main_room_memory.creep.refueler.max_num = main_room_memory.tower_list.length;
+    }
+    if (main_room_memory.link_list.length > 0) {
+        main_room_memory.creep.refueler.max_num += 1;
     }
     ////    TODO: adjust builder number
     // main_room_memory.creep.builder.max_num = 1;
@@ -741,7 +743,7 @@ let global_manage = function(main_room_name) {
     ////    adjust upgrader number
     // main_room_memory.creep.upgrader.max_num = 0;  // reset
     if (main_room.controller.level < CONTROL_LEVEL_LIMIT 
-        || main_room.controller.progress / main_room.controller.progressTotal < 0.5
+        || main_room.controller.progress / main_room.controller.progressTotal < 0.9
         || main_room.controller.ticksToDowngrade / CONTROLLER_DOWNGRADE[main_room.controller.level] < 0.4
         || storage != null && storage.store != null && storage.store[RESOURCE_ENERGY] > storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY] * 0.2
     ) {
@@ -806,12 +808,12 @@ let global_manage = function(main_room_name) {
         `[Creep]`,
         `H:${main_room_memory.creep.harvester.name_list.length}/${main_room_memory.creep.harvester.max_num}(${main_room_memory.creep.harvester.avg_level})`,
         `M:${main_room_memory.creep.miner.name_list.length}/${main_room_memory.creep.miner.max_num}(${main_room_memory.creep.miner.avg_level})`,
-        `U:${main_room_memory.creep.upgrader.name_list.length}/${main_room_memory.creep.upgrader.max_num}(${main_room_memory.creep.upgrader.avg_level})`,
         `C:${main_room_memory.creep.carrier.name_list.length}/${main_room_memory.creep.carrier.max_num}(${main_room_memory.creep.carrier.avg_level})`,
         `R:${main_room_memory.creep.refueler.name_list.length}/${main_room_memory.creep.refueler.max_num}(${main_room_memory.creep.refueler.avg_level})`,
         `S:${main_room_memory.creep.scout.name_list.length}/${main_room_memory.creep.scout.max_num}(${main_room_memory.creep.scout.avg_level})`,
         `CL:${main_room_memory.creep.claimer.name_list.length}/${main_room_memory.creep.claimer.max_num}(${main_room_memory.creep.claimer.avg_level})`,
         `D:${main_room_memory.creep.dealer.name_list.length}/${main_room_memory.creep.dealer.max_num}(${main_room_memory.creep.dealer.avg_level})`,
+        `U:${main_room_memory.creep.upgrader.name_list.length}/${main_room_memory.creep.upgrader.max_num}(${main_room_memory.creep.upgrader.avg_level})`,
     );
 
     // if(Game.cpu.bucket >= 5000){

@@ -18,6 +18,18 @@ let role_carrier = function(creep) {
         creep.memory.target_id = null;
         creep.say("Transfer");
     }
+    let target = Game.getObjectById(creep.memory.target_id);
+    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] === 0) {
+        // target has no enough resource
+        global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
+        creep.memory.target_id = null;
+        if (creep.store.getFreeCapacity() != creep.store.getCapacity()) {
+            creep.memory.status = "transfer";
+        }
+        else {
+            creep.memory.type = null;
+        }
+    }
     let storage = null, _storage_list = [];
     for(let _s_id of Memory.room_dict[creep.memory.main_room].storage_list) {
         let _s = Game.getObjectById(_s_id);
@@ -50,20 +62,6 @@ let role_carrier = function(creep) {
         if (creep.memory.type == null) {
             creep.memory.type = RESOURCE_ENERGY;
         }
-    }
-    let target = Game.getObjectById(creep.memory.target_id);
-    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] === 0) {
-        // target has no enough resource
-        global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
-        target = null;
-        creep.memory.type = null;
-    }
-    if (creep.memory.type == null) {
-        creep.say("Idle Ty");
-        if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
-            creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
-        }
-        return;
     }
     if(creep.memory.status == "transfer" && target != null && target.store != null && (
         creep.memory.type == RESOURCE_ENERGY && target.store[creep.memory.type] == target.store.getCapacity(creep.memory.type)
@@ -131,6 +129,9 @@ let role_carrier = function(creep) {
         }
         if (!target) {
             creep.say("No Target");
+            if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
+                creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
+            }
         }
         else {
             creep.memory.target_id = target.id;

@@ -38,7 +38,7 @@ BUY_MAX_PRICE = {
     [RESOURCE_GHODIUM]: 3.0,
 };
 AUTO_BUILD = {
-    [STRUCTURE_EXTENSION]: false,
+    [STRUCTURE_EXTENSION]: true,
     [STRUCTURE_STORAGE]: true,
     [STRUCTURE_TOWER]: false,
     [STRUCTURE_LINK]: true,

@@ -59,7 +59,7 @@ let global_manage = function(main_room_name) {
         }).length;
     }
     if (AUTO_BUILD[STRUCTURE_EXTENSION] && extension_num < extension_max) {
-        if (site_num + extension_site_num === 0) {  // not constructing
+        if (site_sum + extension_site_num === 0) {  // not constructing
             let extension_pos = main_room_memory.extension_table[extension_num + 1];
             if (extension_pos != null) {
                 let new_pos = new RoomPosition(

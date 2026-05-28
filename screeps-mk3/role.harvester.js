@@ -66,7 +66,7 @@ let role_harvester = function(creep) {
             }
             if(target) {
                 creep.memory.target_id = target.id;
-                let withdraw_status = creep.withdraw(target, RESOURCE_ENERGY, creep.store.getFreeCapacity());
+                let withdraw_status = creep.withdraw(target, RESOURCE_ENERGY, Math.min(creep.store.getFreeCapacity(), target.store[RESOURCE_ENERGY]));
                 switch(withdraw_status) {
                     case OK:
                         global_find.remove_container_assign_record(creep.memory.target_id, creep.name);

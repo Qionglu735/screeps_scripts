@@ -19,15 +19,17 @@ let role_carrier = function(creep) {
         creep.say("Transfer");
     }
     let target = Game.getObjectById(creep.memory.target_id);
-    if(creep.memory.status == "withdraw" && target != null && target.store != null && target.store[creep.memory.type] === 0) {
-        // target has no enough resource
-        global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
-        creep.memory.target_id = null;
-        if (creep.store.getFreeCapacity() != creep.store.getCapacity()) {
-            creep.memory.status = "transfer";
-        }
-        else {
-            creep.memory.type = null;
+    if (creep.memory.status == "withdraw") {
+        if (target == null || target.store == null || target.store[creep.memory.type] === 0) {
+            // target not exist, or has no enough resource
+            global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
+            creep.memory.target_id = null;
+            if (creep.store.getFreeCapacity() != creep.store.getCapacity()) {
+                creep.memory.status = "transfer";
+            }
+            else {
+                creep.memory.type = null;
+            }
         }
     }
     let storage = null, _storage_list = [];
@@ -205,7 +207,7 @@ let role_carrier = function(creep) {
                         path_handler.find(creep, target, 1, 3);
                         break;
                     default:
-                        console.log(creep.name, "transfer", transfer_status);
+                        console.log(creep.name, "transfer", target.pos, transfer_status);
                         creep.say(transfer_status);
                 }
             }
@@ -239,7 +241,7 @@ let role_carrier = function(creep) {
                         path_handler.find(creep, target, 1, 3);
                         break;
                     default:
-                        console.log(creep.name, "transfer", transfer_status);
+                        console.log(creep.name, "transfer", target.pos, transfer_status);
                         creep.say(transfer_status);
                 }
             }

@@ -66,7 +66,11 @@ let role_harvester = function(creep) {
             }
             if(target) {
                 creep.memory.target_id = target.id;
-                let withdraw_status = creep.withdraw(target, RESOURCE_ENERGY, Math.min(creep.store.getFreeCapacity(), target.store[RESOURCE_ENERGY]));
+                let withdraw_amount = creep.store.getFreeCapacity();
+                if (target.store != null) {
+                    withdraw_amount = Math.min(withdraw_amount, target.store[RESOURCE_ENERGY]);
+                }
+                let withdraw_status = creep.withdraw(target, RESOURCE_ENERGY, withdraw_amount);
                 switch(withdraw_status) {
                     case OK:
                         global_find.remove_container_assign_record(creep.memory.target_id, creep.name);
@@ -86,17 +90,40 @@ let role_harvester = function(creep) {
                         }
                         break;
                     case ERR_INVALID_TARGET:
-                        let pickup_status = creep.pickup(target);
-                        switch(pickup_status) {
-                            case OK:
-                                break
-                            case ERR_NOT_IN_RANGE:
-                                path_handler.find(creep, target, 1, 3);
-                                break;
-                            default:
-                                console.log(creep.name, "pickup", pickup_status);
-                                creep.say(pickup_status);
-                                break;
+                        if (target.energy != null) {
+                            let harvest_status = creep.harvest(target);
+                            switch(harvest_status) {
+                                case OK:
+                                    break;
+                                case ERR_NOT_IN_RANGE:
+                                    path_handler.find(creep, target, 1, 3);
+                                    break;
+                                case ERR_NOT_ENOUGH_RESOURCES:
+                                case ERR_INVALID_TARGET:
+                                    creep.memory.target_id = null;
+                                    break;
+                                default:
+                                    console.log("[!]", creep.name, "harvest", harvest_status);
+                                    creep.say(harvest_status);
+                                    break;
+                            }
+                        }
+                        else {
+                            let pickup_status = creep.pickup(target);
+                            switch(pickup_status) {
+                                case OK:
+                                    break
+                                case ERR_NOT_IN_RANGE:
+                                    path_handler.find(creep, target, 1, 3);
+                                    break;
+                                case ERR_INVALID_TARGET:
+                                    creep.memory.target_id = null;
+                                    break;
+                                default:
+                                    console.log("[!]", creep.name, "pickup", pickup_status);
+                                    creep.say(pickup_status);
+                                    break;
+                            }
                         }
                         break;
                     default:

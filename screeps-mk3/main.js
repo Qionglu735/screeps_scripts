@@ -175,12 +175,12 @@ module.exports.loop = function () {
     }
     ////    check building, adjust worker number
     cpu = Game.cpu.getUsed();
-    for(let room_name of Memory.main_room_list) {
-        global_manage(room_name);
-        if (Game.rooms[room_name].controller.level >= 6) {
-            trade_manager.update_order_info();
-            trade_manager.search_buy_order(room_name);
-            trade_manager.search_sell_order(room_name);
+    for(let main_room_name of Memory.main_room_list) {
+        global_manage(main_room_name);
+        if (AUTO_TRADE && Game.rooms[main_room_name].controller.level >= 6) {
+            trade_manager.update_order_info(main_room_name);
+            trade_manager.search_buy_order(main_room_name);
+            trade_manager.search_sell_order(main_room_name);
         }
     }
     if(LOG_USED_TIME) {
@@ -189,8 +189,8 @@ module.exports.loop = function () {
 
     ////    run spawn
     cpu = Game.cpu.getUsed();
-    for(let room_name of Memory.main_room_list) {
-        for(let spawn_name of Memory.room_dict[room_name].spawn_list) {
+    for(let main_room_name of Memory.main_room_list) {
+        for(let spawn_name of Memory.room_dict[main_room_name].spawn_list) {
             structure_spawn(Game.spawns[spawn_name]);
         }
     }
@@ -200,8 +200,8 @@ module.exports.loop = function () {
 
     //    run tower
     cpu = Game.cpu.getUsed();
-    for(let room_name of Memory.main_room_list) {
-        for(let tower_id of Memory.room_dict[room_name].tower_list) {
+    for(let main_room_name of Memory.main_room_list) {
+        for(let tower_id of Memory.room_dict[main_room_name].tower_list) {
             structure_tower(Game.getObjectById(tower_id));
         }
     }
@@ -211,8 +211,8 @@ module.exports.loop = function () {
 
     //    run link
     cpu = Game.cpu.getUsed();
-    for(let room_name of Memory.main_room_list) {
-        for(let link_id of Memory.room_dict[room_name].link_list) {
+    for(let main_room_name of Memory.main_room_list) {
+        for(let link_id of Memory.room_dict[main_room_name].link_list) {
             structure_link(Game.getObjectById(link_id));
         }
     }

@@ -1,40 +1,41 @@
 
 let trade_manager = {
-    update_order_info: function() {
-        if (Memory.active_market_order == null) {
+    update_order_info: function(main_room_name) {
+        let main_room_memory = Memory.room_dict[main_room_name];
+        if (main_room_memory.active_market_order == null) {
             return;
         }
-        if (Memory.active_market_order._amount_to_deal <= 0) {
-            Memory.active_market_order = null;
+        if (main_room_memory.active_market_order._amount_to_deal <= 0) {
+            main_room_memory.active_market_order = null;
             return;
         }
-        let order_info = Game.market.getOrderById(Memory.active_market_order.id);
+        let order_info = Game.market.getOrderById(main_room_memory.active_market_order.id);
         if (order_info == null) {
-            delete Memory.market_order_dict[Memory.active_market_order.id];
+            delete Memory.market_order_dict[main_room_memory.active_market_order.id];
             Memory.market_order_list = Memory.market_order_list.filter(
-                id => id !== Memory.active_market_order.id
+                id => id !== main_room_memory.active_market_order.id
             );
-            Memory.active_market_order = null;
+            main_room_memory.active_market_order = null;
             return;
         }
         else {
             for (let key in order_info) {
-                Memory.active_market_order[key] = order_info[key];
+                main_room_memory.active_market_order[key] = order_info[key];
             }
         }
         console.log(
             `[Market]`, 
-            Memory.active_market_order.type, Memory.active_market_order.resourceType,
-            "Amount:", Memory.active_market_order._amount_to_deal,
-            (Memory.active_market_order.type == ORDER_BUY ? "Earn:" : "Cost:"), Memory.active_market_order.price * Memory.active_market_order._amount_to_deal,
-            "Energy:", Memory.active_market_order._energy_cost
+            main_room_memory.active_market_order.type, main_room_memory.active_market_order.resourceType,
+            "Amount:", main_room_memory.active_market_order._amount_to_deal,
+            (main_room_memory.active_market_order.type == ORDER_BUY ? "Earn:" : "Cost:"), main_room_memory.active_market_order.price * main_room_memory.active_market_order._amount_to_deal,
+            "Energy:", main_room_memory.active_market_order._energy_cost
         );
     },
     search_buy_order: function(main_room_name) {
-        if (Memory.active_market_order != null) {
+        let main_room_memory = Memory.room_dict[main_room_name];
+        if (main_room_memory.active_market_order != null) {
             return;
         }
-        let main_room_memory = Memory.room_dict[main_room_name];
         if (main_room_memory.storage_list.length == 0
             || main_room_memory.terminal_list.length == 0
         ) {
@@ -89,12 +90,13 @@ let trade_manager = {
             }
             if (max_price_order_id != null) {
                 let order = order_dict[max_price_order_id];
-                Memory.active_market_order = order;
+                main_room_memory.active_market_order = order;
             }
         }
     },
     search_sell_order: function(main_room_name) {
-        if (Memory.active_market_order != null) {
+        let main_room_memory = Memory.room_dict[main_room_name];
+        if (main_room_memory.active_market_order != null) {
             return;
         }
         if (Memory.credits_baseline == null) {
@@ -108,7 +110,6 @@ let trade_manager = {
             return;
         }
 
-        let main_room_memory = Memory.room_dict[main_room_name];
         if (main_room_memory.storage_list.length == 0
             || main_room_memory.terminal_list.length == 0
             || main_room_memory.creep.dealer.name_list.length == 0
@@ -168,7 +169,7 @@ let trade_manager = {
             }
             if (min_price_order_id != null) {
                 let order = order_dict[min_price_order_id];
-                Memory.active_market_order = order;
+                main_room_memory.active_market_order = order;
             }
         }
     },

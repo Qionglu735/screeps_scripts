@@ -39,11 +39,15 @@ BUY_MAX_PRICE = {
     [RESOURCE_GHODIUM]: 3.0,
 };
 AUTO_BUILD = {
+    [STRUCTURE_SPAWN]: true,
     [STRUCTURE_EXTENSION]: true,
     [STRUCTURE_STORAGE]: true,
     [STRUCTURE_TOWER]: false,
     [STRUCTURE_LINK]: true,
     [STRUCTURE_TERMINAL]: true,
+    [STRUCTURE_OBSERVER]: true,
+    [STRUCTURE_NUKER]: true,
+    [STRUCTURE_POWER_SPAWN]: true,
     [STRUCTURE_ROAD]: false,
 }
 CONTROL_LEVEL_LIMIT = 8;  // for testing
@@ -79,6 +83,9 @@ ENERGY_STAT_TEMPLATE = {
 
 MAIN_ROOM_TEMPLATE = {
     "spawn_list": [],
+    "spawn_table": {
+        2: [-1, -3], 3: [1, -3],
+    },
     "container_list": [],
     "extension_list": [],
     "extension_table": {
@@ -118,6 +125,18 @@ MAIN_ROOM_TEMPLATE = {
     "terminal_list": [],
     "terminal_table": {
         1: [-2, -2],
+    },
+    "observer_list": [],
+    "observer_table": {
+        1: [-4, -2],
+    },
+    "nuker_list": [],
+    "nuker_table": {
+        1: [0, -4],
+    },
+    "power_spawn_list": [],
+    "power_spawn_table": {
+        1: [2, -2],
     },
     "energy_stat": {
         ...ENERGY_STAT_TEMPLATE

@@ -320,6 +320,118 @@ let global_manage = function(main_room_name) {
     }
     site_sum += terminal_site_num;
 
+    if (main_room_memory.observer_list == null) {
+        main_room_memory.observer_list = [
+            ...MAIN_ROOM_TEMPLATE.observer_list,
+        ];
+    }
+    if (main_room_memory.observer_table == null) {
+        main_room_memory.observer_table = {
+            ...MAIN_ROOM_TEMPLATE.observer_table,
+        }
+    }
+
+    let observer_num = main_room_memory.observer_list.length;
+    let observer_site_num = 0;
+    let observer_max = CONTROLLER_STRUCTURES[STRUCTURE_OBSERVER][main_room.controller.level];
+    let observer = null;
+    if (observer_num < observer_max) {  // num < max
+        let observer_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
+            filter: (target) => target.structureType === STRUCTURE_OBSERVER
+        });
+        for(let i in observer_list) {  // update to memory
+            if(observer_list.hasOwnProperty(i)) {
+                if (!main_room_memory.observer_list.includes(observer_list[i].id)) {
+                    main_room_memory.observer_list.push(observer_list[i].id);
+                }
+            }
+        }
+        observer_num = main_room_memory.observer_list.length;
+        observer_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
+            filter: (target) => target.structureType === STRUCTURE_OBSERVER
+        }).length;
+    }
+    else {
+        observer = Game.getObjectById(main_room_memory.observer_list[0]);
+    }
+    if (AUTO_BUILD[STRUCTURE_OBSERVER] && observer_num < observer_max) {
+        if(site_sum + observer_site_num === 0) {  // not constructing
+            let observer_pos = main_room_memory.observer_table[observer_num + 1];
+            if (observer_pos != null) {
+                let new_pos = new RoomPosition(
+                    main_spawn.pos.x + observer_pos[0],
+                    main_spawn.pos.y + observer_pos[1],
+                    main_room.name);
+                let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_OBSERVER);
+                switch (create_status) {
+                    case OK:
+                        observer_site_num += 1;
+                        break;
+                    default:
+                        console.log("create observer failed:", create_status);
+                        break;
+                }
+            }
+        }
+    }
+    site_sum += observer_site_num;
+
+    if (main_room_memory.nuker_list == null) {
+        main_room_memory.nuker_list = [
+            ...MAIN_ROOM_TEMPLATE.nuker_list,
+        ];
+    }
+    if (main_room_memory.nuker_table == null) {
+        main_room_memory.nuker_table = {
+            ...MAIN_ROOM_TEMPLATE.nuker_table,
+        }
+    }
+
+    let nuker_num = main_room_memory.nuker_list.length;
+    let nuker_site_num = 0;
+    let nuker_max = CONTROLLER_STRUCTURES[STRUCTURE_NUKER][main_room.controller.level];
+    let nuker = null;
+    if (nuker_num < nuker_max) {  // num < max
+        let nuker_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
+            filter: (target) => target.structureType === STRUCTURE_NUKER
+        });
+        for(let i in nuker_list) {  // update to memory
+            if(nuker_list.hasOwnProperty(i)) {
+                if (!main_room_memory.nuker_list.includes(nuker_list[i].id)) {
+                    main_room_memory.nuker_list.push(nuker_list[i].id);
+                }
+            }
+        }
+        nuker_num = main_room_memory.nuker_list.length;
+        nuker_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
+            filter: (target) => target.structureType === STRUCTURE_NUKER
+        }).length;
+    }
+    else {
+        nuker = Game.getObjectById(main_room_memory.nuker_list[0]);
+    }
+    if (AUTO_BUILD[STRUCTURE_NUKER] && nuker_num < nuker_max) {
+        if(site_sum + nuker_site_num === 0) {  // not constructing
+            let nuker_pos = main_room_memory.nuker_table[nuker_num + 1];
+            if (nuker_pos != null) {
+                let new_pos = new RoomPosition(
+                    main_spawn.pos.x + nuker_pos[0],
+                    main_spawn.pos.y + nuker_pos[1],
+                    main_room.name);
+                let create_status = main_room.createConstructionSite(new_pos, STRUCTURE_NUKER);
+                switch (create_status) {
+                    case OK:
+                        nuker_site_num += 1;
+                        break;
+                    default:
+                        console.log("create nuker failed:", create_status);
+                        break;
+                }
+            }
+        }
+    }
+    site_sum += nuker_site_num;
+
     // TODO: build factory, lab
 
     ////////////////////////////////////////////////////////////////////////////////

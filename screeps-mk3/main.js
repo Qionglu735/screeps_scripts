@@ -6,6 +6,8 @@ require("constant")
 let structure_spawn = require("structure.spawn");
 let structure_tower = require("structure.tower");
 let structure_link = require("structure.link");
+let structure_observer = require("structure.observer");
+let structure_nuker = require("structure.nuker");
 
 let role_miner = require("role.miner");
 let role_harvester = require("role.harvester");
@@ -221,6 +223,28 @@ module.exports.loop = function () {
     }
     if(LOG_USED_TIME) {
         console.log("run link", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
+
+    //    run observer
+    cpu = Game.cpu.getUsed();
+    for(let main_room_name of Memory.main_room_list) {
+        for(let observer_id of Memory.room_dict[main_room_name].observer_list) {
+            structure_observer(Game.getObjectById(observer_id));
+        }
+    }
+    if(LOG_USED_TIME) {
+        console.log("run observer", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
+
+    //    run nuker
+    cpu = Game.cpu.getUsed();
+    for(let main_room_name of Memory.main_room_list) {
+        for(let nuker_id of Memory.room_dict[main_room_name].nuker_list) {
+            structure_nuker(Game.getObjectById(nuker_id));
+        }
+    }
+    if(LOG_USED_TIME) {
+        console.log("run nuker", (Game.cpu.getUsed() - cpu).toFixed(3));
     }
 
     ////    run creep

@@ -58,6 +58,7 @@ let global_find = {
     extension_list: null,
     tower_list: null,
     link_list: null,
+    nuker_list: null,
 
     container_list: null,
     dropped_list: null,
@@ -67,6 +68,7 @@ let global_find = {
         this.extension_list = null;
         this.tower_list = null;
         this.link_list = null;
+        this.nuker_list = null;
         
         this.container_list = null;
         this.dropped_list = null;
@@ -121,7 +123,7 @@ let global_find = {
                 }
                 this.container_list.push(_c);
             }
-             this.container_list = this.container_list.concat(
+            this.container_list = this.container_list.concat(
                 this.find(FIND_TOMBSTONES, {
                     filter: (target) =>
                         target.store[RESOURCE_ENERGY] > 0
@@ -295,6 +297,25 @@ let global_find = {
                 }
             }
         }
+        if (this.nuker_list == null) {
+            this.nuker_list = [];
+            for (let i of Memory.room_dict[creep.memory.main_room].nuker_list) {
+                if (record[i] != null) {
+                    if(Game.time - record[i] < 10) {
+                        continue;
+                    }
+                    else {
+                        delete record[i];
+                    }
+                }
+                let nuker = Game.getObjectById(i);
+                if (nuker!= null && nuker.progress == null
+                    && nuker.store[RESOURCE_ENERGY] < nuker.store.getCapacity(RESOURCE_ENERGY)
+                ) {
+                    this.nuker_list.push(nuker);
+                }
+            }
+        }
         // console.log("find_structure_need_energy init", Game.cpu.getUsed() - cpu);
 
         let res = null;
@@ -337,6 +358,17 @@ let global_find = {
             }
             if(res == null) {
                 res = this.tower_list[Math.floor(Math.random() * this.tower_list.length)];  // find random target
+            }
+        }
+        if (res == null && this.nuker_list.length > 0) {
+            for (let i of this.nuker_list) {  // find closet target
+                if (creep.pos.isNearTo(i.pos)) {
+                    res = i;
+                    break;
+                }
+            }
+            if(res == null) {
+                res = this.nuker_list[Math.floor(Math.random() * this.nuker_list.length)];  // find random target
             }
         }
         // console.log("find_structure_need_energy find_target", Game.cpu.getUsed() - cpu);

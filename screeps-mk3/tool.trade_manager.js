@@ -99,9 +99,6 @@ let trade_manager = {
         if (main_room_memory.active_market_order != null) {
             return;
         }
-        if (Memory.credits_baseline == null) {
-            Memory.credits_baseline = Game.market.credits * 0.9;
-        }
         if (Game.market.credits * 0.9 > Memory.credits_baseline) {
             Memory.credits_baseline = Game.market.credits * 0.9;
         }

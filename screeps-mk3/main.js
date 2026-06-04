@@ -177,6 +177,9 @@ module.exports.loop = function () {
     cpu = Game.cpu.getUsed();
     for(let main_room_name of Memory.main_room_list) {
         global_manage(main_room_name);
+        if (Memory.credits_baseline == null) {
+            Memory.credits_baseline = Game.market.credits * 0.9;
+        }
         if (AUTO_TRADE && Game.rooms[main_room_name].controller.level >= 6) {
             trade_manager.update_order_info(main_room_name);
             trade_manager.search_buy_order(main_room_name);

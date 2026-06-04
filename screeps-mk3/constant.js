@@ -46,7 +46,7 @@ AUTO_BUILD = {
     [STRUCTURE_TERMINAL]: true,
     [STRUCTURE_ROAD]: false,
 }
-CONTROL_LEVEL_LIMIT = 7;  // for testing
+CONTROL_LEVEL_LIMIT = 8;  // for testing
 
 ////    Memory Template
 ////    deep copy is necessary

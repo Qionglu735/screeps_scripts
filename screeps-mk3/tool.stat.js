@@ -110,7 +110,7 @@ let stat = function() {
         console.log(
             `[${room_name}]`,
             `Lv:${room.controller.level}`,
-            `(${(room.controller.progress / room.controller.progressTotal * 100).toFixed(4)}%)`,
+            room.controller.progressTotal != null ? `(${(room.controller.progress / room.controller.progressTotal * 100).toFixed(4)}%)` : "(max)",
             `+${room.controller.progress - Memory.room_dict[room_name].controller_progress}`,
             `Energy: ${Memory.stat.energy[room_name]["storage"]}`,
             `(${(Memory.stat.energy[room_name]["storage"] / (1000 * 1000 * STORAGE_THRESHOLD[RESOURCE_ENERGY]) * 100).toFixed(2)}%)`,

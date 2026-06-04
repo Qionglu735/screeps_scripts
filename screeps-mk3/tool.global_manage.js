@@ -319,18 +319,8 @@ let global_manage = function(main_room_name) {
         }
     }
     site_sum += terminal_site_num;
-
-    if (main_room_memory.observer_list == null) {
-        main_room_memory.observer_list = [
-            ...MAIN_ROOM_TEMPLATE.observer_list,
-        ];
-    }
-    if (main_room_memory.observer_table == null) {
-        main_room_memory.observer_table = {
-            ...MAIN_ROOM_TEMPLATE.observer_table,
-        }
-    }
-
+    ////////////////////////////////////////////////////////////////////////////////
+    ////    Check Observer
     let observer_num = main_room_memory.observer_list.length;
     let observer_site_num = 0;
     let observer_max = CONTROLLER_STRUCTURES[STRUCTURE_OBSERVER][main_room.controller.level];
@@ -375,18 +365,8 @@ let global_manage = function(main_room_name) {
         }
     }
     site_sum += observer_site_num;
-
-    if (main_room_memory.nuker_list == null) {
-        main_room_memory.nuker_list = [
-            ...MAIN_ROOM_TEMPLATE.nuker_list,
-        ];
-    }
-    if (main_room_memory.nuker_table == null) {
-        main_room_memory.nuker_table = {
-            ...MAIN_ROOM_TEMPLATE.nuker_table,
-        }
-    }
-
+    ////////////////////////////////////////////////////////////////////////////////
+    ////    Check Nuker
     let nuker_num = main_room_memory.nuker_list.length;
     let nuker_site_num = 0;
     let nuker_max = CONTROLLER_STRUCTURES[STRUCTURE_NUKER][main_room.controller.level];

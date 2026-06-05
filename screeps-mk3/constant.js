@@ -42,13 +42,13 @@ AUTO_BUILD = {
     [STRUCTURE_SPAWN]: true,
     [STRUCTURE_EXTENSION]: true,
     [STRUCTURE_STORAGE]: true,
-    [STRUCTURE_TOWER]: false,
+    [STRUCTURE_TOWER]: true,
     [STRUCTURE_LINK]: true,
     [STRUCTURE_TERMINAL]: true,
     [STRUCTURE_OBSERVER]: true,
     [STRUCTURE_NUKER]: true,
     [STRUCTURE_POWER_SPAWN]: true,
-    [STRUCTURE_ROAD]: false,
+    [STRUCTURE_ROAD]: true,
 }
 CONTROL_LEVEL_LIMIT = 8;  // for testing
 

@@ -231,7 +231,7 @@ let global_manage = function(main_room_name) {
         }).length;
     }
     if (AUTO_BUILD[STRUCTURE_TOWER] && link_num < link_max) {
-        if(site_num + link_site_num === 0) {  // not constructing
+        if(site_sum + link_site_num === 0) {  // not constructing
             let new_pos = null;
             if (main_room_memory.link_spawn == null) {  // build link near spawn
                 if (main_room_memory.link_table["spawn"] != null) {

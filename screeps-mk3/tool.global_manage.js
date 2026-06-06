@@ -829,7 +829,7 @@ let global_manage = function(main_room_name) {
     }
     ////    adjust dealer number
     main_room_memory.creep.dealer.max_num = 0;
-    if(main_room.controller.level >= 6 && Memory.active_market_order != null) {
+    if(main_room.controller.level >= 6 && main_room_memory.active_market_order != null) {
         main_room_memory.creep.dealer.max_num = 1
     }
     ////    adjust upgrader number

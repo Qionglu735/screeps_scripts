@@ -31,7 +31,7 @@ let role_dealer = function(creep) {
         }
         return;
     }
-    let order = Memory.active_market_order;
+    let order = main_room_memory.active_market_order;
     if (order == null || order._amount_to_deal <= 0) {
         // clear terminal store
         if (terminal.store.getUsedCapacity() > 0) {

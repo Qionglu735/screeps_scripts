@@ -3,6 +3,13 @@ let global_find = require("tool.global_find");
 let path_handler = require("tool.path_handler");
 
 let role_carrier = function(creep) {
+    if (typeof(FIND_SCORES) != "undefined") {
+        let target_list = creep.room.find(FIND_SCORES);
+        if (target_list.length > 0) {
+            creep.moveTo(target_list.reduce((a, b) => b.score > a.score ? b : a));
+            return;
+        }
+    }
     if(creep.memory.status == null || !["withdraw", "transfer"].includes(creep.memory.status)) {
         creep.memory.status = "withdraw";
     }

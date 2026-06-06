@@ -17,8 +17,7 @@ let role_scout = function(creep) {
         }
     }
     if(creep.memory.target_room == null) {
-        creep.say("Idle");
-        console.log(creep.name, "idle")
+        creep.memory.target_room = Memory.room_list[Game.time % Memory.room_list.length];
     }
     else if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);

@@ -802,7 +802,7 @@ let global_manage = function(main_room_name) {
     ////    adjust scout number
     main_room_memory.creep.scout.max_num = 0;
     if(main_room.controller.level >= 4) {
-        main_room_memory.creep.scout.max_num = 1;
+        main_room_memory.creep.scout.max_num = main_room.controller.level - 3;
     }
     ////    adjust claimer number
     main_room_memory.creep.claimer.max_num = 0;

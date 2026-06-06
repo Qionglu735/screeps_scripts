@@ -214,7 +214,7 @@ let global_manage = function(main_room_name) {
                 filter: (target) => target.structureType === STRUCTURE_LINK,
             });
             if(link_spawn_list.length > 0) {
-                main_room_memory.link_spawn = link_spawn.id;
+                main_room_memory.link_spawn = link_spawn_list[0].id;
             }
         }
         if(main_room_memory.link_controller == null || Game.getObjectById(main_room_memory.link_controller) == null) {  // update controller link

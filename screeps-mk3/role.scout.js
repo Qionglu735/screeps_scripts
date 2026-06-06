@@ -25,26 +25,43 @@ let role_scout = function(creep) {
     }
     else {
         if(creep.room.name === creep.memory.target_room) {
-            if (creep.room.controller.my || creep.room.controller.owner == null || creep.room.controller.reservation == null || creep.room.controller.reservation.username === creep.owner.username) {
-                if(creep.room.controller.sign == null || creep.room.controller.sign.text != SIGN_TEXT || creep.room.controller.sign.username != creep.owner.username) {
-                    let res = creep.signController(creep.room.controller, SIGN_TEXT);
-                    switch(res) {
-                        case OK:
-                            break;
-                        case ERR_NOT_IN_RANGE:
-                            path_handler.find_pos(creep, creep.room.controller.pos);
-                            break;
-                        default:
-                            console.log("[!]", creep.name, "signController", res);
-                            creep.say(res);
+            let target = null;
+            if (!target && typeof(FIND_SCORES) != "undefined") {
+                let target_list = creep.room.find(FIND_SCORES);
+                if (target_list.length > 0) {
+                    target = target_list.reduce((a, b) => b.score > a.score ? b : a);
+                    creep.moveTo(target);
+                }
+            }
+            if (!target) {
+                if (creep.room.controller.my
+                    || creep.room.controller.owner == null
+                    || creep.room.controller.reservation.username === creep.owner.username
+                    || creep.room.controller.reservation == null
+                ) {
+                    if (creep.room.controller.sign == null
+                        || creep.room.controller.sign.text != SIGN_TEXT
+                        || creep.room.controller.sign.username != creep.owner.username
+                    ) {
+                        let res = creep.signController(creep.room.controller, SIGN_TEXT);
+                        switch(res) {
+                            case OK:
+                                break;
+                            case ERR_NOT_IN_RANGE:
+                                path_handler.find_pos(creep, creep.room.controller.pos);
+                                break;
+                            default:
+                                console.log("[!]", creep.name, "signController", res);
+                                creep.say(res);
+                        }
+                    }
+                    else {
+                        creep.memory.target_room = null;
                     }
                 }
                 else {
                     creep.memory.target_room = null;
                 }
-            }
-            else {
-                creep.memory.target_room = null;
             }
         }
         else {

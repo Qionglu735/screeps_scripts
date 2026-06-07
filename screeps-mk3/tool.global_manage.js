@@ -219,7 +219,7 @@ let global_manage = function(main_room_name) {
         }
         if(main_room_memory.link_controller == null || Game.getObjectById(main_room_memory.link_controller) == null) {  // update controller link
             main_room_memory.link_controller = null;
-            let link_controller_list = main_room.controller.pos.findInRange(FIND_MY_STRUCTURES, 2, {
+            let link_controller_list = main_room.controller.pos.findInRange(FIND_MY_STRUCTURES, 3, {
                 filter: (target) => target.structureType === STRUCTURE_LINK,
             });
             if(link_controller_list.length > 0) {

@@ -208,6 +208,7 @@ let role_carrier = function(creep) {
                         global_find.remove_transfer_assigned_record(target.id);
                         break;
                     case ERR_FULL:
+                    case ERR_INVALID_TARGET:
                         creep.memory.target_id = null;
                         break
                     case ERR_NOT_IN_RANGE:
@@ -237,10 +238,8 @@ let role_carrier = function(creep) {
                         global_find.remove_transfer_assigned_record(target.id);
                         break;
                     case ERR_NOT_ENOUGH_RESOURCES:
-                        creep.memory.target_id = null;
-                        creep.memory.type = null;
-                        break;
                     case ERR_FULL:
+                    case ERR_INVALID_TARGET:
                         creep.memory.target_id = null;
                         creep.memory.type = null;
                         break

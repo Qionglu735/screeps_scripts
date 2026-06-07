@@ -230,7 +230,7 @@ let global_manage = function(main_room_name) {
             filter: (target) => target.structureType === STRUCTURE_LINK
         }).length;
     }
-    if (AUTO_BUILD[STRUCTURE_TOWER] && link_num < link_max) {
+    if (AUTO_BUILD[STRUCTURE_LINK] && link_num < link_max) {
         if(site_sum + link_site_num === 0) {  // not constructing
             let new_pos = null;
             if (main_room_memory.link_spawn == null) {  // build link near spawn

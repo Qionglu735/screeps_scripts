@@ -56,24 +56,24 @@ CONTROL_LEVEL_LIMIT = 8;  // for testing
 ////    deep copy is necessary
 
 ROOM_TEMPLATE = {
-    "source": {},
-    "mineral": {},
-    "claim_status": "neutral",
-    "hostile_status": "neutral",
-    "assigned_claimer": null,
-    "main_room": null,
-    "room_distance": {},
+    source: {},
+    mineral: {},
+    claim_status: "neutral",
+    hostile_status: "neutral",
+    assigned_claimer: null,
+    main_room: null,
+    room_distance: {},
 };
 
 CPU_STAT_TEMPLATE = {
-    "cpu_track": [],
+    cpu_track: [],
     "60_tick_sum": 0, "60_tick_avg": 0,  // 1 minute
     "600_tick_sum": 0, "600_tick_avg": 0,  // 10 minute
     "3600_tick_sum": 0, "3600_tick_avg": 0,  // 1 hour
 };
 
 ENERGY_STAT_TEMPLATE = {
-    "energy_track": [],
+    energy_track: [],
     "10_tick_sum_a": 0, "10_tick_sum_b": 0, "10_tick_sum_trend": 0,  // 10 second
     "60_tick_sum_a": 0, "60_tick_sum_b": 0, "60_tick_sum_trend": 0,  // 1 minute
     "600_tick_sum_a": 0, "600_tick_sum_b": 0, "600_tick_sum_trend": 0,  // 10 minute
@@ -82,13 +82,13 @@ ENERGY_STAT_TEMPLATE = {
 };
 
 MAIN_ROOM_TEMPLATE = {
-    "spawn_list": [],
-    "spawn_table": {
+    spawn_list: [],
+    spawn_table: {
         2: [-1, -3], 3: [1, -3],
     },
-    "container_list": [],
-    "extension_list": [],
-    "extension_table": {
+    container_list: [],
+    extension_list: [],
+    extension_table: {
         1: [-1, 1], 2: [1, 1],
         40: [-3, 1], 41: [-2, 1], 42: [2, 1], 43: [3, 1],
         3: [-2, 2], 4: [0, 2], 5: [2, 2],
@@ -107,129 +107,130 @@ MAIN_ROOM_TEMPLATE = {
         59: [-2, 9], 60: [2, 9],
         37: [-2, 10], 38: [0, 10], 39: [2, 10],
     },
-    "storage_list": [],
-    "storage_table": {
+    storage_list: [],
+    storage_table: {
         1: [0, -2],
     },
-    "tower_list": [],
-    "tower_table": {
+    tower_list: [],
+    tower_table: {
         1: [-2, 0],
         2: [2, 0],
     },
-    "link_list": [],
-    "link_spawn": null,
-    "link_controller": null,
-    "link_table": {
-        "spawn": [-1, -1],
+    link_list: [],
+    link_spawn: null,
+    link_controller: null,
+    link_table: {
+        spawn: [-1, -1],
     },
-    "terminal_list": [],
-    "terminal_table": {
+    terminal_list: [],
+    terminal_table: {
         1: [-2, -2],
     },
-    "observer_list": [],
-    "observer_table": {
+    observer_list: [],
+    observer_table: {
         1: [-4, -2],
     },
-    "nuker_list": [],
-    "nuker_table": {
+    nuker_list: [],
+    nuker_table: {
         1: [0, -4],
     },
-    "power_spawn_list": [],
-    "power_spawn_table": {
+    power_spawn_list: [],
+    power_spawn_table: {
         1: [2, -2],
     },
-    "energy_stat": {
+    energy_stat: {
         ...ENERGY_STAT_TEMPLATE
     },
-    "creep_spawn_list": [],
-    "spawn_cool_down": 0,
-    "spawn_idle_time": 0,
-    "creep": {
-        "harvester": {
-            "name_list": [],
-            "max_num": 0,
-            "avg_level": 0,
-            "max_level": 1,
+    creep_spawn_list: [],
+    spawn_busy_time: 0,
+    spawn_cool_down: 0,
+    spawn_idle_time: 0,
+    creep: {
+        harvester: {
+            name_list: [],
+            max_num: 0,
+            avg_level: 0,
+            max_level: 1,
         },
-        "miner": {
-            "name_list": [],
-            "max_num": 0,
-            "avg_level": 0,
-            "max_level": 4,
+        miner: {
+            name_list: [],
+            max_num: 0,
+            avg_level: 0,
+            max_level: 4,
         },
-        "upgrader": {
-            "name_list": [],
-            "max_num": 0,
-            "avg_level": 0,
-            "max_level": 1,
+        upgrader: {
+            name_list: [],
+            max_num: 0,
+            avg_level: 0,
+            max_level: 1,
         },
-        "carrier": {
-            "name_list": [],
-            "max_num": 0,
-            "avg_level": 0,
-            "max_level": 1,
+        carrier: {
+            name_list: [],
+            max_num: 0,
+            avg_level: 0,
+            max_level: 1,
         },
-        "scout": {
-            "name_list": [],
-            "max_num": 0,
-            "avg_level": 0,
-            "max_level": 1,
+        scout: {
+            name_list: [],
+            max_num: 0,
+            avg_level: 0,
+            max_level: 1,
         },
-        "claimer": {
-            "name_list": [],
-            "max_num": 0,
-            "avg_level": 0,
-            "max_level": 1,
+        claimer: {
+            name_list: [],
+            max_num: 0,
+            avg_level: 0,
+            max_level: 1,
         },
-        "refueler": {
-            "name_list": [],
-            "max_num": 0,
-            "avg_level": 0,
-            "max_level": 1,
+        refueler: {
+            name_list: [],
+            max_num: 0,
+            avg_level: 0,
+            max_level: 1,
         },
-        "builder": {
-            "name_list": [],
-            "max_num": 0,
-            "avg_level": 0,
-            "max_level": 1,
+        builder: {
+            name_list: [],
+            max_num: 0,
+            avg_level: 0,
+            max_level: 1,
         },
-        "dealer": {
-            "name_list": [],
-            "max_num": 0,
-            "avg_level": 0,
-            "max_level": 1,
+        dealer: {
+            name_list: [],
+            max_num: 0,
+            avg_level: 0,
+            max_level: 1,
         },
     },
-    "sub_room_list": [],
+    sub_room_list: [],
 };
 
 STAT_TEMPLATE = {
-    "cpu": {
-        "used": 0,
-        "cap": 0,
-        "bucket": 0,
+    cpu: {
+        used: 0,
+        cap: 0,
+        bucket: 0,
     },
-    "gcl": {},
-    "energy": {},
-    "rcl": {},
-    "room_info": [],
-    "misc_info": {},
+    gcl: {},
+    energy: {},
+    rcl: {},
+    room_info: [],
+    misc_info: {},
 };
 
 STAT_ENERGY_TEMPLATE = {
-    "spawn": 0,
-    "spawn_cap": 0,
-    "storage": 0,
+    spawn: 0,
+    spawn_cap: 0,
+    storage: 0,
 };
 
 STAT_RCL_TEMPLATE = {
-    "level": 0,
-    "progress": 0,
-    "progress_total": 0,
+    level: 0,
+    progress: 0,
+    progress_total: 0,
 };
 
 STAT_ROOM_TEMPLATE = {
-    "room_name": "",
-    "claim_status": "",
-    "hostile_status": "",
+    room_name: "",
+    claim_status: "",
+    hostile_status: "",
 };

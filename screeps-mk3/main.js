@@ -90,6 +90,53 @@ module.exports.loop = function () {
 
         Memory.MemoryControl = 0;
     }
+    for (let main_room_name of Memory.main_room_list) {
+        // if (Memory.room_dict[main_room_name] == null) {
+        //     Memory.room_dict[main_room_name] = {
+        //         ...ROOM_TEMPLATE,
+        //         ...MAIN_ROOM_TEMPLATE
+        //     };
+        // }
+        for (let key in ROOM_TEMPLATE) {
+            if (Memory.room_dict[main_room_name][key] == null) {
+                if (Array.isArray(ROOM_TEMPLATE[key])) {
+                    Memory.room_dict[main_room_name][key] = [
+                        ...ROOM_TEMPLATE[key],
+                    ];
+                }
+                else if (typeof(ROOM_TEMPLATE[key]) === "object") {
+                    Memory.room_dict[main_room_name][key] = {
+                        ...ROOM_TEMPLATE[key],
+                    };
+                }
+                else {
+                    Memory.room_dict[main_room_name][key] = ROOM_TEMPLATE[key];
+                }
+            }
+        }
+        for (let key in MAIN_ROOM_TEMPLATE) {
+            if (Memory.room_dict[main_room_name][key] == null) {
+                if (Array.isArray(MAIN_ROOM_TEMPLATE[key])) {
+                    Memory.room_dict[main_room_name][key] = [
+                        ...MAIN_ROOM_TEMPLATE[key],
+                    ];
+                }
+                else if (typeof(ROOM_TEMPLATE[key]) === "object") {
+                    Memory.room_dict[main_room_name][key] = {
+                        ...MAIN_ROOM_TEMPLATE[key],
+                    };
+                }
+                else {
+                    Memory.room_dict[main_room_name][key] = MAIN_ROOM_TEMPLATE[key];
+                }
+            }
+        }
+        for (let key in Memory.room_dict[main_room_name]) {
+            if (ROOM_TEMPLATE[key] == null && MAIN_ROOM_TEMPLATE[key] == null) {
+                delete Memory.room_dict[main_room_name][key];
+            }
+        }
+    }
     ////    Memory Hotfix
     ////    Use console to set value: Memory.MemoryControl = 2
     if(Memory.MemoryControl === 2) {

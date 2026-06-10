@@ -163,7 +163,9 @@ let path_handler = {
                 if (Memory.main_room_list.includes(room_name)) {
                     for (let container_id of room_memory.container_list) {
                         let container = Game.getObjectById(container_id);
-                        cost_matrix.set(container.pos.x, container.pos.y, 255);
+                        if (container != null) {
+                            cost_matrix.set(container.pos.x, container.pos.y, 255);
+                        }
                     }
                     if (room_memory.spawn_list.length > 0) {
                         let main_spawn = Game.spawns[room_memory.spawn_list[0]];

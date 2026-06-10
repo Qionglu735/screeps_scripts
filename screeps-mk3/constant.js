@@ -86,6 +86,11 @@ MAIN_ROOM_TEMPLATE = {
     spawn_table: {
         2: [-1, -3], 3: [1, -3],
     },
+    spawn_name_table: {
+        2: "-B", 3: "-C",
+    },
+    spawn_creep_time: 0,
+    spawn_dict: {},
     container_list: [],
     extension_list: [],
     extension_table: {
@@ -142,9 +147,6 @@ MAIN_ROOM_TEMPLATE = {
         ...ENERGY_STAT_TEMPLATE
     },
     creep_spawn_list: [],
-    spawn_busy_time: 0,
-    spawn_cool_down: 0,
-    spawn_idle_time: 0,
     creep: {
         harvester: {
             name_list: [],
@@ -202,6 +204,7 @@ MAIN_ROOM_TEMPLATE = {
         },
     },
     sub_room_list: [],
+    controller_progress: 0,
 };
 
 STAT_TEMPLATE = {

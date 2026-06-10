@@ -84,7 +84,6 @@ module.exports.loop = function () {
         Memory.room_dict[first_room_name].main_room = first_room_name;
         Memory.room_dict[first_room_name].room_distance[first_room_name] = 0;
         Memory.room_dict[first_room_name].claim_status = "claimed";
-        Memory.room_dict[first_room_name].spawn_list.push(FIRST_SPAWN_NAME);
         Memory.main_room_list = [first_room_name];
         Memory.cpu_stat = {...CPU_STAT_TEMPLATE};
 

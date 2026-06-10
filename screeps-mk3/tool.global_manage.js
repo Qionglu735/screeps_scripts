@@ -8,18 +8,73 @@ let global_manage = function(main_room_name) {
     let cpu = Game.cpu.getUsed();
     let main_room = Game.rooms[main_room_name];
     let main_room_memory = Memory.room_dict[main_room_name];
-    let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
     ////////////////////////////////////////////////////////////////////////////////
     //    Check Room
     room_check(main_room_name);
     // console.log("check room", (Game.cpu.getUsed() - cpu).toFixed(3));
+
+    let site_sum = 0
+    ////////////////////////////////////////////////////////////////////////////////
+    ////    Check Spawn
+    main_room_memory.spawn_list[0] = FIRST_SPAWN_NAME;
+    let main_spawn = Game.spawns[main_room_memory.spawn_list[0]];
+    for(let i = main_room_memory.spawn_list.length - 1; i >= 0; i--) {  // check memory status
+        let spawn_name = main_room_memory.spawn_list[i]
+        let obj = Game.spawns[spawn_name];
+        if (!(obj && obj.structureType && obj.structureType === STRUCTURE_SPAWN)) {
+            delete main_room_memory.spawn_dict[spawn_name];
+            main_room_memory.spawn_list.splice(i, 1);
+        }
+        else if (!main_room_memory.spawn_list[i].includes("-")) {
+            main_spawn = obj;
+        }
+    }
+    let spawn_num = main_room_memory.spawn_list.length;
+    let spawn_site_num = 0;
+    let spawn_max = CONTROLLER_STRUCTURES[STRUCTURE_SPAWN][main_room.controller.level];
+    if (spawn_num < spawn_max) {  // num < max
+        let spawn_list = main_room.find(FIND_MY_STRUCTURES, {  // check game status
+            filter: (target) => target.structureType === STRUCTURE_SPAWN
+        });
+        for (let i in spawn_list) {  // update to memory
+            if(spawn_list.hasOwnProperty(i)) {
+                if (!main_room_memory.spawn_list.includes(spawn_list[i].name)) {
+                    main_room_memory.spawn_list.push(spawn_list[i].name);
+                }
+            }
+        }
+        spawn_num = main_room_memory.spawn_list.length;
+        spawn_site_num = main_room.find(FIND_MY_CONSTRUCTION_SITES, {  // find construction_site
+            filter: (target) => target.structureType === STRUCTURE_SPAWN
+        }).length;
+    }
+    if (AUTO_BUILD[STRUCTURE_SPAWN] && spawn_num < spawn_max) {
+        if (site_sum + spawn_site_num === 0) {  // not constructing
+            let spawn_pos = main_room_memory.spawn_table[spawn_num + 1];
+            let spawn_name = FIRST_SPAWN_NAME + main_room_memory.spawn_name_table[spawn_num + 1];
+            if (spawn_pos != null) {
+                let new_pos = new RoomPosition(
+                    main_spawn.pos.x + spawn_pos[0],
+                    main_spawn.pos.y + spawn_pos[1],
+                    main_room.name);
+                let create_status = main_room.createConstructionSite(new_pos.x, new_pos.y, STRUCTURE_SPAWN, spawn_name);
+                switch(create_status) {
+                    case OK:
+                        spawn_site_num += 1;
+                        break;
+                    default:
+                        console.log("create spawn failed:", spawn_num + 1, create_status);
+                        break;
+                }
+            }
+        }
+    }
+    site_sum += spawn_site_num;
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Container
-    for(let i in main_room_memory.container_list) {
-        if(main_room_memory.container_list.hasOwnProperty(i)) {
-            if(Game.getObjectById(main_room_memory.container_list[i]) == null) {
-                main_room_memory.container_list.splice(i, 1);
-            }
+    for(let i = main_room_memory.container_list.length - 1; i >= 0; i--) {  // check memory status
+        if(Game.getObjectById(main_room_memory.container_list[i]) == null) {
+            main_room_memory.container_list.splice(i, 1);
         }
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -27,15 +82,12 @@ let global_manage = function(main_room_name) {
     for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
         mine_port_check(main_room_name, room_name);
     }
-    let site_sum = 0
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Extension
-    for(let i in main_room_memory.extension_list) {  // check memory status
-        if(main_room_memory.extension_list.hasOwnProperty(i)) {
-            let obj = Game.getObjectById(main_room_memory.extension_list[i]);
-            if (!(obj && obj.structureType && obj.structureType === STRUCTURE_EXTENSION)) {
-                main_room_memory.extension_list.splice(i, 1);
-            }
+    for(let i = main_room_memory.extension_list.length - 1; i >= 0; i--) {  // check memory status
+        let obj = Game.getObjectById(main_room_memory.extension_list[i]);
+        if (!(obj && obj.structureType && obj.structureType === STRUCTURE_EXTENSION)) {
+            main_room_memory.extension_list.splice(i, 1);
         }
     }
     let extension_num = main_room_memory.extension_list.length;
@@ -80,13 +132,11 @@ let global_manage = function(main_room_name) {
     }
     site_sum += extension_site_num;
     ////////////////////////////////////////////////////////////////////////////////
-    ////    Check Storage
-    for(let i in main_room_memory.storage_list) {  // check memory status
-        if(main_room_memory.storage_list.hasOwnProperty(i)) {
-            let obj = Game.getObjectById(main_room_memory.storage_list[i]);
-            if (!(obj && obj.structureType && obj.structureType === STRUCTURE_STORAGE)) {
-                main_room_memory.storage_list.splice(i, 1);
-            }
+    ////    Check Storage  
+    for(let i = main_room_memory.storage_list.length - 1; i >= 0; i--) {  // check memory status
+        let obj = Game.getObjectById(main_room_memory.storage_list[i]);
+        if (!(obj && obj.structureType && obj.structureType === STRUCTURE_STORAGE)) {
+            main_room_memory.storage_list.splice(i, 1);
         }
     }
     let storage_num = main_room_memory.storage_list.length;
@@ -135,13 +185,11 @@ let global_manage = function(main_room_name) {
     }
     site_sum += storage_site_num;
     ////////////////////////////////////////////////////////////////////////////////
-    ////    Check Tower
-    for(let i in main_room_memory.tower_list) {  // check memory status
-        if(main_room_memory.tower_list.hasOwnProperty(i) && main_room_memory.tower_list[i] != null) {
-            let obj = Game.getObjectById(main_room_memory.tower_list[i]);
-            if (!(obj && obj.structureType && obj.structureType === STRUCTURE_TOWER)) {
-                main_room_memory.tower_list.splice(i, 1);
-            }
+    ////    Check Tower    
+    for(let i = main_room_memory.tower_list.length - 1; i >= 0; i--) {  // check memory status
+        let obj = Game.getObjectById(main_room_memory.tower_list[i]);
+        if (!(obj && obj.structureType && obj.structureType === STRUCTURE_TOWER)) {
+            main_room_memory.tower_list.splice(i, 1);
         }
     }
     let tower_num = main_room_memory.tower_list.length;
@@ -189,7 +237,7 @@ let global_manage = function(main_room_name) {
     // console.log("check s_e_s_t", (Game.cpu.getUsed() - cpu).toFixed(3));
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Link
-    for(let i of main_room_memory.link_list) {  // check memory status
+    for(let i = main_room_memory.link_list.length - 1; i >= 0; i--) {  // check memory status
         let obj = Game.getObjectById(main_room_memory.link_list[i]);
         if (!(obj && obj.structureType && obj.structureType === STRUCTURE_LINK)) {
             main_room_memory.link_list.splice(i, 1);
@@ -266,13 +314,11 @@ let global_manage = function(main_room_name) {
     }
     site_sum += link_site_num;
     ////////////////////////////////////////////////////////////////////////////////
-    ////    Check Terminal
-    for(let i in main_room_memory.terminal_list) {  // check memory status
-        if(main_room_memory.terminal_list.hasOwnProperty(i)) {
-            let obj = Game.getObjectById(main_room_memory.terminal_list[i]);
-            if (!(obj && obj.structureType && obj.structureType === STRUCTURE_TERMINAL)) {
-                main_room_memory.terminal_list.splice(i, 1);
-            }
+    ////    Check Terminal   
+    for(let i = main_room_memory.terminal_list.length - 1; i >= 0; i--) {  // check memory status
+        let obj = Game.getObjectById(main_room_memory.terminal_list[i]);
+        if (!(obj && obj.structureType && obj.structureType === STRUCTURE_TERMINAL)) {
+            main_room_memory.terminal_list.splice(i, 1);
         }
     }
     let terminal_num = main_room_memory.terminal_list.length;
@@ -320,7 +366,13 @@ let global_manage = function(main_room_name) {
     }
     site_sum += terminal_site_num;
     ////////////////////////////////////////////////////////////////////////////////
-    ////    Check Observer
+    ////    Check Observer  
+    for(let i = main_room_memory.observer_list.length - 1; i >= 0; i--) {  // check memory status
+        let obj = Game.getObjectById(main_room_memory.observer_list[i]);
+        if (!(obj && obj.structureType && obj.structureType === STRUCTURE_OBSERVER)) {
+            main_room_memory.observer_list.splice(i, 1);
+        }
+    }
     let observer_num = main_room_memory.observer_list.length;
     let observer_site_num = 0;
     let observer_max = CONTROLLER_STRUCTURES[STRUCTURE_OBSERVER][main_room.controller.level];
@@ -367,6 +419,12 @@ let global_manage = function(main_room_name) {
     site_sum += observer_site_num;
     ////////////////////////////////////////////////////////////////////////////////
     ////    Check Nuker
+    for(let i = main_room_memory.nuker_list.length - 1; i >= 0; i--) {  // check memory status
+        let obj = Game.getObjectById(main_room_memory.nuker_list[i]);
+        if (!(obj && obj.structureType && obj.structureType === STRUCTURE_NUKER)) {
+            main_room_memory.nuker_list.splice(i, 1);
+        }
+    }
     let nuker_num = main_room_memory.nuker_list.length;
     let nuker_site_num = 0;
     let nuker_max = CONTROLLER_STRUCTURES[STRUCTURE_NUKER][main_room.controller.level];
@@ -820,6 +878,12 @@ let global_manage = function(main_room_name) {
     }
     ////    adjust upgrader number
     // main_room_memory.creep.upgrader.max_num = 0;  // reset
+    let spawn_idle_time = Object.values(main_room_memory.spawn_dict).reduce(function(sum, item) {
+        return sum + item.idle_time;
+    }, 0);
+    let spawn_busy_time = Object.values(main_room_memory.spawn_dict).reduce(function(sum, item) {
+        return sum + item.busy_time;
+    }, 0);
     if ((
         main_room.controller.level < CONTROL_LEVEL_LIMIT 
         || main_room.controller.progress / main_room.controller.progressTotal < 0.9
@@ -830,13 +894,13 @@ let global_manage = function(main_room_name) {
     )) {
         if(main_room_memory.creep.upgrader.name_list.length >= main_room_memory.creep.upgrader.max_num
             && site_sum === 0
-            && main_room_memory.spawn_idle_time >= 10 * main_room.controller.level
+            && spawn_idle_time >= 10 * main_room.controller.level
             && main_room_memory.creep.upgrader.max_num <= 7
         ) {
             main_room_memory.creep.upgrader.max_num += 1;
         }
         else if(main_room_memory.creep.upgrader.name_list.length <= main_room_memory.creep.upgrader.max_num
-            && main_room_memory.spawn_busy_time >= 60 * main_room.controller.level
+            && spawn_busy_time >= 60 * main_room.controller.level
             && main_room_memory.creep.upgrader.max_num > 0
         ) {
             main_room_memory.creep.upgrader.max_num -= 1;

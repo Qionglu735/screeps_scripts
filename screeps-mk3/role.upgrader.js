@@ -41,12 +41,12 @@ let role_upgrader = function(creep) {
                     filter: (target) => target.structureType === STRUCTURE_CONTAINER
                         && target.store[RESOURCE_ENERGY] >= creep.store.getCapacity(RESOURCE_ENERGY) - creep.store[RESOURCE_ENERGY]});
                 if(targets.length > 0) {
-                    target = targets[Math.floor(Math.random() * 1000) % targets.length];
+                    target = targets[Math.floor(Math.random() * targets.length)];
                 }
             }
             if(!target) {
                 let targets = creep.room.find(FIND_SOURCES);
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
+                target = targets[Math.floor(Math.random() * targets.length)];
             }
             if(target) {
                 creep.memory.target_id = target.id;

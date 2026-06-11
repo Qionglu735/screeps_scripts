@@ -139,7 +139,7 @@ let role_harvester = function(creep) {
             let target = Game.getObjectById(creep.memory.target_id);
             if(!target) {
                 let targets = creep.room.find(FIND_SOURCES);
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
+                target = targets[Math.floor(Math.random() * targets.length)];
                 creep.memory.target_id = target.id;
             }
             if(target) {
@@ -179,7 +179,7 @@ let role_harvester = function(creep) {
                 }
             }
             if(targets.length > 0) {
-                target = targets[Math.floor(Math.random() * 1000) % targets.length];
+                target = targets[Math.floor(Math.random() * targets.length)];
             }
         }
         if(target) {

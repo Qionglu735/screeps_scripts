@@ -45,7 +45,7 @@ let role_carrier = function(creep) {
         _storage_list.push(_s);
     }
     if(_storage_list.length > 0) {
-        storage = _storage_list[Math.floor(Math.random() * 1000) % _storage_list.length];
+        storage = _storage_list[Math.floor(Math.random() * _storage_list.length)];
     }
     if(creep.memory.status == "withdraw" && creep.memory.type == null) {
         let main_room_memory = Memory.room_dict[creep.memory.main_room];

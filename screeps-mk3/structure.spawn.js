@@ -187,6 +187,7 @@ function spawn_creep(spawn, room, name, role, body, level) {
     }
     else {
         room_memory.spawn_creep_time = Game.time;
+        room_memory.creep[role].name_list.push(creep_name);
         spawn_memory.cool_down = body.length * CREEP_SPAWN_TIME * 3;
         spawn_memory.idle_time = 0;
         spawn_memory.busy_time += 1;

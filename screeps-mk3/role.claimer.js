@@ -7,12 +7,20 @@ let role_claimer = function(creep) {
             if(Game.rooms[creep.memory.main_room].controller.level >=4
                 // && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 1
                 && ["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)
-                && Memory.room_dict[room_name].assigned_claimer == null
             ) {
-                creep.memory.target_room = room_name;
-                creep.memory.target_id = null;
-                Memory.room_dict[creep.memory.target_room].assigned_claimer = creep.name;
-                break;
+                if (Memory.room_dict[room_name].assigned_claimer == null) {
+                    creep.memory.target_room = room_name;
+                    creep.memory.target_id = null;
+                    Memory.room_dict[creep.memory.target_room].assigned_claimer = creep.name;
+                    break;
+                }
+                else if (Memory.room_dict[room_name].assigned_claimer === creep.name) {
+                    creep.memory.target_room = room_name;
+                    break;
+                }
+                else {
+                    continue;
+                }
             }
         }
     }

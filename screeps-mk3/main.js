@@ -150,15 +150,16 @@ module.exports.loop = function () {
     cpu = Game.cpu.getUsed()
     for(let creep_name in Memory.creeps) {
         if (Memory.creeps.hasOwnProperty(creep_name)) {
-            if (!Game.creeps[creep_name]) {
+            if (Game.creeps[creep_name] == null) {
+                let main_room_name = Memory.creeps[creep_name].main_room;
+                let main_room_memory = Memory.room_dict[main_room_name];
                 let role = Memory.creeps[creep_name].role;
-                let room_name = null;
                 switch (role) {
                     case "miner":
                         let source_id = Memory.creeps[creep_name].target_id;
                         let source = Game.getObjectById(source_id);
                         if(source != null) {
-                            room_name = Game.getObjectById(source_id).room.name;
+                            let room_name = Game.getObjectById(source_id).room.name;
                             if (Memory.room_dict[room_name] != null
                                 && Memory.room_dict[room_name].source[source_id] != null
                                 && Memory.room_dict[room_name].source[source_id].assigned_miner === creep_name) {
@@ -166,41 +167,16 @@ module.exports.loop = function () {
                             }
                         }
                         break;
-                    case "claimer":
-                        room_name = Memory.creeps[creep_name].target_room;
-                        if (room_name != null && Memory.room_dict[room_name] != null
-                            && Memory.room_dict[room_name].assigned_claimer === creep_name) {
-                            Memory.room_dict[room_name].assigned_claimer = null;
-                        }
-                        break;
                     default:
                         break;
                 }
-                let main_room_name = Memory.creeps[creep_name].main_room;
-                let _index = Memory.room_dict[main_room_name].creep[role].name_list.indexOf(creep_name);
-                if (_index !== -1) {
-                    Memory.room_dict[main_room_name].creep[role].name_list.splice(_index, 1);
-                    if(role === "carrier" && Memory.room_dict[main_room_name].creep["carrier"].type_list != null) {
-                        // TODO: why Memory.room_dict[main_room_name].creep["carrier"].type_list == null
-                        Memory.room_dict[main_room_name].creep["carrier"].type_list.splice(_index, 1);
+                for (let i = main_room_memory.creep[role].name_list.length - 1; i >= 0; i--) {
+                    if (main_room_memory.creep[role].name_list[i] === creep_name) {
+                        main_room_memory.creep[role].name_list.splice(i, 1);
                     }
                 }
                 delete Memory.creeps[creep_name];
                 console.log(creep_name + " passed away.");
-            }
-            else if (Game.creeps[creep_name].spawning) {
-
-            }
-            else {
-                let main_room_name = Memory.creeps[creep_name].main_room;
-                let creep_role = Memory.creeps[creep_name].role;
-                if (!Memory.room_dict[main_room_name].creep[creep_role].name_list.includes(creep_name)) {
-                    Memory.room_dict[main_room_name].creep[creep_role].name_list.push(creep_name);
-                    if(creep_role === "carrier" && Memory.room_dict[main_room_name].creep["carrier"].type_list != null) {
-                        // TODO: why Memory.room_dict[main_room_name].creep["carrier"].type_list == null
-                        Memory.room_dict[main_room_name].creep["carrier"].type_list.push("");
-                    }
-                }
             }
         }
     }
@@ -210,6 +186,10 @@ module.exports.loop = function () {
             if(Memory.room_dict[room_name].creep.hasOwnProperty(role)) {
                 let creep_level_list = [];
                 for(let creep_name of Memory.room_dict[room_name].creep[role].name_list) {
+                    if (Game.creeps[creep_name] == null) {
+                        Memory.room_dict[room_name].creep[role].name_list.splice(Memory.room_dict[room_name].creep[role].name_list.indexOf(creep_name), 1);
+                        continue;
+                    }
                     creep_level_list.push(Game.creeps[creep_name].memory.level);
                 }
                 if(creep_level_list.length > 0) {

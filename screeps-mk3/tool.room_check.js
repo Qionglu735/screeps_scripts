@@ -158,8 +158,11 @@ let room_check = function(main_room_name) {
             && Memory.room_dict[room_name].hostile_status !== "neutral") {
             Memory.room_dict[room_name].claim_status = "neutral";
         }
+        if (Memory.room_dict[room_name].assigned_claimer != null && Game.creeps[Memory.room_dict[room_name].assigned_claimer] == null) {
+            Memory.room_dict[room_name].assigned_claimer = null;
+        }
         console.log(room_name,
-            Memory.room_dict[room_name].claim_status, Memory.room_dict[room_name].hostile_status);
+            Memory.room_dict[room_name].claim_status, Memory.room_dict[room_name].hostile_status, Memory.room_dict[room_name].assigned_claimer);
     }
     if(LOG_USED_TIME) {
         console.log("check sub room", (Game.cpu.getUsed() - cpu).toFixed(3));

@@ -34,7 +34,7 @@ let role_harvester = function(creep) {
         }
     }
     else {
-        console.log(creep.name, creep.memory.status, "null")
+        console.log(creep.name, creep.memory.status, "No Target")
     }
     if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);
@@ -284,7 +284,25 @@ let role_harvester = function(creep) {
             let targets = global_find.find(FIND_STRUCTURES, {
                 filter: (structure) =>
                     structure.hits < structure.hitsMax * 0.95
-                    && structure.structureType !== STRUCTURE_WALL}, {
+                    && structure.structureType !== STRUCTURE_WALL
+                    && structure.structureType !== STRUCTURE_ROAD
+            }, {
+                pos: creep.pos,
+                findClosestByPath: true,
+            });
+            if(targets.length > 0) {
+                // target = targets[Math.floor(Math.random() * 1000) % targets.length];
+                target = targets[0];
+                creep.memory.target_id = target.id;
+            }
+        }
+        if(!target) {
+            let targets = global_find.find(FIND_STRUCTURES, {
+                filter: (structure) =>
+                    structure.hits < structure.hitsMax * 0.95
+                    && structure.structureType == STRUCTURE_ROAD
+                    && structure.pos.roomName == creep.memory.main_room
+            }, {
                 pos: creep.pos,
                 findClosestByPath: true,
             });
@@ -349,10 +367,10 @@ let role_harvester = function(creep) {
             }
         }
         else {
+            creep.memory.target_id = null;
             creep.say("Idle");
             if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
                 creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
-                creep.memory.target_id = null;
             }
         }
     }

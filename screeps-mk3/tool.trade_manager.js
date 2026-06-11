@@ -47,14 +47,22 @@ let trade_manager = {
         if (main_room_memory.creep.dealer.name_list.length > 0) {
             dealer = Game.creeps[main_room_memory.creep.dealer.name_list[0]];
         }
-        
         let energy_available = 
             storage.store[RESOURCE_ENERGY] + terminal.store[RESOURCE_ENERGY] + (dealer != null ? dealer.store[RESOURCE_ENERGY] : 0)
             - (storage.store.getCapacity() * STORAGE_THRESHOLD[RESOURCE_ENERGY] * (SELL_ABOVE_THRESHOLD / 2));
         if (energy_available <= 0) {
             return;
         }
-        for (let resource_type of [RESOURCE_ENERGY, RESOURCE_HYDROGEN]) {
+        for (let resource_type of [
+            RESOURCE_ENERGY,
+            RESOURCE_HYDROGEN,
+            RESOURCE_OXYGEN,
+            RESOURCE_UTRIUM,
+            RESOURCE_LEMERGIUM,
+            RESOURCE_KEANIUM,
+            RESOURCE_ZYNTHIUM,
+            RESOURCE_CATALYST,
+        ]) {
             let amount_available = 
                 storage.store[resource_type] + terminal.store[resource_type] + (dealer != null ? dealer.store[resource_type] : 0)
                 - (storage.store.getCapacity() * STORAGE_THRESHOLD[resource_type] * SELL_ABOVE_THRESHOLD);
@@ -91,6 +99,7 @@ let trade_manager = {
             if (max_price_order_id != null) {
                 let order = order_dict[max_price_order_id];
                 main_room_memory.active_market_order = order;
+                break;
             }
         }
     },
@@ -109,7 +118,6 @@ let trade_manager = {
 
         if (main_room_memory.storage_list.length == 0
             || main_room_memory.terminal_list.length == 0
-            || main_room_memory.creep.dealer.name_list.length == 0
         ) {
             return;
         }
@@ -127,7 +135,15 @@ let trade_manager = {
             return;
         }
 
-        for (let resource_type of [RESOURCE_OXYGEN]) {
+        for (let resource_type of [
+            RESOURCE_HYDROGEN,
+            RESOURCE_OXYGEN,
+            RESOURCE_UTRIUM,
+            RESOURCE_LEMERGIUM,
+            RESOURCE_KEANIUM,
+            RESOURCE_ZYNTHIUM,
+            RESOURCE_CATALYST,
+        ]) {
             let amount_require = 
                 storage.store.getCapacity() * STORAGE_THRESHOLD[resource_type] * BUY_BELOW_THRESHOLD
                 - storage.store[resource_type] - terminal.store[resource_type] - (dealer != null ? dealer.store[resource_type] : 0);
@@ -167,6 +183,7 @@ let trade_manager = {
             if (min_price_order_id != null) {
                 let order = order_dict[min_price_order_id];
                 main_room_memory.active_market_order = order;
+                break;
             }
         }
     },

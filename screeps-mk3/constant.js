@@ -63,6 +63,7 @@ ROOM_TEMPLATE = {
     assigned_claimer: null,
     main_room: null,
     room_distance: {},
+    cost_matrix: null,
 };
 
 CPU_STAT_TEMPLATE = {
@@ -205,6 +206,7 @@ MAIN_ROOM_TEMPLATE = {
     },
     sub_room_list: [],
     controller_progress: 0,
+    active_market_order: null,
 };
 
 STAT_TEMPLATE = {

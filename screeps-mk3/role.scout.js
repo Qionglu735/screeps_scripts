@@ -32,7 +32,7 @@ let role_scout = function(creep) {
                     creep.moveTo(target);
                 }
             }
-            if (!target) {
+            if (!target && creep.room.controller != null) {
                 if (creep.room.controller.my
                     || creep.room.controller.owner == null
                     || creep.room.controller.reservation.username === creep.owner.username

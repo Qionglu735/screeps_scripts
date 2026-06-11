@@ -131,7 +131,8 @@ module.exports.loop = function () {
             }
         }
         for (let key in Memory.room_dict[main_room_name]) {
-            if (ROOM_TEMPLATE[key] == null && MAIN_ROOM_TEMPLATE[key] == null) {
+            if (!ROOM_TEMPLATE.hasOwnProperty(key) && !MAIN_ROOM_TEMPLATE.hasOwnProperty(key)) {
+                console.log("delete", key)
                 delete Memory.room_dict[main_room_name][key];
             }
         }

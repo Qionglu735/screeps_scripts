@@ -99,17 +99,24 @@ let room_check = function(main_room_name) {
     let reverse_num = 0;
     for(let room_name of [main_room_name].concat(main_room_memory.sub_room_list)) {
         //// check hostile status
-        if(Game.rooms[room_name] == null) {
-
-        }
-        else if(Game.rooms[room_name].find(FIND_HOSTILE_STRUCTURES).length > 0) {
-            Memory.room_dict[room_name].hostile_status = "hostile_structure";
-        }
-        else if(Game.rooms[room_name].find(FIND_HOSTILE_CREEPS).length > 0) {
-            Memory.room_dict[room_name].hostile_status = "hostile_creep";
-        }
-        else {
-            Memory.room_dict[room_name].hostile_status = "neutral";
+        if(Game.rooms[room_name] != null) {
+            let hostile_creep_list = Game.rooms[room_name].find(FIND_HOSTILE_CREEPS);
+            let hostile_part_sum = hostile_creep_list.reduce(function(sum, creep) {
+                return sum 
+                    + creep.getActiveBodyparts(ATTACK)
+                    + creep.getActiveBodyparts(RANGED_ATTACK)
+                    + creep.getActiveBodyparts(CLAIM)
+                ;
+            }, 0);
+            if(Game.rooms[room_name].find(FIND_HOSTILE_STRUCTURES).length > 0) {
+                Memory.room_dict[room_name].hostile_status = "hostile_structure";
+            }
+            else if(hostile_part_sum > 0) {
+                Memory.room_dict[room_name].hostile_status = "hostile_creep";
+            }
+            else {
+                Memory.room_dict[room_name].hostile_status = "neutral";
+            }
         }
         ////    check hostile claim status
         if(Game.rooms[room_name] == null) {

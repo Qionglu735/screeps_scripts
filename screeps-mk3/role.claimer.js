@@ -7,7 +7,8 @@ let role_claimer = function(creep) {
             if(Game.rooms[creep.memory.main_room].controller.level >=4
                 // && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 1
                 && ["to_reverse", "reversing", "reversed"].includes(Memory.room_dict[room_name].claim_status)
-                && Memory.room_dict[room_name].assigned_claimer == null) {
+                && Memory.room_dict[room_name].assigned_claimer == null
+            ) {
                 creep.memory.target_room = room_name;
                 creep.memory.target_id = null;
                 Memory.room_dict[creep.memory.target_room].assigned_claimer = creep.name;
@@ -17,12 +18,16 @@ let role_claimer = function(creep) {
     }
     if(creep.memory.target_room != null
         && Memory.room_dict[creep.memory.target_room] != null
-        && Memory.room_dict[creep.memory.target_room].claim_status === "to_reverse") {
+        && Memory.room_dict[creep.memory.target_room].claim_status === "to_reverse"
+    ) {
         Memory.room_dict[creep.memory.target_room].claim_status = "reversing";
     }
     if(creep.memory.target_room == null || Memory.room_dict[creep.memory.target_room] == null) {
-        console.log(creep.name, "no target room");
-        creep.say("No Room");
+        console.log(creep.name, "idle")
+        creep.say("Idle");
+        if (Game.flags["IdlePark"] && creep.pos.getRangeTo(Game.flags["IdlePark"].pos) > 1) {
+            creep.moveTo(Game.flags["IdlePark"], {visualizePathStyle: {stroke: "#ff88ff"}});
+        }
     }
     else if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
         path_handler.move(creep);
@@ -79,8 +84,7 @@ let role_claimer = function(creep) {
         }
     }
     else {
-        console.log(creep.name, "idle")
-        creep.say("Idle");
+        creep.memory.target_room = null;
     }
 };
 

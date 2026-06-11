@@ -26,9 +26,10 @@ let room_check = function(main_room_name) {
             break;
         case 5:
         case 6:
+            max_scout_distance = 3;
         case 7:
         case 8:
-            max_scout_distance = 2;
+            max_scout_distance = 4;
             max_reverse_distance = 1;
             // max_sub_room_num = 1;
             max_reverse_num = 0;

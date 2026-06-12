@@ -2,7 +2,7 @@
 let path_handler = {
     move: function(creep) {
         if(creep.fatigue > 0) {
-            return;
+            return ERR_TIRED;
         }
         let path_list = null;
         try {
@@ -13,7 +13,7 @@ let path_handler = {
         }
         if(path_list.length === 0) {
             creep.memory.path_list = null;
-            return;
+            return ERR_NO_PATH;
         }
         let pos = new RoomPosition(path_list[0].x,
             path_list[0].y,
@@ -69,7 +69,7 @@ let path_handler = {
         if(creep.pos.x === 0 || creep.pos.y === 0 || creep.pos.x === 49 || creep.pos.y === 49) {
             // creep already on edge
             if(creep.pos.roomName !== pos.roomName) {
-                return;  // wait one tick to teleport to target room
+                return OK;  // wait one tick to teleport to target room
             }
         }
         let move_status = creep.moveTo(pos);
@@ -96,6 +96,7 @@ let path_handler = {
             default:
                 creep.say(move_status);
         }
+        return move_status;
     },
     find: function(creep, target, distance, close_range) {
         this.find_pos(creep, target.pos, distance, close_range);

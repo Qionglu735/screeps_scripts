@@ -147,7 +147,6 @@ MAIN_ROOM_TEMPLATE = {
     energy_stat: {
         ...ENERGY_STAT_TEMPLATE
     },
-    creep_spawn_list: [],
     creep: {
         harvester: {
             name_list: [],
@@ -172,6 +171,7 @@ MAIN_ROOM_TEMPLATE = {
             max_num: 0,
             avg_level: 0,
             max_level: 1,
+            type_list: [],
         },
         scout: {
             name_list: [],
@@ -205,6 +205,7 @@ MAIN_ROOM_TEMPLATE = {
         },
     },
     sub_room_list: [],
+    scout_room_list: [],
     controller_progress: 0,
     active_market_order: null,
 };

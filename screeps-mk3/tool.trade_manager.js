@@ -11,10 +11,6 @@ let trade_manager = {
         }
         let order_info = Game.market.getOrderById(main_room_memory.active_market_order.id);
         if (order_info == null) {
-            delete Memory.market_order_dict[main_room_memory.active_market_order.id];
-            Memory.market_order_list = Memory.market_order_list.filter(
-                id => id !== main_room_memory.active_market_order.id
-            );
             main_room_memory.active_market_order = null;
             return;
         }

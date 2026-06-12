@@ -45,51 +45,47 @@ let room_check = function(main_room_name) {
             }
             break;
     }
-    let room_list = [main_room_name];
-    let distance_list = [0];
-    main_room_memory.sub_room_list = [];
+    let room_stack = [main_room_name];
+    let distance_stack = [0];
+    main_room_memory.sub_room_list= [];
+    main_room_memory.scout_room_list = [];
     let i = 0;
-    while(i < room_list.length) {
-        if(!(room_list[i] in Memory.room_dict)) {
-            Memory.room_dict[room_list[i]] = {...ROOM_TEMPLATE};
+    while (i < room_stack.length) {
+        if (Object.hasOwn(Memory.room_dict, room_stack[i]) === false ) {
+            Memory.room_dict[room_stack[i]] = {...ROOM_TEMPLATE};
         }
-        Memory.room_dict[room_list[i]].main_room = main_room_name;
-        if(distance_list[i] === 0) {
-
+        Memory.room_dict[room_stack[i]].main_room = main_room_name;
+        if (distance_stack[i] === 0) {
+            // is main room
         }
-        else if(distance_list[i] <= max_reverse_distance
-            && !main_room_memory.sub_room_list.includes(room_list[i])) {
-            main_room_memory.sub_room_list.push(room_list[i])
-            // if(main_room_memory.sub_room_list < max_sub_room_num) {
-            //     main_room_memory.sub_room_list.push(room_list[i]);
-            // }
+        else if (distance_stack[i] <= max_reverse_distance
+            && !main_room_memory.sub_room_list.includes(room_stack[i])
+        ) {
+            main_room_memory.sub_room_list.push(room_stack[i]);
+        }
+        else if (distance_stack[i] <= max_scout_distance) {
+            main_room_memory.scout_room_list.push(room_stack[i]);
         }
         else {
-            // if(main_room_memory.sub_room_list.includes(room_list[i])) {
-            //     for(let j in main_room_memory.sub_room_list) {
-            //         if(main_room_memory.sub_room_list[j] === room_list[i]) {
-            //             main_room_memory.sub_room_list.splice(j, 1);
-            //         }
-            //     }
-            // }
+            
         }
-        Memory.room_dict[room_list[i]].room_distance[main_room_name] = distance_list[i];
-        // console.log(room_list[i], distance_list[i])
-        if(distance_list[i] + 1 <= max_scout_distance) {
-            let exit_info = Game.map.describeExits(room_list[i]);
+        Memory.room_dict[room_stack[i]].room_distance[main_room_name] = distance_stack[i];
+        // console.log(room_stack[i], distance_stack[i])
+        if (distance_stack[i] + 1 <= max_scout_distance) {
+            let exit_info = Game.map.describeExits(room_stack[i]);
             for(let j of ["1", "3", "5", "7"]){
                 if(exit_info[j] != null) {
-                    if(!room_list.includes(exit_info[j])) {
-                        room_list.push(exit_info[j]);
-                        distance_list.push(distance_list[i] + 1);
+                    if(!room_stack.includes(exit_info[j])) {
+                        room_stack.push(exit_info[j]);
+                        distance_stack.push(distance_stack[i] + 1);
                     }
                 }
             }
         }
         i += 1;
     }
-    Memory.room_list = room_list;
-    if(LOG_USED_TIME) {
+    Memory.room_list = room_stack;
+    if (LOG_USED_TIME) {
         console.log("check main room", (Game.cpu.getUsed() - cpu).toFixed(3));
     }
     ////////////////////////////////////////////////////////////////////////////////

@@ -90,14 +90,8 @@ module.exports.loop = function () {
         Memory.MemoryControl = 0;
     }
     for (let main_room_name of Memory.main_room_list) {
-        // if (Memory.room_dict[main_room_name] == null) {
-        //     Memory.room_dict[main_room_name] = {
-        //         ...ROOM_TEMPLATE,
-        //         ...MAIN_ROOM_TEMPLATE
-        //     };
-        // }
         for (let key in ROOM_TEMPLATE) {
-            if (Memory.room_dict[main_room_name][key] == null) {
+            if (Object.hasOwn(Memory.room_dict[main_room_name], key) == false) {
                 if (Array.isArray(ROOM_TEMPLATE[key])) {
                     Memory.room_dict[main_room_name][key] = [
                         ...ROOM_TEMPLATE[key],
@@ -114,13 +108,13 @@ module.exports.loop = function () {
             }
         }
         for (let key in MAIN_ROOM_TEMPLATE) {
-            if (Memory.room_dict[main_room_name][key] == null) {
+            if (Object.hasOwn(Memory.room_dict[main_room_name], key) == false) {
                 if (Array.isArray(MAIN_ROOM_TEMPLATE[key])) {
                     Memory.room_dict[main_room_name][key] = [
                         ...MAIN_ROOM_TEMPLATE[key],
                     ];
                 }
-                else if (typeof(ROOM_TEMPLATE[key]) === "object") {
+                else if (typeof(MAIN_ROOM_TEMPLATE[key]) === "object") {
                     Memory.room_dict[main_room_name][key] = {
                         ...MAIN_ROOM_TEMPLATE[key],
                     };
@@ -131,7 +125,7 @@ module.exports.loop = function () {
             }
         }
         for (let key in Memory.room_dict[main_room_name]) {
-            if (!ROOM_TEMPLATE.hasOwnProperty(key) && !MAIN_ROOM_TEMPLATE.hasOwnProperty(key)) {
+            if (Object.hasOwn(ROOM_TEMPLATE, key) == false && Object.hasOwn(MAIN_ROOM_TEMPLATE, key) == false) {
                 console.log("delete", key)
                 delete Memory.room_dict[main_room_name][key];
             }

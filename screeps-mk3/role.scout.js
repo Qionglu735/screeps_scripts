@@ -2,27 +2,24 @@
 let path_handler = require("tool.path_handler");
 
 let role_scout = function(creep) {
-    let control_level = Game.spawns["Spawn1"].room.controller.level;
-    if(creep.memory.target_room == null) {
-        for(let room_name of Memory.room_list) {
-            if(Game.rooms[room_name] == null) {
-                // if(control_level < 4 && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 1
-                //     || control_level < 6 && Memory.room_dict[room_name].room_distance[creep.memory.main_room] <= 2) {
-                //     creep.memory.target_room = room_name;
-                //     break;
-                // }
-                creep.memory.target_room = room_name;
-                break;
-            }
+    let main_room_memory = Memory.room_dict[creep.memory.main_room];
+    if (creep.memory.target_room == null) {
+        let no_visual_room_list = main_room_memory.sub_room_list.concat(main_room_memory.scout_room_list).filter(function(x) {
+            return Game.rooms[x] == null;
+        });
+        if (no_visual_room_list.length > 0) {
+            creep.memory.target_room = no_visual_room_list[Math.floor(Math.random() *  no_visual_room_list.length)];
+        }
+        else {
+            creep.memory.target_room = main_room_memory.scout_room_list[Math.floor(Math.random() *  main_room_memory.scout_room_list.length)];
         }
     }
-    if(creep.memory.target_room == null) {
-        creep.memory.target_room = Memory.room_list[Math.floor(Math.random() * Memory.room_list.length)];
-    }
     else if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
+        // console.log(creep.name, creep.memory.target_room, Memory.room_dict[creep.memory.target_room].room_distance[creep.memory.main_room])
         path_handler.move(creep);
     }
     else {
+        // console.log(creep.name, creep.memory.target_room, Memory.room_dict[creep.memory.target_room].room_distance[creep.memory.main_room])
         if(creep.room.name === creep.memory.target_room) {
             let target = null;
             if (!target && typeof(FIND_SCORES) != "undefined") {
@@ -32,7 +29,7 @@ let role_scout = function(creep) {
                     creep.moveTo(target);
                 }
             }
-            if (!target && creep.room.controller != null) {
+            else if (!target && creep.room.controller != null) {
                 if (creep.room.controller.my
                     || creep.room.controller.owner == null
                     || creep.room.controller.reservation.username === creep.owner.username
@@ -62,12 +59,14 @@ let role_scout = function(creep) {
                     creep.memory.target_room = null;
                 }
             }
+            else {
+                creep.memory.target_room = null;
+            }
         }
         else {
             path_handler.find_pos(creep, new RoomPosition(25, 25, creep.memory.target_room))
         }
     }
-
 };
 
 module.exports = role_scout;

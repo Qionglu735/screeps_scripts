@@ -1,5 +1,6 @@
 
-// https://docs.screeps.com/api/#Game
+// https://docs.screeps.com/api/
+// https://docs-season.screeps.com/api/
 
 require("constant")
 

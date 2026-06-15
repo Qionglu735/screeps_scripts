@@ -344,10 +344,12 @@ let role_harvester = function(creep) {
         }
     }
     else if(creep.memory.status === "upgrade") {
-        if (creep.room.controller.level < CONTROL_LEVEL_LIMIT
-            || creep.room.controller.progress / creep.room.controller.progressTotal < 0.9
-            || creep.room.controller.ticksToDowngrade / CONTROLLER_DOWNGRADE[creep.room.controller.level] < 0.5
-        ) {
+        let main_room = Game.rooms[creep.memory.main_room];
+        if (main_room != null && (
+            main_room.controller.level < CONTROL_LEVEL_LIMIT
+            || main_room.controller.progress / main_room.controller.progressTotal < 0.9
+            || main_room.controller.ticksToDowngrade / CONTROLLER_DOWNGRADE[main_room.controller.level] < 0.5
+        )) {
             let target = Game.rooms[creep.memory.main_room].controller;
             creep.memory.target_id = target.id;
             let upgrade_status = creep.upgradeController(target);

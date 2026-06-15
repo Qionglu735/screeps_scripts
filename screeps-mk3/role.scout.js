@@ -5,13 +5,16 @@ let role_scout = function(creep) {
     let main_room_memory = Memory.room_dict[creep.memory.main_room];
     if (creep.memory.target_room == null) {
         let no_visual_room_list = main_room_memory.sub_room_list.concat(main_room_memory.scout_room_list).filter(function(x) {
-            return Game.rooms[x] == null;
+            return Game.rooms[x] == null && Memory.room_dict[x].hostile_status == "neutral";
+        });
+        let neutral_noom_list = main_room_memory.sub_room_list.concat(main_room_memory.scout_room_list).filter(function(x) {
+            return Memory.room_dict[x].hostile_status == "neutral";
         });
         if (no_visual_room_list.length > 0) {
-            creep.memory.target_room = no_visual_room_list[Math.floor(Math.random() *  no_visual_room_list.length)];
+            creep.memory.target_room = no_visual_room_list[Math.floor(Math.random() * no_visual_room_list.length)];
         }
         else {
-            creep.memory.target_room = main_room_memory.scout_room_list[Math.floor(Math.random() *  main_room_memory.scout_room_list.length)];
+            creep.memory.target_room = neutral_noom_list[Math.floor(Math.random() * neutral_noom_list.length)];
         }
     }
     else if(creep.memory.path_list != null && creep.memory.path_list.length > 0) {
@@ -59,7 +62,7 @@ let role_scout = function(creep) {
             }
         }
         else {
-            path_handler.find_pos(creep, new RoomPosition(25, 25, creep.memory.target_room))
+            let path_length = path_handler.find_pos(creep, new RoomPosition(24, 24, creep.memory.target_room), 23);
         }
     }
 };

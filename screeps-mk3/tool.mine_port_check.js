@@ -37,6 +37,12 @@ let mine_port_check = function(main_room_name, room_name) {
                     need_check_source = true;
                     break;
                 }
+                let miner_name = room_memory.source[source_id].assigned_miner;
+                if (miner_name != null && Game.creeps[miner_name] == null) {
+                    room_memory.source[source_id].assigned_miner = null;
+                    need_check_source = true;
+                    break;
+                }
             }
         }
     }

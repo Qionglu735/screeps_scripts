@@ -149,22 +149,22 @@ module.exports.loop = function () {
                 let main_room_name = Memory.creeps[creep_name].main_room;
                 let main_room_memory = Memory.room_dict[main_room_name];
                 let role = Memory.creeps[creep_name].role;
-                switch (role) {
-                    case "miner":
-                        let source_id = Memory.creeps[creep_name].target_id;
-                        let source = Game.getObjectById(source_id);
-                        if(source != null) {
-                            let room_name = Game.getObjectById(source_id).room.name;
-                            if (Memory.room_dict[room_name] != null
-                                && Memory.room_dict[room_name].source[source_id] != null
-                                && Memory.room_dict[room_name].source[source_id].assigned_miner === creep_name) {
-                                Memory.room_dict[room_name].source[source_id].assigned_miner = null;
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                // switch (role) {
+                //     case "miner":
+                //         let source_id = Memory.creeps[creep_name].target_id;
+                //         let source = Game.getObjectById(source_id);
+                //         if(source != null) {
+                //             let room_name = Game.getObjectById(source_id).room.name;
+                //             if (Memory.room_dict[room_name] != null
+                //                 && Memory.room_dict[room_name].source[source_id] != null
+                //                 && Memory.room_dict[room_name].source[source_id].assigned_miner === creep_name) {
+                //                 Memory.room_dict[room_name].source[source_id].assigned_miner = null;
+                //             }
+                //         }
+                //         break;
+                //     default:
+                //         break;
+                // }
                 for (let i = main_room_memory.creep[role].name_list.length - 1; i >= 0; i--) {
                     if (main_room_memory.creep[role].name_list[i] === creep_name) {
                         main_room_memory.creep[role].name_list.splice(i, 1);

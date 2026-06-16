@@ -1,79 +1,38 @@
 
 let path_handler = {
+    has_path: function(creep) {
+        
+    },
     move: function(creep) {
-        if(creep.fatigue > 0) {
+        if (creep.fatigue > 0) {
             return ERR_TIRED;
         }
-        let path_list = null;
-        try {
-            path_list = JSON.parse(creep.memory.path_list);
-        }
-        catch(err) {  // compatible with array version
-            path_list = creep.memory.path_list;
-        }
-        if(path_list.length === 0) {
-            if (creep.memory.map_route != null) {
-                let next_pos = new RoomPosition(24, 24, creep.memory.map_route[0]);
-                let next_distance = 23;
-                if (creep.memory.map_route.length === 1) {
-                    creep.memory.map_route = null;
-                    next_pos = new RoomPosition(
-                        creep.memory.path_final_pos.x,
-                        creep.memory.path_final_pos.y,
-                        creep.memory.path_final_pos.roomName,
-                    )
-                    next_distance = creep.memory.path_final_pos.distance;
-                }
-                else {
-                    creep.memory.map_route.shift();
-                }
-                let pathFinder = PathFinder.search(
-                    creep.pos,
-                    {pos: next_pos, range: next_distance},
-                    {
-                        plainCost: 2,
-                        swampCost: 5,
-                        roomCallback: function(room_name) {
-                            return path_handler.get_cost_matrix(room_name);
-                        }
-                    }
-                );
-                // console.log("PathFinder.search", Game.cpu.getUsed() - cpu);
-                if (pathFinder.incomplete === false || pathFinder.path.length > 0) {
-                    for(let i of pathFinder.path) {
-                        let room = Game.rooms[i.roomName];
-                        if (room == null) {
-                            continue;
-                        }
-                        room.visual.circle(i.x, i.y, {fill: "#ff00ff", radius: 0.1, opacity: 0.7});
-                    }
-                    creep.memory.path_list = JSON.stringify(pathFinder.path);
-                }
-                else {
-                    creep.say("No Path");
-                    return 0;
-                }
-            }
+        let path_list = creep.memory.path_list;
+        if (path_list == null || path_list.length === 0 || path_list[0].x == null) {
             creep.memory.path_list = null;
             return ERR_NO_PATH;
         }
-        let pos = new RoomPosition(path_list[0].x,
+        let pos = new RoomPosition(
+            path_list[0].x,
             path_list[0].y,
-            path_list[0].roomName);
-        while(path_list.length > 1 && (pos.x === 0 || pos.y === 0 || pos.x === 49 || pos.y === 49)) {
+            path_list[0].roomName,
+        );
+        while (path_list.length > 1 && (pos.x === 0 || pos.y === 0 || pos.x === 49 || pos.y === 49)) {
             path_list.shift();
-            if(path_list.length > 0) {
-                creep.memory.path_list = JSON.stringify(path_list)
+            if (path_list.length > 0) {
+                creep.memory.path_list = path_list;
             }
             else {
                 creep.memory.path_list = null;
             }
-            pos = new RoomPosition(path_list[0].x,
+            pos = new RoomPosition(
+                path_list[0].x,
                 path_list[0].y,
-                path_list[0].roomName);
+                path_list[0].roomName,
+            );
         }  // avoid blinking at room edge
-        if(path_list.length === 1 && (pos.x === 0 || pos.y === 0 || pos.x === 49 || pos.y === 49)) {
-            if(pos.x === 0 || pos.x === 49) {
+        if (path_list.length === 1 && (pos.x === 0 || pos.y === 0 || pos.x === 49 || pos.y === 49)) {
+            if (pos.x === 0 || pos.x === 49) {
                 if (pos.x === 0) {
                     pos.x += 1;
                 }
@@ -90,7 +49,7 @@ let path_handler = {
                     pos.y -= 1;
                 }
             }
-            if(pos.y === 0 || pos.y === 49) {
+            if (pos.y === 0 || pos.y === 49) {
                 if(pos.y === 0) {
                     pos.y += 1;
                 }
@@ -108,23 +67,66 @@ let path_handler = {
                 }
             }
         }  // if target pos is on edge, move in one step
-        if(creep.pos.x === 0 || creep.pos.y === 0 || creep.pos.x === 49 || creep.pos.y === 49) {
+        if (creep.pos.x === 0 || creep.pos.y === 0 || creep.pos.x === 49 || creep.pos.y === 49) {
             // creep already on edge
             if(creep.pos.roomName !== pos.roomName) {
                 return OK;  // wait one tick to teleport to target room
             }
         }
         let move_status = creep.moveTo(pos);
-        switch(move_status) {
+        switch (move_status) {
             case OK:
-                if((creep.pos.x - pos.x) ** 2 + (creep.pos.y - pos.y) ** 2 <= 2
-                    && creep.pos.roomName === pos.roomName) {
+                if ((creep.pos.x - pos.x) ** 2 + (creep.pos.y - pos.y) ** 2 <= 2 && creep.pos.roomName === pos.roomName) {
                     path_list.shift();
-                    if(path_list.length > 0) {
-                        creep.memory.path_list = JSON.stringify(path_list)
+                    if (path_list.length > 0) {
+                        creep.memory.path_list = path_list;
                     }
                     else {
-                        creep.memory.path_list = null;
+                        if (creep.memory.map_route != null && creep.memory.map_route.length > 0) {
+                            let cpu = Game.cpu.getUsed();
+                            let next_pos = new RoomPosition(24, 24, creep.memory.map_route[0].room);
+                            let next_distance = 23;
+                            if (creep.memory.map_route.length === 1) {
+                                creep.memory.map_route = null;
+                                next_pos = new RoomPosition(
+                                    creep.memory.path_final_pos.x,
+                                    creep.memory.path_final_pos.y,
+                                    creep.memory.path_final_pos.roomName,
+                                )
+                                next_distance = creep.memory.path_final_pos.distance;
+                            }
+                            else {
+                                creep.memory.map_route.shift();
+                            }
+                            let pathFinder = PathFinder.search(
+                                creep.pos,
+                                {pos: next_pos, range: next_distance},
+                                {
+                                    plainCost: 2,
+                                    swampCost: 5,
+                                    roomCallback: function(room_name) {
+                                        return path_handler.get_cost_matrix(room_name);
+                                    }
+                                }
+                            );
+                            // console.log("PathFinder.search", Game.cpu.getUsed() - cpu);
+                            if (pathFinder.incomplete === false || pathFinder.path.length > 0) {
+                                for(let i of pathFinder.path) {
+                                    let room = Game.rooms[i.roomName];
+                                    if (room == null) {
+                                        continue;
+                                    }
+                                    room.visual.circle(i.x, i.y, {fill: "#ff00ff", radius: 0.1, opacity: 0.7});
+                                }
+                                creep.memory.path_list = pathFinder.path;
+                            }
+                            else {
+                                creep.memory.path_list = null;
+                            }
+                        }
+                        else {
+                            creep.memory.path_list = null;
+                        }
                     }
                 }
                 break;
@@ -140,13 +142,13 @@ let path_handler = {
         }
         return move_status;
     },
-    find: function(creep, target, distance = 1, close_range = 1) {
+    find: function(creep, target, distance = 1, close_range = 0) {
         this.find_pos(creep, target.pos, distance, close_range);
     },
-    find_pos: function(creep, pos, distance = 1, close_range = 1) {
+    find_pos: function(creep, pos, distance = 1, close_range = 0) {
         if(creep.pos.getRangeTo(pos) < close_range) {
-            let moveTo_status = creep.moveTo(pos);
-            switch(moveTo_status) {
+            let move_status = creep.moveTo(pos);
+            switch(move_status) {
                 case OK:
                 case ERR_TIRED:
                     break;
@@ -154,9 +156,9 @@ let path_handler = {
                     creep.say("Jam");
                     break;
                 default:
-                    creep.say(moveTo_status);
+                    creep.say(move_status);
             }
-            return 0;
+            return move_status;
         }
         else {
             let cpu = Game.cpu.getUsed();
@@ -174,20 +176,22 @@ let path_handler = {
                 );
                 if (Array.isArray(map_route) == false) {
                     creep.say("No Path");
-                    return 0;
+                    return ERR_NO_PATH;
                 }
-                next_pos = new RoomPosition(24, 24, map_route[0].room);
-                next_distance = 23;
-                map_route.shift();
-                creep.memory.map_route = [
-                    ...map_route,
-                ];
-                creep.memory.path_final_pos = {
-                    x: pos.x,
-                    y: pos.y,
-                    roomName: pos.roomName,
-                    distance: distance,
-                };
+                if (map_route.length > 2) {
+                    next_pos = new RoomPosition(24, 24, map_route[0].room);
+                    next_distance = 23;
+                    map_route.shift();
+                    creep.memory.map_route = [
+                        ...map_route,
+                    ];
+                    creep.memory.path_final_pos = {
+                        x: pos.x,
+                        y: pos.y,
+                        roomName: pos.roomName,
+                        distance: distance,
+                    };
+                }
             }
             let pathFinder = PathFinder.search(
                 creep.pos,
@@ -201,24 +205,23 @@ let path_handler = {
                 }
             );
             // console.log("PathFinder.search", Game.cpu.getUsed() - cpu);
-            if(pathFinder.incomplete === false || pathFinder.path.length > 0) {
-                for(let i of pathFinder.path) {
+            if (pathFinder.incomplete === false || pathFinder.path.length > 0) {
+                for (let i of pathFinder.path) {
                     let room = Game.rooms[i.roomName];
                     if (room == null) {
                         continue;
                     }
                     room.visual.circle(i.x, i.y, {fill: "#ff00ff", radius: 0.1, opacity: 0.7});
                 }
-                creep.memory.path_list = JSON.stringify(pathFinder.path);
+                creep.memory.path_list = pathFinder.path;
                 return pathFinder.path.length;
             }
             else {
                 creep.say("No Path");
-                return 0;
+                return ERR_NO_PATH;
             }
         }
     },
-
     get_cost_matrix: function(room_name, update=0) {
         let cost_matrix = new PathFinder.CostMatrix;
         let room = Game.rooms[room_name];
@@ -271,9 +274,8 @@ let path_handler = {
         }
         return cost_matrix;
     },
-
     get_direction_pos: function(pos, direction) {
-        let delta_x =[0, 1, 1, 1, 0, -1, -1, -1];
+        let delta_x = [0, 1, 1, 1, 0, -1, -1, -1];
         let delta_y = [-1, -1, 0, 1, 1, 1, 0, -1];
         let direction_dict = {
             "N": 0, "NE": 1, "E": 2, "SE": 3, "S": 4, "SW": 5, "W": 6, "NW": 7

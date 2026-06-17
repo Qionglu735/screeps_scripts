@@ -170,7 +170,20 @@ let path_handler = {
                     pos.roomName,
                     {
                         routeCallback: function(to_room_name, from_room_name) {
-                            return 0.0;
+                            if (Memory.room_dict[to_room_name] != null) {
+                                if (Memory.room_dict[to_room_name].hostile_status === "hostile_structure") {
+                                    return Infinity;
+                                }
+                                else if (Memory.room_dict[to_room_name].hostile_status === "hostile_creep") {
+                                    return 5.0;
+                                }
+                                else {
+                                    return 0.0;
+                                }
+                            }
+                            else {
+                                return 0.0;
+                            }
                         }
                     }
                 );

@@ -160,8 +160,33 @@ let room_check = function(main_room_name) {
         console.log(room_name,
             Memory.room_dict[room_name].claim_status, Memory.room_dict[room_name].hostile_status, Memory.room_dict[room_name].assigned_claimer);
     }
-    if(LOG_USED_TIME) {
+    if (LOG_USED_TIME) {
         console.log("check sub room", (Game.cpu.getUsed() - cpu).toFixed(3));
+    }
+    for (let room_name of main_room_memory.scout_room_list) {
+        //// check hostile status
+        if(Game.rooms[room_name] != null) {
+            let hostile_creep_list = Game.rooms[room_name].find(FIND_HOSTILE_CREEPS);
+            let hostile_part_sum = hostile_creep_list.reduce(function(sum, creep) {
+                return sum 
+                    + creep.getActiveBodyparts(ATTACK)
+                    + creep.getActiveBodyparts(RANGED_ATTACK)
+                    + creep.getActiveBodyparts(CLAIM)
+                ;
+            }, 0);
+            if(Game.rooms[room_name].find(FIND_HOSTILE_STRUCTURES).length > 0) {
+                Memory.room_dict[room_name].hostile_status = "hostile_structure";
+            }
+            else if(hostile_part_sum > 0) {
+                Memory.room_dict[room_name].hostile_status = "hostile_creep";
+            }
+            else {
+                Memory.room_dict[room_name].hostile_status = "neutral";
+            }
+        }
+    }
+    if (LOG_USED_TIME) {
+        console.log("check scout room", (Game.cpu.getUsed() - cpu).toFixed(3));
     }
 };
 

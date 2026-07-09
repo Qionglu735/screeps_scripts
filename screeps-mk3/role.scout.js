@@ -3,6 +3,10 @@ let path_handler = require("tool.path_handler");
 
 let role_scout = function(creep) {
     let main_room_memory = Memory.room_dict[creep.memory.main_room];
+    if (creep.memory.notify_when_attacked == null || creep.memory.notify_when_attacked === true) {
+        creep.notifyWhenAttacked(false);
+        creep.memory.notify_when_attacked = false;
+    }
     if (creep.memory.target_room == null) {
         let no_visual_room_list = main_room_memory.sub_room_list.concat(main_room_memory.scout_room_list).filter(function(x) {
             return Game.rooms[x] == null && Memory.room_dict[x].hostile_status == "neutral";
